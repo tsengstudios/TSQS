@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1009541961391",
+    "firebase_url": "https://firstfirebaseproject-888.firebaseio.com",
+    "project_id": "firstfirebaseproject-888",
+    "storage_bucket": "firstfirebaseproject-888.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009541961391:android:c1f0f09aa42eba16",
+        "android_client_info": {
+          "package_name": "com.google.firebase.example.fireeats"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1009541961391-kr5r2l9r7eonqu39kj93jiiitle8jjeg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2AYKMjy6Igfc6B-mGF9ji2QuXhcDMyxI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
