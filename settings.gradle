@@ -1,0 +1,12 @@
+include ':database:app',
+        ':dynamiclinks:app',
+        ':firestore:app',
+        ':functions:app',
+        ':internal:chooser',
+        ':internal:lint',
+        ':internal:lintchecks',
+        ':inappmessaging:app',
+        ':messaging:app',
+        ':mlkit:app',
+        ':perf:app'
+
