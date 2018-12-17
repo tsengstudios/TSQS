@@ -1,34 +1,33 @@
 <resources>
     <string name="app_name">Tseng Chores v1.0.2</string>
 
-    <string name="value_any_category">All food</string>
-    <string name="value_any_city">Anywhere</string>
-    <string name="value_any_price">Any price</string>
+    <string name="value_any_category">Any Worker</string>
+    <string name="value_any_city">Any Boss</string>
+    <string name="value_any_price">Any Difficulty</string>
 
-    <string name="price_1">$</string>
-    <string name="price_2">$$</string>
-    <string name="price_3">$$$</string>
+    <string name="price_2">\?.2</string>
+    <string name="price_3">#*!3</string>
 
     <string name="label_category">Category</string>
-    <string name="label_city">City</string>
-    <string name="label_price">Price</string>
+    <string name="label_city">Boss</string>
+    <string name="label_price">Difficulty</string>
     <string name="label_sort_by">Sort By</string>
 
     <string name="fmt_num_ratings" translatable="false">(%d)</string>
-    <string name="all_restaurants">All Restaurants</string>
+    <string name="all_restaurants">All Chores</string>
     <string name="header_filters">Filter</string>
     <string name="search">Search</string>
 
-    <string name="sort_by_rating">Sort by Rating</string>
-    <string name="sort_by_popularity">Sort by Popularity</string>
-    <string name="sort_by_price">Sort by Price</string>
+    <string name="sort_by_rating">Sort by Reward</string>
+    <string name="sort_by_popularity">Sort by Popularity/DueDate</string>
+    <string name="sort_by_price">Sort by Difficulty</string>
 
-    <string name="sorted_by_rating">sorted by rating</string>
-    <string name="sorted_by_price">sorted by price</string>
-    <string name="sorted_by_popularity">sorted by popularity</string>
+    <string name="sorted_by_rating">sorted by reward</string>
+    <string name="sorted_by_price">sorted by difficulty</string>
+    <string name="sorted_by_popularity">sorted by due date</string>
 
     <string name="add_random_items">Add Random Items</string>
-    <string name="sign_out">Sign ME4 Out</string>
+    <string name="sign_out">Sign Out</string>
     <string name="divider_bullet">•</string>
     <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
@@ -48,18 +47,10 @@
     <string-array name="categories">
         <item>@string/value_any_category</item>
 
-        <item>Brunch</item>
-        <item>Burgers</item>
-        <item>Coffee</item>
-        <item>Deli</item>
-        <item>Dim Sum</item>
-        <item>Indian</item>
-        <item>Italian</item>
-        <item>Mediterranean</item>
-        <item>Mexican</item>
-        <item>Pizza</item>
-        <item>Ramen</item>
-        <item>Sushi</item>
+        <item>Larry</item>
+        <item>Susan</item>
+        <item>Jackson</item>
+        <item>Jenna</item>
     </string-array>
     ite
 
@@ -67,53 +58,11 @@
     <string-array name="cities">
         <item>@string/value_any_city</item>
 
-        <item>Albuquerque</item>
-        <item>Arlington</item>
-        <item>Atlanta</item>
-        <item>Austin</item>
-        <item>Baltimore</item>
-        <item>Boston</item>
-        <item>Charlotte</item>
-        <item>Chicago</item>
-        <item>Cleveland</item>
-        <item>Colorado Springs</item>
-        <item>Columbus</item>
-        <item>Dallas</item>
-        <item>Denver</item>
-        <item>Detroit</item>
-        <item>El Paso</item>
-        <item>Fort Worth</item>
-        <item>Fresno</item>
-        <item>Houston</item>
-        <item>Indianapolis</item>
-        <item>Jacksonville</item>
-        <item>Kansas City</item>
-        <item>Las Vegas</item>
-        <item>Long Beach</item>
-        <item>Los Angeles</item>
-        <item>Louisville</item>
-        <item>Memphis</item>
-        <item>Mesa</item>
-        <item>Miami</item>
-        <item>Milwaukee</item>
-        <item>Nashville</item>
-        <item>New York</item>
-        <item>Oakland</item>
-        <item>Oklahoma</item>
-        <item>Omaha</item>
-        <item>Philadelphia</item>
-        <item>Phoenix</item>
-        <item>Portland</item>
-        <item>Raleigh</item>
-        <item>Sacramento</item>
-        <item>San Antonio</item>
-        <item>San Diego</item>
-        <item>San Francisco</item>
-        <item>San Jose</item>
-        <item>Tucson</item>
-        <item>Tulsa</item>
-        <item>Virginia Beach</item>
-        <item>Washington</item>
+        <item>Mom</item>
+        <item>Dad</item>
+        <item>J1</item>
+        <item>J2</item>
+        <item>Chase</item>
     </string-array>
 
     <!-- Price filters -->
@@ -131,4 +80,5 @@
         <item>@string/sort_by_popularity</item>
         <item>@string/sort_by_price</item>
     </string-array>
+    <string name="price_1">.1</string>
 </resources>

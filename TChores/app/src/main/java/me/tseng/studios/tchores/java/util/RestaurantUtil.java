@@ -22,23 +22,23 @@ public class RestaurantUtil {
     private static final String[] NAME_FIRST_WORDS = {
             "Foo",
             "Bar",
-            "Baz",
-            "Qux",
-            "Fire",
-            "Sam's",
-            "World Famous",
-            "Google",
-            "The Best",
+            "Garbage",
+            "Dishes",
+            "Dog",
+            "Carpets",
+            "HardFloors",
+            "myBathroom",
+            "Exercise",
     };
 
     private static final String[] NAME_SECOND_WORDS = {
-            "Restaurant",
-            "Cafe",
-            "Spot",
-            "Eatin' Place",
-            "Eatery",
-            "Drive Thru",
-            "Diner",
+            "Out",
+            "In",
+            "Vacuum",
+            "Clean",
+            "Rotate",
+            "Clear",
+            "Run",
     };
 
     /**

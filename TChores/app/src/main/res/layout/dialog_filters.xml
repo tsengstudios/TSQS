@@ -24,7 +24,7 @@
             style="@style/AppTheme.FilterIcon"
             android:layout_centerVertical="true"
             android:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_fastfood_white_24dp" />
+            app:srcCompat="@drawable/ic_baseline_pregnant_woman_24px" />
 
         <Spinner
             android:id="@+id/spinnerCategory"
@@ -45,7 +45,7 @@
             style="@style/AppTheme.FilterIcon"
             android:layout_centerVertical="true"
             android:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_place_white_24px" />
+            app:srcCompat="@drawable/ic_baseline_record_voice_over_24px" />
 
         <Spinner
             android:id="@+id/spinnerCity"
@@ -66,7 +66,7 @@
             style="@style/AppTheme.FilterIcon"
             android:layout_centerVertical="true"
             android:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_monetization_on_white_24px" />
+            app:srcCompat="@drawable/ic_baseline_landscape_24px" />
 
         <Spinner
             android:id="@+id/spinnerPrice"
