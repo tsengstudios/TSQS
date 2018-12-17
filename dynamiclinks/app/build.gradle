@@ -31,7 +31,7 @@ android {
         mainFlavor {
             dimension "all"
 
-            // TODO(developer): Replace this with your Dynamic Links URI prefix
+            // OLDTODO(developer): Replace this with your Dynamic Links URI prefix
             //                  See: https://firebase.google.com/docs/dynamic-links/android/create#set-up-firebase-and-the-dynamic-links-sdk
             resValue "string", "dynamic_links_uri_prefix", "https://YOUR_APP.page.link"
         }

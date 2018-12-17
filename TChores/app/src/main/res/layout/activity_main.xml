@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         android:theme="@style/AppTheme"
-        app:logo="@drawable/ic_restaurant_white_24px"
+        app:logo="@drawable/ic_monetization_on_white_24px"
         app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
         app:title="@string/app_name"
         app:titleMarginStart="24dp"
