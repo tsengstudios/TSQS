@@ -27,6 +27,7 @@
     <string name="sorted_by_price">sorted by price</string>
     <string name="sorted_by_popularity">sorted by popularity</string>
 
+    <string name="add_a_restaurant">Add A Restaurant</string>
     <string name="add_random_items">Add Random Items</string>
     <string name="sign_out">Sign ME3 Out</string>
     <string name="divider_bullet">•</string>

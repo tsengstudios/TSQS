@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.example.fireeats.R;
-import com.google.firebase.example.fireeats.java.model.Restaurant;
-import com.google.firebase.example.fireeats.java.util.RestaurantUtil;
+import com.google.firebase.example.fireeats.java.model.FudStore;
+import com.google.firebase.example.fireeats.java.util.FoodstoreUtil;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
@@ -79,7 +79,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
         public void bind(final DocumentSnapshot snapshot,
                          final OnRestaurantSelectedListener listener) {
 
-            Restaurant restaurant = snapshot.toObject(Restaurant.class);
+            FudStore restaurant = snapshot.toObject(FudStore.class);
             Resources resources = itemView.getResources();
 
             // Load image
@@ -93,7 +93,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             categoryView.setText(restaurant.getCategory());
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
                     restaurant.getNumRatings()));
-            priceView.setText(RestaurantUtil.getPriceString(restaurant));
+            priceView.setText(FoodstoreUtil.getPriceString(restaurant));
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

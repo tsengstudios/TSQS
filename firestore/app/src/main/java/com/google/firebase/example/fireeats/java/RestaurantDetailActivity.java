@@ -20,9 +20,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.example.fireeats.R;
 import com.google.firebase.example.fireeats.java.adapter.RatingAdapter;
+import com.google.firebase.example.fireeats.java.model.FudStore;
 import com.google.firebase.example.fireeats.java.model.Rating;
-import com.google.firebase.example.fireeats.java.model.Restaurant;
-import com.google.firebase.example.fireeats.java.util.RestaurantUtil;
+import com.google.firebase.example.fireeats.java.model.FudStore;
+import com.google.firebase.example.fireeats.java.util.FoodstoreUtil;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -158,16 +159,16 @@ public class RestaurantDetailActivity extends AppCompatActivity
             return;
         }
 
-        onRestaurantLoaded(snapshot.toObject(Restaurant.class));
+        onRestaurantLoaded(snapshot.toObject(FudStore.class));
     }
 
-    private void onRestaurantLoaded(Restaurant restaurant) {
+    private void onRestaurantLoaded(FudStore restaurant) {
         mNameView.setText(restaurant.getName());
         mRatingIndicator.setRating((float) restaurant.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, restaurant.getNumRatings()));
         mCityView.setText(restaurant.getCity());
         mCategoryView.setText(restaurant.getCategory());
-        mPriceView.setText(RestaurantUtil.getPriceString(restaurant));
+        mPriceView.setText(FoodstoreUtil.getPriceString(restaurant));
 
         // Background image
         Glide.with(mImageView.getContext())
@@ -220,7 +221,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
         return mFirestore.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(Transaction transaction) throws FirebaseFirestoreException {
-                Restaurant restaurant = transaction.get(restaurantRef).toObject(Restaurant.class);
+                FudStore restaurant = transaction.get(restaurantRef).toObject(FudStore.class);
 
                 // Compute new number of ratings
                 int newNumRatings = restaurant.getNumRatings() + 1;

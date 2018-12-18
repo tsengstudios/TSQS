@@ -3,7 +3,7 @@ package com.google.firebase.example.fireeats.java.util;
 import android.content.Context;
 
 import com.google.firebase.example.fireeats.R;
-import com.google.firebase.example.fireeats.java.model.Restaurant;
+import com.google.firebase.example.fireeats.java.model.FudStore;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -12,9 +12,9 @@ import java.util.Random;
 /**
  * Utilities for Restaurants.
  */
-public class RestaurantUtil {
+public class FoodstoreUtil {
 
-    private static final String TAG = "RestaurantUtil";
+    private static final String TAG = "FoodstoreUtil";
 
     private static final String RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
     private static final int MAX_IMAGE_NUM = 22;
@@ -44,8 +44,8 @@ public class RestaurantUtil {
     /**
      * Create a random Restaurant POJO.
      */
-    public static Restaurant getRandom(Context context) {
-        Restaurant restaurant = new Restaurant();
+    public static FudStore getRandom(Context context) {
+        FudStore restaurant = new FudStore();
         Random random = new Random();
 
         // Cities (first elemnt is 'Any')
@@ -84,7 +84,7 @@ public class RestaurantUtil {
     /**
      * Get price represented as dollar signs.
      */
-    public static String getPriceString(Restaurant restaurant) {
+    public static String getPriceString(FudStore restaurant) {
         return getPriceString(restaurant.getPrice());
     }
 

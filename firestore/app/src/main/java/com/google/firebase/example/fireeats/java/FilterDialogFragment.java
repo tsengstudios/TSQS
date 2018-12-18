@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 
 import com.google.firebase.example.fireeats.R;
-import com.google.firebase.example.fireeats.java.model.Restaurant;
+import com.google.firebase.example.fireeats.java.model.FudStore;
 import com.google.firebase.firestore.Query;
 
 import butterknife.BindView;
@@ -125,11 +125,11 @@ public class FilterDialogFragment extends DialogFragment {
     private String getSelectedSortBy() {
         String selected = (String) mSortSpinner.getSelectedItem();
         if (getString(R.string.sort_by_rating).equals(selected)) {
-            return Restaurant.FIELD_AVG_RATING;
+            return FudStore.FIELD_AVG_RATING;
         } if (getString(R.string.sort_by_price).equals(selected)) {
-            return Restaurant.FIELD_PRICE;
+            return FudStore.FIELD_PRICE;
         } if (getString(R.string.sort_by_popularity).equals(selected)) {
-            return Restaurant.FIELD_POPULARITY;
+            return FudStore.FIELD_POPULARITY;
         }
 
         return null;

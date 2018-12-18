@@ -28,10 +28,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.example.fireeats.R;
 import com.google.firebase.example.fireeats.java.adapter.RestaurantAdapter;
+import com.google.firebase.example.fireeats.java.model.FudStore;
 import com.google.firebase.example.fireeats.java.model.Rating;
-import com.google.firebase.example.fireeats.java.model.Restaurant;
+import com.google.firebase.example.fireeats.java.util.FoodstoreUtil;
 import com.google.firebase.example.fireeats.java.util.RatingUtil;
-import com.google.firebase.example.fireeats.java.util.RestaurantUtil;
 import com.google.firebase.example.fireeats.java.viewmodel.MainActivityViewModel;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
                 break;
+            case R.id.menu_add_restaurant:
+                onAddRestaurantClicked();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -228,17 +230,17 @@ public class MainActivity extends AppCompatActivity implements
 
         // Category (equality filter)
         if (filters.hasCategory()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CATEGORY, filters.getCategory());
+            query = query.whereEqualTo(FudStore.FIELD_CATEGORY, filters.getCategory());
         }
 
         // City (equality filter)
         if (filters.hasCity()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CITY, filters.getCity());
+            query = query.whereEqualTo(FudStore.FIELD_CITY, filters.getCity());
         }
 
         // Price (equality filter)
         if (filters.hasPrice()) {
-            query = query.whereEqualTo(Restaurant.FIELD_PRICE, filters.getPrice());
+            query = query.whereEqualTo(FudStore.FIELD_PRICE, filters.getPrice());
         }
 
         // Sort by (orderBy with direction)
@@ -283,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements
             DocumentReference restRef = mFirestore.collection("restaurants").document();
 
             // Create random restaurant / ratings
-            Restaurant randomRestaurant = RestaurantUtil.getRandom(this);
+            FudStore randomRestaurant = FoodstoreUtil.getRandom(this);
             List<Rating> randomRatings = RatingUtil.getRandomList(randomRestaurant.getNumRatings());
             randomRestaurant.setAvgRating(RatingUtil.getAverageRating(randomRatings));
 
@@ -308,6 +310,12 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    private void onAddRestaurantClicked() {
+        //do stuff
+        Intent intent = new Intent(this, AddRestaurantActivity.class);
+        startActivity(intent);
+
+    }
     private void showSignInErrorDialog(@StringRes int message) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.title_sign_in_error)
