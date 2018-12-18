@@ -35,7 +35,7 @@
         android:textColor="@color/greySecondary"
         android:layout_toLeftOf="@+id/ratingItemRating"
         android:layout_toRightOf="@+id/ratingItemDivider"
-        tools:text="9/27/2017" />
+        tools:text="01/01/2001" />
 
     <me.zhanghai.android.materialratingbar.MaterialRatingBar
         android:id="@+id/ratingItemRating"
@@ -53,7 +53,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
         android:textColor="@color/greyPrimary"
-        tools:text="I thought it was pretty great! And I really have a ton to say wow." />
+        tools:text="chore completed." />
 
     <View
         style="@style/AppTheme.Divider"

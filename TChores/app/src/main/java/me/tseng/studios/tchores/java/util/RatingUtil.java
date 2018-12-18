@@ -12,21 +12,43 @@ import java.util.UUID;
  */
 public class RatingUtil {
 
+    private static final String[] NAME_FIRST_WORDS = {
+            "Bill",
+            "Celeste",
+            "David",
+            "Ellie",
+            "Fred",
+            "Sue",
+            "Tomas",
+            "Xavier",
+            "Alex",
+    };
+
+    private static final String[] NAME_SECOND_WORDS = {
+            "Smith",
+            "Rovet",
+            "Maximu",
+            "Decidu",
+            "Lu",
+            "Sammy",
+            "Frenton",
+    };
+
     public static final String[] REVIEW_CONTENTS = {
             // 0 - 1 stars
-            "This was awful! Totally inedible.",
+            "Not started.",
 
             // 1 - 2 stars
-            "This was pretty bad, would not go back.",
+            "Started",
 
             // 2 - 3 stars
-            "I was fed, so that's something.",
+            "Half complete.",
 
             // 3 - 4 stars
-            "This was a nice meal, I'd go back.",
+            "Chore completed.",
 
             // 4 - 5 stars
-            "This was fantastic!  Best ever!"
+            "Chore completed.  Best ever!"
     };
 
     /**
@@ -67,11 +89,16 @@ public class RatingUtil {
         String text = REVIEW_CONTENTS[(int) Math.floor(score)];
 
         rating.setUserId(UUID.randomUUID().toString());
-        rating.setUserName("Random User");
+        rating.setUserName(getRandomString(NAME_FIRST_WORDS, random) + " "
+                + getRandomString(NAME_SECOND_WORDS, random));
         rating.setRating(score);
         rating.setText(text);
 
         return rating;
     }
 
+    private static String getRandomString(String[] array, Random random) {
+        int ind = random.nextInt(array.length);
+        return array[ind];
+    }
 }
