@@ -130,6 +130,8 @@ public class FilterDialogFragment extends DialogFragment {
             return Restaurant.FIELD_PRICE;
         } if (getString(R.string.sort_by_popularity).equals(selected)) {
             return Restaurant.FIELD_POPULARITY;
+        } if (getString(R.string.sort_by_aDTime).equals(selected)) {
+            return Restaurant.FIELD_ADTIME;
         }
 
         return null;
@@ -144,6 +146,8 @@ public class FilterDialogFragment extends DialogFragment {
             return Query.Direction.ASCENDING;
         } if (getString(R.string.sort_by_popularity).equals(selected)) {
             return Query.Direction.DESCENDING;
+        } if (getString(R.string.sort_by_aDTime).equals(selected)) {
+            return Query.Direction.ASCENDING;
         }
 
         return null;

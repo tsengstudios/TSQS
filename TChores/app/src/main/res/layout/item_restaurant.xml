@@ -88,4 +88,26 @@
         android:textColor="@color/greySecondary"
         tools:text="$$$" />
 
+
+    <TextView
+        android:id="@+id/restaurantItemADTime"
+        style="@style/AppTheme.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/restaurantItemPrice"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="7dp"
+        android:textColor="@color/greySecondary"
+        tools:text="Date and TIME" />
+
+    <TextView
+        android:id="@+id/restaurantItemRecurringInterval"
+        style="@style/AppTheme.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/restaurantItemADTime"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/greySecondary"
+        tools:text="####" />
+
 </RelativeLayout>

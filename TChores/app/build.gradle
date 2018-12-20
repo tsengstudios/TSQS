@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "me.tseng.studios.tchores"
-        minSdkVersion 16
+        minSdkVersion 26    // BUMP FROM 16 FOR LOCALDATETIME.NOW() USAGE
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

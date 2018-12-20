@@ -144,8 +144,8 @@
         android:id="@+id/fabShowRestaurantAddDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/recyclerRestaurants"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="5dp"
         app:srcCompat="@drawable/ic_add_white_24px" />

@@ -5,6 +5,8 @@ import android.content.Context;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
@@ -67,9 +69,16 @@ public class RestaurantUtil {
 
         // Note: average rating intentionally not set
 
+        restaurant.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        restaurant.setRecuranceInterval(randomEnum(Restaurant.RecuranceInterval.class, random).name());
+
         return restaurant;
     }
 
+    public static <T extends Enum<?>> T randomEnum(Class<T> clazz, Random random){
+        int x = random.nextInt(clazz.getEnumConstants().length);
+        return clazz.getEnumConstants()[x];
+    }
 
     /**
      * Get a random image.
