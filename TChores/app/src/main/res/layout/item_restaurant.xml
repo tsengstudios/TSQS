@@ -13,7 +13,7 @@
         android:layout_height="60dp"
         android:background="#757575"
         android:scaleType="centerCrop"
-        android:src="@drawable/chore_png_1" />
+        android:src="@mipmap/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/restaurantItemName"

@@ -83,12 +83,19 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             Resources resources = itemView.getResources();
 
             // Load image
-//            Glide.with(imageView.getContext())
-//                    .load(restaurant.getPhoto())
-//                    .into(imageView);
-//          The Above replaced when moving to only supporting images inside app
-            imageView.setImageResource(Integer.valueOf(restaurant.getPhoto()));
-
+            String tempPhoto = restaurant.getPhoto();
+            if (isURL(tempPhoto)) {
+                Glide.with(imageView.getContext())
+                        .load(tempPhoto)
+                        .into(imageView);
+            } else {
+                try {
+                    int tp = Integer.valueOf(tempPhoto);
+                    imageView.setImageResource(tp);
+                } catch (Exception e){
+                    // not an int or not a resource number; use default image
+                }
+            }
             nameView.setText(restaurant.getName());
             ratingBar.setRating((float) restaurant.getAvgRating());
             cityView.setText(restaurant.getCity());
@@ -108,5 +115,22 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             });
         }
 
+        public boolean isURL(String inputUrl) {
+            if (inputUrl.contains("http://"))
+                return true;
+            else
+                return false;
+
+//            URL url;
+//            try {
+//                url = new URL(inputUrl);
+//            } catch (MalformedURLException e) {
+//                Log.v("myApp", "bad url entered");
+//            }
+//            if (url == null)
+//                userEnteredBadUrl();
+//            else
+//                continue();
+        }
     }
 }
