@@ -83,9 +83,11 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             Resources resources = itemView.getResources();
 
             // Load image
-            Glide.with(imageView.getContext())
-                    .load(restaurant.getPhoto())
-                    .into(imageView);
+//            Glide.with(imageView.getContext())
+//                    .load(restaurant.getPhoto())
+//                    .into(imageView);
+//          The Above replaced when moving to only supporting images inside app
+            imageView.setImageResource(Integer.valueOf(restaurant.getPhoto()));
 
             nameView.setText(restaurant.getName());
             ratingBar.setRating((float) restaurant.getAvgRating());

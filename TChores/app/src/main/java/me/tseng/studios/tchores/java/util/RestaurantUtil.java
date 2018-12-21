@@ -1,13 +1,17 @@
 package me.tseng.studios.tchores.java.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 
+import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
+
+import static android.content.res.Resources.getSystem;
 
 /**
  * Utilities for Restaurants.
@@ -17,7 +21,8 @@ public class RestaurantUtil {
     private static final String TAG = "RestaurantUtil";
 
     private static final String RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
-    private static final int MAX_IMAGE_NUM = 22;
+    private static final String RESTAURANT_DRAWABLE_RESOURCE_FMT = "chore_png_%d";
+    private static final int MAX_IMAGE_NUM = 12;
 
     private static final String[] NAME_FIRST_WORDS = {
             "Foo",
@@ -61,7 +66,7 @@ public class RestaurantUtil {
         restaurant.setName(getRandomName(random));
         restaurant.setCity(getRandomString(cities, random));
         restaurant.setCategory(getRandomString(categories, random));
-        restaurant.setPhoto(getRandomImageUrl(random));
+        restaurant.setPhoto(getRandomImageUrl(random, context));
         restaurant.setPrice(getRandomInt(prices, random));
         restaurant.setNumRatings(random.nextInt(20));
 
@@ -74,11 +79,13 @@ public class RestaurantUtil {
     /**
      * Get a random image.
      */
-    private static String getRandomImageUrl(Random random) {
+    private static String getRandomImageUrl(Random random, Context context) {
         // Integer between 1 and MAX_IMAGE_NUM (inclusive)
         int id = random.nextInt(MAX_IMAGE_NUM) + 1;
 
-        return String.format(Locale.getDefault(), RESTAURANT_URL_FMT, id);
+        String resName = String.format(Locale.getDefault(), RESTAURANT_DRAWABLE_RESOURCE_FMT, id);
+        int ied = context.getResources().getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
+        return Integer.toString(ied);   // BuildConfig causes   import me.tseng.studios.tchores.BuildConfig
     }
 
     /**
