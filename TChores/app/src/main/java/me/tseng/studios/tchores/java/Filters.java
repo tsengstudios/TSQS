@@ -125,6 +125,8 @@ public class Filters {
             return context.getString(R.string.sorted_by_price);
         } else if (Restaurant.FIELD_POPULARITY.equals(sortBy)) {
             return context.getString(R.string.sorted_by_popularity);
+        } else if (Restaurant.FIELD_ADTIME.equals(sortBy)) {
+            return context.getString(R.string.sorted_by_aDTime);
         } else {
             return context.getString(R.string.sorted_by_rating);
         }

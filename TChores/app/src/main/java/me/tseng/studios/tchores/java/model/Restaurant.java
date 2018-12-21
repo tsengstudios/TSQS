@@ -1,6 +1,8 @@
 package me.tseng.studios.tchores.java.model;
 
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import java.time.LocalDateTime;
 
 /**
  * Restaurant POJO.
@@ -13,6 +15,7 @@ public class Restaurant {
     public static final String FIELD_PRICE = "price";
     public static final String FIELD_POPULARITY = "numRatings";
     public static final String FIELD_AVG_RATING = "avgRating";
+    public static final String FIELD_ADTIME = "adtime";     // careful.  For some reason Firebase wants to decapitalize aDTime to adtime as a field name in the database.  So, leave this decapitalized....
 
     private String name;
     private String city;
@@ -21,11 +24,17 @@ public class Restaurant {
     private int price;
     private int numRatings;
     private double avgRating;
+    private String aDTime;
+    private RecuranceInterval recuranceInterval;
+
+    public enum RecuranceInterval {
+        HOURLY, DAILY, WEEKLY, BIWEEKLY, MONTHLY
+    };
 
     public Restaurant() {}
 
     public Restaurant(String name, String city, String category, String photo,
-                      int price, int numRatings, double avgRating) {
+                      int price, int numRatings, double avgRating, String aDTime /*, RecuranceInterval recuranceInterval*/) {
         this.name = name;
         this.city = city;
         this.category = category;
@@ -33,6 +42,8 @@ public class Restaurant {
         this.price = price;
         this.numRatings = numRatings;
         this.avgRating = avgRating;
+        this.aDTime = aDTime;
+        this.recuranceInterval = recuranceInterval;
     }
 
     public String getName() {
@@ -89,5 +100,35 @@ public class Restaurant {
 
     public void setAvgRating(double avgRating) {
         this.avgRating = avgRating;
+    }
+
+    public String getADTime() {
+        return aDTime;
+    }
+
+    public void setADTime(String aDTime) {
+        this.aDTime = aDTime;
+    }
+
+   @Exclude
+    public RecuranceInterval getRecuranceIntervalAsEnum(){
+        return recuranceInterval;
+    }
+
+    // these methods are just a Firebase 9.0.0 hack to handle the enum
+    public String getRecuranceInterval(){
+        if (recuranceInterval == null){
+            return null;
+        } else {
+            return recuranceInterval.name();
+        }
+    }
+
+    public void setRecuranceInterval(String recuranceIntervalString){
+        if (recuranceIntervalString == null){
+            this.recuranceInterval = null;
+        } else {
+            this.recuranceInterval = RecuranceInterval.valueOf(recuranceIntervalString);
+        }
     }
 }

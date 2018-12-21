@@ -71,6 +71,12 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
         @BindView(R.id.restaurantItemCity)
         TextView cityView;
 
+        @BindView(R.id.restaurantItemADTime)
+        TextView aDTimeView;
+
+        @BindView(R.id.restaurantItemRecurringInterval)
+        TextView recurringIntervalView;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -103,6 +109,8 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
                     restaurant.getNumRatings()));
             priceView.setText(RestaurantUtil.getPriceString(restaurant));
+            aDTimeView.setText(restaurant.getADTime());
+            recurringIntervalView.setText(restaurant.getRecuranceInterval());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
