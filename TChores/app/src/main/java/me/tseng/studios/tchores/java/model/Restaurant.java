@@ -17,7 +17,7 @@ public class Restaurant {
     private String name;
     private String city;
     private String category;
-    private String photo;
+    private String photo;   // This is now the app resource id of a PNG file that will be used in the ImageView for this object (not a URL)
     private int price;
     private int numRatings;
     private double avgRating;
