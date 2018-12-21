@@ -97,13 +97,6 @@
     </FrameLayout>
 
     <!-- Main Restaurants recycler -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerRestaurants"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/filterBarContainer"
-        android:background="@android:color/white"
-        tools:listitem="@layout/item_restaurant" />
 
     <!-- Shadow below toolbar -->
     <View
@@ -113,6 +106,29 @@
         android:background="@drawable/bg_shadow" />
 
     <!-- Empty list (pizza guy) view -->
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabShowRestaurantAddDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="5dp"
+        app:srcCompat="@drawable/ic_add_white_24px" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerRestaurants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/filterBarContainer"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-1dp"
+        android:background="@android:color/white"
+        tools:listitem="@layout/item_restaurant">
+
+    </android.support.v7.widget.RecyclerView>
+
     <LinearLayout
         android:id="@+id/viewEmpty"
         android:layout_width="wrap_content"
@@ -139,16 +155,6 @@
 
     </LinearLayout>
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabShowRestaurantAddDialog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/recyclerRestaurants"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="5dp"
-        app:srcCompat="@drawable/ic_add_white_24px" />
 
     <ProgressBar
         android:id="@+id/progressLoading"

@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -209,6 +210,13 @@ public class MainActivity extends AppCompatActivity implements
         mFilterDialog.resetFilters();
 
         onFilter(Filters.getDefault());
+    }
+
+    @OnClick(R.id.fabShowRestaurantAddDialog)
+    public void onAddRatingClicked(View view) {
+        //new code
+        Intent intent = new Intent(this, RestaurantAddActivity.class);
+        startActivity(intent);
     }
 
     @Override

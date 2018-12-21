@@ -43,6 +43,14 @@
     <string name="option_retry">Retry</string>
     <string name="option_exit">Exit</string>
 
+
+    <!--add restaurant fields -->
+    <string name="jobTitle"> JobTitle</string>
+    <string name="addtype1">assign to who</string>
+    <string name="addtype2">diffuculty</string>
+    <string name="addtype3">url of photo of chore</string>
+    <string name="addtype4">Reward category</string>
+
     <!-- Types of food I could think of in 5 minutes -->
     <string-array name="categories">
         <item>@string/value_any_category</item>
@@ -52,7 +60,13 @@
         <item>Jackson</item>
         <item>Jenna</item>
     </string-array>
-    ite
+
+    <string-array name="addChoreAssignees">
+        <item>Larry</item>
+        <item>Susan</item>
+        <item>Jackson</item>
+        <item>Jenna</item>
+    </string-array>
 
     <!-- 50 most populous cities in the US -->
     <string-array name="cities">
