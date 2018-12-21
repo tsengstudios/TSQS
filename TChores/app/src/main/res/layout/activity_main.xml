@@ -96,8 +96,6 @@
 
     </FrameLayout>
 
-    <!-- Main Restaurants recycler -->
-
     <!-- Shadow below toolbar -->
     <View
         android:layout_width="match_parent"
@@ -105,7 +103,21 @@
         android:layout_below="@+id/filterBarContainer"
         android:background="@drawable/bg_shadow" />
 
-    <!-- Empty list (pizza guy) view -->
+
+    <!-- Main Restaurants recycler -->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerRestaurants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/filterBarContainer"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-1dp"
+        android:background="@android:color/white"
+        tools:listitem="@layout/item_restaurant">
+    </android.support.v7.widget.RecyclerView>
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabShowRestaurantAddDialog"
@@ -117,17 +129,8 @@
         android:layout_marginBottom="5dp"
         app:srcCompat="@drawable/ic_add_white_24px" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerRestaurants"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/filterBarContainer"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="-1dp"
-        android:background="@android:color/white"
-        tools:listitem="@layout/item_restaurant">
 
-    </android.support.v7.widget.RecyclerView>
+    <!-- Empty list (pizza guy) view -->
 
     <LinearLayout
         android:id="@+id/viewEmpty"

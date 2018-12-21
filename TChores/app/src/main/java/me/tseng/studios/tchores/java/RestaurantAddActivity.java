@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import butterknife.OnClick;
@@ -65,13 +66,15 @@ public class RestaurantAddActivity extends AppCompatActivity {
         String uid = user.getDisplayName();
 
         Restaurant newChore = new Restaurant(
-            name,
+                name,
                 uid,
                 feedbackType,
-            "d",
+                "d",
                 Math.round(ratingBar.getRating()),
-            0,
-            0);
+                0,
+                0,
+                "2018-12-20T23:15:30",
+                Restaurant.RecuranceInterval.DAILY);
 
 
         List<Rating> randomRatings = RatingUtil.getRandomList(newChore.getNumRatings());

@@ -34,7 +34,7 @@ public class Restaurant {
     public Restaurant() {}
 
     public Restaurant(String name, String city, String category, String photo,
-                      int price, int numRatings, double avgRating, String aDTime /*, RecuranceInterval recuranceInterval*/) {
+                      int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval) {
         this.name = name;
         this.city = city;
         this.category = category;
