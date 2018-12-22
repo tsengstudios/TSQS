@@ -73,7 +73,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 Math.round(ratingBar.getRating()),
                 0,
                 0,
-                "2018-12-20T23:15:30",
+                "2018-12-22T14:08:30",
                 Restaurant.RecuranceInterval.DAILY);
 
 

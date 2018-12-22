@@ -30,6 +30,7 @@ import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.RestaurantAdapter;
 import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 import me.tseng.studios.tchores.java.util.RatingUtil;
 import me.tseng.studios.tchores.java.util.RestaurantUtil;
 import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
@@ -227,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements
 
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
+
+        // TEST:  set alarm for this restaurant here
+        Intent i2 = new Intent(this, RestaurantDetailActivity.class);
+        i2.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
+        AlarmManagerUtil.setAlarm(this,i2, restaurant.get(Restaurant.FIELD_ADTIME).toString());
     }
 
     @Override
