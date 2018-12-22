@@ -134,4 +134,22 @@ public class RestaurantUtil {
         return array[ind];
     }
 
+    public static boolean isURL(String inputUrl) {
+        if (inputUrl.contains("http://"))
+            return true;
+        else
+            return false;
+
+//            URL url;
+//            try {
+//                url = new URL(inputUrl);
+//            } catch (MalformedURLException e) {
+//                Log.v("myApp", "bad url entered");
+//            }
+//            if (url == null)
+//                userEnteredBadUrl();
+//            else
+//                continue();
+    }
+
 }

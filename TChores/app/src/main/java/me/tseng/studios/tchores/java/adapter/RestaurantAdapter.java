@@ -90,7 +90,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
 
             // Load image
             String tempPhoto = restaurant.getPhoto();
-            if (isURL(tempPhoto)) {
+            if (RestaurantUtil.isURL(tempPhoto)) {
                 Glide.with(imageView.getContext())
                         .load(tempPhoto)
                         .into(imageView);
@@ -123,22 +123,5 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             });
         }
 
-        public boolean isURL(String inputUrl) {
-            if (inputUrl.contains("http://"))
-                return true;
-            else
-                return false;
-
-//            URL url;
-//            try {
-//                url = new URL(inputUrl);
-//            } catch (MalformedURLException e) {
-//                Log.v("myApp", "bad url entered");
-//            }
-//            if (url == null)
-//                userEnteredBadUrl();
-//            else
-//                continue();
-        }
     }
 }

@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.RatingAdapter;
+import me.tseng.studios.tchores.java.adapter.RestaurantAdapter;
 import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
 import me.tseng.studios.tchores.java.util.RestaurantUtil;
@@ -170,9 +171,19 @@ public class RestaurantDetailActivity extends AppCompatActivity
         mPriceView.setText(RestaurantUtil.getPriceString(restaurant));
 
         // Background image
-        Glide.with(mImageView.getContext())
-                .load(restaurant.getPhoto())
-                .into(mImageView);
+        String tempPhoto = restaurant.getPhoto();
+        if (RestaurantUtil.isURL(tempPhoto)) {
+            Glide.with(mImageView.getContext())
+                    .load(tempPhoto)
+                    .into(mImageView);
+        } else {
+            try {
+                int tp = Integer.valueOf(tempPhoto);
+                mImageView.setImageResource(tp);
+            } catch (Exception e){
+                // not an int or not a resource number; use default image
+            }
+        }
     }
 
     @OnClick(R.id.restaurantButtonBack)
