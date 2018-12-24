@@ -21,10 +21,12 @@
     <string name="sort_by_rating">Sort by Reward</string>
     <string name="sort_by_popularity">Sort by Popularity/DueDate</string>
     <string name="sort_by_price">Sort by Difficulty</string>
+    <string name="sort_by_aDTime">Sort by Date</string>
 
     <string name="sorted_by_rating">sorted by reward</string>
     <string name="sorted_by_price">sorted by difficulty</string>
     <string name="sorted_by_popularity">sorted by due date</string>
+    <string name="sorted_by_aDTime">sorted by date</string>
 
     <string name="add_random_items">Add Random Items</string>
     <string name="sign_out">Sign Out</string>
@@ -92,6 +94,7 @@
         <item>@string/sort_by_rating</item>
         <item>@string/sort_by_popularity</item>
         <item>@string/sort_by_price</item>
+        <item>@string/sort_by_aDTime</item>
     </string-array>
     <string name="price_1">.1</string>
 </resources>

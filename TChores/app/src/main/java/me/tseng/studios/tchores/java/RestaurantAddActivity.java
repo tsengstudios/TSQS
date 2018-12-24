@@ -1,5 +1,6 @@
 package me.tseng.studios.tchores.java;
 
+import android.app.TimePickerDialog;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,9 +11,11 @@ import me.tseng.studios.tchores.java.model.Restaurant;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,6 +25,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import butterknife.OnClick;
@@ -33,7 +40,10 @@ public class RestaurantAddActivity extends AppCompatActivity {
     private FirebaseFirestore mFirestore;
     private static final String TAG = "MainActivity";
 
-    RatingBar ratingBar;
+    RatingBar mRatingBar;
+    CalendarView mCalendarView;
+    LocalDate mLocalDateCalendarView;
+    EditText mEditTextTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +54,38 @@ public class RestaurantAddActivity extends AppCompatActivity {
         mFirestore = FirebaseFirestore.getInstance();
 
         //ratingListener
-        ratingBar = (RatingBar) findViewById(R.id.diffucultyBar);
+        mRatingBar = (RatingBar) findViewById(R.id.diffucultyBar);
+
+        // Calendar Date View
+        mCalendarView = (CalendarView) findViewById(R.id.calendarView);
+        mCalendarView.setMinDate(System.currentTimeMillis());
+        mLocalDateCalendarView = LocalDate.now();
+        mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {   // LOL   month is 0-11
+                mLocalDateCalendarView = LocalDate.of(year, month+1, dayOfMonth);
+            }
+        });
+
+        //  initiate the editTime edit text
+        mEditTextTime = (EditText) findViewById(R.id.editTextTime);
+        // perform click event listener on edit text
+        mEditTextTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int hour = LocalDateTime.now().getHour();
+                int minute = LocalDateTime.now().getMinute();
+                TimePickerDialog mTimePicker;
+                mTimePicker = new TimePickerDialog(RestaurantAddActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                        mEditTextTime.setText(String.format("%1$02d:%2$02d", selectedHour,selectedMinute));
+                    }
+                }, hour, minute, true);//Yes 24 hour time
+                mTimePicker.setTitle("Select Time");
+                mTimePicker.show();
+            };
+        });
     }
 
     @OnClick(R.id.addRbutton)
@@ -64,14 +105,34 @@ public class RestaurantAddActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getDisplayName();
 
+        LocalTime lt;
+
+        // Create an instance of SimpleDateFormat with the specified
+        // format.
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("H:m");
+        try {
+            // To get the date object from the string just called the
+            // parse method and pass the time string to it. This method
+            // throws ParseException if the time string is invalid.
+            // But remember as we don't pass the date information this
+            // date object will represent the 1st of january 1970.
+            lt = LocalTime.parse(mEditTextTime.getText().toString(), sdf);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        LocalDateTime ldt = LocalDateTime.of(mLocalDateCalendarView, lt);
+
         Restaurant newChore = new Restaurant(
-            name,
+                name,
                 uid,
                 feedbackType,
-            "d",
-                Math.round(ratingBar.getRating()),
-            0,
-            0);
+                "d",
+                Math.round(mRatingBar.getRating()),
+                0,
+                0,
+                ldt.toString(),
+                Restaurant.RecuranceInterval.DAILY);
 
 
         List<Rating> randomRatings = RatingUtil.getRandomList(newChore.getNumRatings());

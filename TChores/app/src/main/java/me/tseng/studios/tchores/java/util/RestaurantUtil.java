@@ -7,6 +7,8 @@ import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
@@ -72,9 +74,16 @@ public class RestaurantUtil {
 
         // Note: average rating intentionally not set
 
+        restaurant.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        restaurant.setRecuranceInterval(randomEnum(Restaurant.RecuranceInterval.class, random).name());
+
         return restaurant;
     }
 
+    public static <T extends Enum<?>> T randomEnum(Class<T> clazz, Random random){
+        int x = random.nextInt(clazz.getEnumConstants().length);
+        return clazz.getEnumConstants()[x];
+    }
 
     /**
      * Get a random image.
@@ -123,6 +132,24 @@ public class RestaurantUtil {
     private static int getRandomInt(int[] array, Random random) {
         int ind = random.nextInt(array.length);
         return array[ind];
+    }
+
+    public static boolean isURL(String inputUrl) {
+        if (inputUrl.contains("http://"))
+            return true;
+        else
+            return false;
+
+//            URL url;
+//            try {
+//                url = new URL(inputUrl);
+//            } catch (MalformedURLException e) {
+//                Log.v("myApp", "bad url entered");
+//            }
+//            if (url == null)
+//                userEnteredBadUrl();
+//            else
+//                continue();
     }
 
 }

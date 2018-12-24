@@ -71,6 +71,12 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
         @BindView(R.id.restaurantItemCity)
         TextView cityView;
 
+        @BindView(R.id.restaurantItemADTime)
+        TextView aDTimeView;
+
+        @BindView(R.id.restaurantItemRecurringInterval)
+        TextView recurringIntervalView;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -84,7 +90,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
 
             // Load image
             String tempPhoto = restaurant.getPhoto();
-            if (isURL(tempPhoto)) {
+            if (RestaurantUtil.isURL(tempPhoto)) {
                 Glide.with(imageView.getContext())
                         .load(tempPhoto)
                         .into(imageView);
@@ -103,6 +109,8 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
                     restaurant.getNumRatings()));
             priceView.setText(RestaurantUtil.getPriceString(restaurant));
+            aDTimeView.setText(restaurant.getADTime());
+            recurringIntervalView.setText(restaurant.getRecuranceInterval());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -115,22 +123,5 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
             });
         }
 
-        public boolean isURL(String inputUrl) {
-            if (inputUrl.contains("http://"))
-                return true;
-            else
-                return false;
-
-//            URL url;
-//            try {
-//                url = new URL(inputUrl);
-//            } catch (MalformedURLException e) {
-//                Log.v("myApp", "bad url entered");
-//            }
-//            if (url == null)
-//                userEnteredBadUrl();
-//            else
-//                continue();
-        }
     }
 }
