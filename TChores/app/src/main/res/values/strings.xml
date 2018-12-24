@@ -43,6 +43,12 @@
     <string name="option_retry">Retry</string>
     <string name="option_exit">Exit</string>
 
+    <string-array name="addChoreAssignees">
+        <item>Larry</item>
+        <item>Susan</item>
+        <item>Jackson</item>
+        <item>Jenna</item>
+    </string-array>
 
     <!--add restaurant fields -->
     <string name="jobTitle"> JobTitle</string>
@@ -55,13 +61,6 @@
     <string-array name="categories">
         <item>@string/value_any_category</item>
 
-        <item>Larry</item>
-        <item>Susan</item>
-        <item>Jackson</item>
-        <item>Jenna</item>
-    </string-array>
-
-    <string-array name="addChoreAssignees">
         <item>Larry</item>
         <item>Susan</item>
         <item>Jackson</item>
