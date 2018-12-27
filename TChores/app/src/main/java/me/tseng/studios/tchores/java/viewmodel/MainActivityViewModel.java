@@ -18,6 +18,11 @@ public class MainActivityViewModel extends ViewModel {
         mFilters = Filters.getDefault();
     }
 
+    public MainActivityViewModel(String currentUserName) {
+        mIsSigningIn = false;
+        mFilters = Filters.getDefault(currentUserName);
+    }
+
     public boolean getIsSigningIn() {
         return mIsSigningIn;
     }

@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int LIMIT = 50;
 
+    String mCurrentUserName;
+
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -97,9 +99,13 @@ public class MainActivity extends AppCompatActivity implements
         // Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
+        mCurrentUserName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        mViewModel.getFilters().setCategory(mCurrentUserName);
+
         // Get ${LIMIT} restaurants
         mQuery = mFirestore.collection("restaurants")
-                .orderBy("avgRating", Query.Direction.DESCENDING)
+                .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.ASCENDING)
+                .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
                 .limit(LIMIT);
 
         // RecyclerView
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onClearFilterClicked() {
         mFilterDialog.resetFilters();
 
-        onFilter(Filters.getDefault());
+        onFilter(Filters.getDefault(""));
     }
 
     @OnClick(R.id.fabShowRestaurantAddDialog)

@@ -23,8 +23,16 @@ public class Filters {
 
     public static Filters getDefault() {
         Filters filters = new Filters();
-        filters.setSortBy(Restaurant.FIELD_AVG_RATING);
-        filters.setSortDirection(Query.Direction.DESCENDING);
+        filters.setSortBy(Restaurant.FIELD_ADTIME);
+        filters.setSortDirection(Query.Direction.ASCENDING);
+
+        return filters;
+    }
+    public static Filters getDefault(String currentUserName) {
+        Filters filters = new Filters();
+        filters.setSortBy(Restaurant.FIELD_ADTIME);
+        filters.setSortDirection(Query.Direction.ASCENDING);
+        filters.setCategory(currentUserName);
 
         return filters;
     }
