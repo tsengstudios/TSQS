@@ -32,6 +32,8 @@
             android:name=".kotlin.RestaurantDetailActivity"
             android:theme="@style/AppTheme.Activity" />
         <activity android:name=".java.RestaurantAddActivity"></activity>
+        <activity android:name=".java.RestaurantEditActivity"></activity>
+
     </application>
 
 </manifest>

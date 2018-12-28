@@ -1,6 +1,7 @@
 package me.tseng.studios.tchores.java;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -20,7 +21,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.RatingAdapter;
-import me.tseng.studios.tchores.java.adapter.RestaurantAdapter;
 import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
 import me.tseng.studios.tchores.java.util.RestaurantUtil;
@@ -194,6 +194,14 @@ public class RestaurantDetailActivity extends AppCompatActivity
     @OnClick(R.id.fabShowRatingDialog)
     public void onAddRatingClicked(View view) {
         mRatingDialog.show(getSupportFragmentManager(), RatingDialogFragment.TAG);
+    }
+
+    @OnClick(R.id.fabShowEditDialog)
+    public void onEditRatingClicked(View view) {
+        Intent intent = new Intent(this, RestaurantEditActivity.class);
+        intent.putExtra(RestaurantEditActivity.KEY_RESTAURANT_ID, mRestaurantRef.getId());
+
+        startActivity(intent);
     }
 
     @Override
