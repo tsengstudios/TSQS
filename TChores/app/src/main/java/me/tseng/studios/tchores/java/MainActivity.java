@@ -1,12 +1,22 @@
 package me.tseng.studios.tchores.java;
 
+import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int LIMIT = 50;
 
+    public static final String PRIMARY_CHANNEL = "default";
+
+
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -80,6 +93,9 @@ public class MainActivity extends AppCompatActivity implements
     private RestaurantAdapter mAdapter;
 
     private MainActivityViewModel mViewModel;
+
+    private NotificationManager manager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +145,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // Filter Dialog
         mFilterDialog = new FilterDialogFragment();
+
+        //notification channel
+        createNotificationChannel();
     }
 
     @Override
@@ -174,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
                 break;
+            case R.id.menu_test_noti:
+                sendMenuNotification1();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -341,5 +362,50 @@ public class MainActivity extends AppCompatActivity implements
                 }).create();
 
         dialog.show();
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String name = "ch1";                      //getString(R.string.channel_name);
+            String description = "Test CHannel";        //getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;    //set importance using .setPriority() in this function
+            NotificationChannel channel = new NotificationChannel(PRIMARY_CHANNEL, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+/*
+    private NotificationManager getManager() {
+        if (manager == null) {
+            manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        }
+        return manager;
+    }       */
+
+    @TargetApi(26)
+    public void sendMenuNotification1() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL)
+                .setContentTitle("My notification")
+                .setContentText("Much longer text that cannot fit one line...")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Much longer text that cannot fit one line..."))
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        int notificationId = 1;
+
+        //show notification
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(notificationId, mBuilder.build());
     }
 }
