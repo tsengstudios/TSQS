@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // Get ${LIMIT} restaurants
         mQuery = mFirestore.collection("restaurants")
-                .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.ASCENDING)
+                .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
                 .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
                 .limit(LIMIT);
 

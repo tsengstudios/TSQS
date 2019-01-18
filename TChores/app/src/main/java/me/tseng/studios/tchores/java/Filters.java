@@ -24,14 +24,14 @@ public class Filters {
     public static Filters getDefault() {
         Filters filters = new Filters();
         filters.setSortBy(Restaurant.FIELD_ADTIME);
-        filters.setSortDirection(Query.Direction.ASCENDING);
+        filters.setSortDirection(Query.Direction.DESCENDING);
 
         return filters;
     }
     public static Filters getDefault(String currentUserName) {
         Filters filters = new Filters();
         filters.setSortBy(Restaurant.FIELD_ADTIME);
-        filters.setSortDirection(Query.Direction.ASCENDING);
+        filters.setSortDirection(Query.Direction.DESCENDING);
         filters.setCategory(currentUserName);
 
         return filters;
