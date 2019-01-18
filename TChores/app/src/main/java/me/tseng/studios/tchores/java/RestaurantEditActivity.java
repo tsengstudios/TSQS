@@ -8,14 +8,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -27,25 +23,19 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.time.ZoneId;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
-import me.tseng.studios.tchores.java.util.RatingUtil;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
-import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
-import static me.tseng.studios.tchores.java.RestaurantDetailActivity.KEY_RESTAURANT_ID;
+import static me.tseng.studios.tchores.java.util.RestaurantUtil.getLocalDateTime;
 
 
 public class RestaurantEditActivity extends AppCompatActivity
@@ -82,7 +72,7 @@ public class RestaurantEditActivity extends AppCompatActivity
 
     RatingBar mRatingBar;
     CalendarView mCalendarView;
-    LocalDate mLocalDateCalendarView;
+    LocalDate mLocalDateOnCalendarView;
     EditText mEditTextTime;
 
     DocumentSnapshot document;
@@ -114,6 +104,19 @@ public class RestaurantEditActivity extends AppCompatActivity
                            mNameView.setText(document.getString(Restaurant.FIELD_NAME));
                            mCategoryView.setSelection(getIndex(mCategoryView, document.getString(Restaurant.FIELD_CATEGORY)));
 
+                           LocalDateTime ldt;
+                           try {
+                               ldt = LocalDateTime.parse(document.getString(Restaurant.FIELD_ADTIME));
+
+                               mLocalDateOnCalendarView = ldt.toLocalDate();
+                               mCalendarView.setDate(ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+
+                               mEditTextTime.setText(String.format("%1$02d:%2$02d", ldt.getHour(),ldt.getMinute()));
+
+                           } catch (Exception e) {
+                               Log.e(TAG, "Date stored on Firebase database is badly formated.");
+                           }
+
                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                        } else {
                            Log.d(TAG, "No such document");
@@ -127,12 +130,10 @@ public class RestaurantEditActivity extends AppCompatActivity
 
         // Calendar Date View
         mCalendarView = (CalendarView) findViewById(R.id.ERcalendarView);
-        mCalendarView.setMinDate(System.currentTimeMillis());
-        mLocalDateCalendarView = LocalDate.now();
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {   // LOL   month is 0-11
-                mLocalDateCalendarView = LocalDate.of(year, month+1, dayOfMonth);
+                mLocalDateOnCalendarView = LocalDate.of(year, month+1, dayOfMonth);
             }
         });
 
@@ -142,8 +143,18 @@ public class RestaurantEditActivity extends AppCompatActivity
         mEditTextTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int hour = LocalDateTime.now().getHour();
-                int minute = LocalDateTime.now().getMinute();
+                int hour;
+                int minute;
+                try {
+                    LocalTime lt = LocalTime.parse(mEditTextTime.getText());
+                    hour = lt.getHour();
+                    minute = lt.getMinute();
+                } catch (Exception e) {
+                    Log.e(TAG, "Badly formatted time string means we do not get to edit this stored time");
+                    hour = LocalDateTime.now().getHour();
+                    minute = LocalDateTime.now().getMinute();
+                }
+
                 TimePickerDialog mTimePicker;
                 mTimePicker = new TimePickerDialog(RestaurantEditActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
@@ -225,16 +236,18 @@ public class RestaurantEditActivity extends AppCompatActivity
         DocumentReference restRef = mFirestore.collection("restaurants").document();
 
         //getting text input
+        LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());
 
         //getting assigned to whom data
         String feedbackType = mCategoryView.getSelectedItem().toString();
 
-        //username
+        // TODO MOve this code to get the username to the filter for this user
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getDisplayName();
 
 
         mRestaurantRef.update(Restaurant.FIELD_NAME, mNameView.getText().toString());
+        mRestaurantRef.update(Restaurant.FIELD_ADTIME, ldt.toString());
         mRestaurantRef.update(Restaurant.FIELD_CATEGORY, feedbackType)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -243,38 +256,6 @@ public class RestaurantEditActivity extends AppCompatActivity
                     }
                 });
 
-//
-//        Restaurant newChore = new Restaurant(
-//                name,
-//                uid,
-//                feedbackType,
-//                "d",
-//                Math.round(mRatingBar.getRating()),
-//                0,
-//                0,
-//                ldt.toString(),
-//                Restaurant.RecuranceInterval.DAILY);
-//
-//
-//        List<Rating> randomRatings = RatingUtil.getRandomList(newChore.getNumRatings());
-//        newChore.setAvgRating(RatingUtil.getAverageRating(randomRatings));
-//
-//        batch.set(restRef, newChore);
-//
-//        for (Rating rating : randomRatings) {
-//            batch.set(restRef.collection("ratings").document(), rating);
-//        }
-//
-//        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if (task.isSuccessful()) {
-//                    Log.d(TAG, "Write batch succeeded.");
-//                } else {
-//                    Log.w(TAG, "write batch failed.", task.getException());
-//                }
-//            }
-//        });
 
         finish();   //return to main activity
     }

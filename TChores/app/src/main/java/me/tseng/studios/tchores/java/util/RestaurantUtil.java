@@ -2,12 +2,15 @@ package me.tseng.studios.tchores.java.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
 import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
@@ -151,5 +154,22 @@ public class RestaurantUtil {
 //            else
 //                continue();
     }
+
+    public static LocalDateTime getLocalDateTime(LocalDate ldDate, String sTime) {
+        LocalTime lt;
+
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("H:m");
+        try {
+            // To get the date object from the string just called the
+            // parse method and pass the time string to it. This method
+            // throws ParseException if the time string is invalid.
+            lt = LocalTime.parse(sTime, sdf);
+        } catch (Exception e) {
+            Log.e(TAG, "String not formatted well for LocalTime");
+            return LocalDateTime.MIN;
+        }
+        return LocalDateTime.of(ldDate, lt);
+    }
+
 
 }

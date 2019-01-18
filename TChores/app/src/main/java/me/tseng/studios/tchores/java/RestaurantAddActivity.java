@@ -34,6 +34,8 @@ import java.util.List;
 import butterknife.OnClick;
 import me.tseng.studios.tchores.java.util.RatingUtil;
 
+import static me.tseng.studios.tchores.java.util.RestaurantUtil.getLocalDateTime;
+
 
 public class RestaurantAddActivity extends AppCompatActivity {
 
@@ -105,23 +107,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getDisplayName();
 
-        LocalTime lt;
-
-        // Create an instance of SimpleDateFormat with the specified
-        // format.
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("H:m");
-        try {
-            // To get the date object from the string just called the
-            // parse method and pass the time string to it. This method
-            // throws ParseException if the time string is invalid.
-            // But remember as we don't pass the date information this
-            // date object will represent the 1st of january 1970.
-            lt = LocalTime.parse(mEditTextTime.getText().toString(), sdf);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        LocalDateTime ldt = LocalDateTime.of(mLocalDateCalendarView, lt);
+        LocalDateTime ldt = getLocalDateTime(mLocalDateCalendarView, mEditTextTime.getText().toString());
 
         Restaurant newChore = new Restaurant(
                 name,
