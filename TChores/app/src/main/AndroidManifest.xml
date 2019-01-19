@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="me.tseng.studios.tchores">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name="android.support.multidex.MultiDexApplication"
@@ -8,24 +12,21 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".EntryChoiceActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.EntryChoice">
-        </activity>
-
+            android:theme="@style/AppTheme.EntryChoice" />
         <activity
             android:name=".java.MainActivity"
             android:theme="@style/AppTheme.Activity">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".java.RestaurantDetailActivity"
             android:theme="@style/AppTheme.Activity" />
@@ -35,20 +36,32 @@
         <activity
             android:name=".kotlin.RestaurantDetailActivity"
             android:theme="@style/AppTheme.Activity" />
-        <activity android:name=".java.RestaurantAddActivity"></activity>
-        <activity android:name=".java.RestaurantEditActivity"></activity>
+        <activity android:name=".java.RestaurantAddActivity" />
+        <activity android:name=".java.RestaurantEditActivity" />
 
         <receiver
             android:name=".java.NotificationPublisher"
             android:enabled="true"
-            android:exported="true">
-        </receiver>
-
+            android:exported="true" />
         <receiver
             android:name=".java.NotificationChoreCompleteBR"
             android:enabled="true"
+            android:exported="true" />
+        <receiver
+            android:name=".java.TChoresBootReceiver"
+            android:enabled="true"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
+
+        <service
+            android:name=".java.TChoresService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>

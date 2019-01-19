@@ -40,7 +40,7 @@ import static me.tseng.studios.tchores.java.util.RestaurantUtil.getLocalDateTime
 public class RestaurantAddActivity extends AppCompatActivity {
 
     private FirebaseFirestore mFirestore;
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TChores.RestaurantAddActivity";
 
     RatingBar mRatingBar;
     CalendarView mCalendarView;

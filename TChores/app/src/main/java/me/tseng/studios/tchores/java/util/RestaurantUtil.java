@@ -23,7 +23,7 @@ import static android.content.res.Resources.getSystem;
  */
 public class RestaurantUtil {
 
-    private static final String TAG = "RestaurantUtil";
+    private static final String TAG = "TChores.RestaurantUtil";
 
     private static final String RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
     private static final String RESTAURANT_DRAWABLE_RESOURCE_FMT = "chore_png_%d";

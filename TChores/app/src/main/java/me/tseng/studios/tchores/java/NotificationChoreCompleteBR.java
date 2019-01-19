@@ -9,6 +9,8 @@ import android.util.Log;
 
 public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
+    private static final String TAG = "NotificationChoreCompleteBR";
+
     public static String NOTIFICATION_ID = "notification-id";
     public static String NOTIFICATION = "notification";
 
@@ -24,7 +26,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             throw new IllegalArgumentException("Must pass extra " + RestaurantDetailActivity.KEY_ACTION);
         }
 
-        Log.i("NotificationChoreCompleteBR", "got into Compelete Broadcast Receiver. restaurantId= " + restaurantId + "  and action id= " + actionId);
+        Log.i(TAG, "got into Compelete Broadcast Receiver. restaurantId= " + restaurantId + "  and action id= " + actionId);
 
     }
 

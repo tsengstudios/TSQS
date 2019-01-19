@@ -45,7 +45,7 @@ public class RestaurantEditActivity extends AppCompatActivity
     private DocumentReference mRestaurantRef;
     private ListenerRegistration mRestaurantRegistration;
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TChores.RestaurantEditActivity";
 
     public static final String KEY_RESTAURANT_ID = "key_restaurant_id";
 
@@ -252,7 +252,7 @@ public class RestaurantEditActivity extends AppCompatActivity
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.i("TAG","YAY!");
+                        Log.i(TAG,"YAY!");
                     }
                 });
 

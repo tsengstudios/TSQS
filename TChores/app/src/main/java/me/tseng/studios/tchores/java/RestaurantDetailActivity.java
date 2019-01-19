@@ -43,7 +43,7 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 public class RestaurantDetailActivity extends AppCompatActivity
         implements EventListener<DocumentSnapshot>, RatingDialogFragment.RatingListener {
 
-    private static final String TAG = "RestaurantDetail";
+    private static final String TAG = "TChores.RestaurantDetailActivity";
 
     public static final String KEY_RESTAURANT_ID = BuildConfig.APPLICATION_ID + ".key_restaurant_id";   // Prefix for Intent Extra Keys
     public static final String KEY_ACTION = BuildConfig.APPLICATION_ID + ".key_action";

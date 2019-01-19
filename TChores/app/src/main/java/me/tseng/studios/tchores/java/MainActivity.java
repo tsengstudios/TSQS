@@ -154,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements
         if (mAdapter != null) {
             mAdapter.startListening();
         }
+
+        // TODO do we need to check Setup alarms here?
+
     }
 
     @Override

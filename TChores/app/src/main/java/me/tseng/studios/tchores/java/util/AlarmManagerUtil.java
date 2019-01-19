@@ -23,6 +23,7 @@ import me.tseng.studios.tchores.java.NotificationPublisher;
 import me.tseng.studios.tchores.java.RestaurantAddActivity;
 
 public class AlarmManagerUtil {
+    private static final String TAG = "TChores.RTC Alarm";
 
     // This value is defined and consumed by app code, so any value will work.
     // There's no significance to this sample using 0.
@@ -60,9 +61,9 @@ public class AlarmManagerUtil {
         int alarmType = AlarmManager.RTC_WAKEUP;
         long rtcAlarmMillis = ZonedDateTime.of(LocalDateTime.parse(sAlarmLocalDateTime),ZoneId.systemDefault()).toEpochSecond()*1000;
 
-        Log.i("RTC Alarm","rtcAlarmMillis     = " + String.valueOf(rtcAlarmMillis));
-        Log.i("RTC Alarm","currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
-        Log.i("RTC Alarm","LocalDateTime now  = " + LocalDateTime.now().toString());
+        Log.i(TAG,"rtcAlarmMillis     = " + String.valueOf(rtcAlarmMillis));
+        Log.i(TAG,"currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
+        Log.i(TAG,"LocalDateTime now  = " + LocalDateTime.now().toString());
 
         if (rtcAlarmMillis < System.currentTimeMillis())
             return;     // don't set alarms to the past
@@ -74,7 +75,7 @@ public class AlarmManagerUtil {
 
         // END_INCLUDE (configure_alarm_manager);
 
-        Log.i("RTC Alarm","Alarm set.");
+        Log.i(TAG,"Alarm set.");
     }
 
 
