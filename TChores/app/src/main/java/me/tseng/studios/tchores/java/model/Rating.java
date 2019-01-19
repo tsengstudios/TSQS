@@ -2,6 +2,7 @@ package me.tseng.studios.tchores.java.model;
 
 import android.text.TextUtils;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.ServerTimestamp;
 
@@ -16,7 +17,7 @@ public class Rating {
     private String userName;
     private double rating;
     private String text;
-    private @ServerTimestamp Date timestamp;
+    private Timestamp timestamp;
 
     public Rating() {}
 
@@ -63,11 +64,11 @@ public class Rating {
         this.text = text;
     }
 
-    public Date getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }
