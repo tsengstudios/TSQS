@@ -104,6 +104,8 @@ public class RestaurantDetailActivity extends AppCompatActivity
             throw new IllegalArgumentException("Must pass extra " + KEY_ACTION);
         }
 
+        Log.i(TAG, "Restaurant Detail Activity  restaurant_id=" + restaurantId);
+
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
@@ -196,6 +198,8 @@ public class RestaurantDetailActivity extends AppCompatActivity
                 // not an int or not a resource number; use default image
             }
         }
+
+        Log.i(TAG, "Restaurant Loaded  name=" + restaurant.getName());
     }
 
     @OnClick(R.id.restaurantButtonBack)

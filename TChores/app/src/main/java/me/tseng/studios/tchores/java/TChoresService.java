@@ -2,6 +2,7 @@ package me.tseng.studios.tchores.java;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -10,16 +11,27 @@ import android.support.v4.app.JobIntentService;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
+
+import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
 
 public class TChoresService extends JobIntentService {
 
     private static final String TAG = "TChores.TChoresService";
+    private Context mServiceContext;
 
     /**
      * Unique job ID for this service.
@@ -37,31 +49,28 @@ public class TChoresService extends JobIntentService {
     protected void onHandleWork(Intent intent) {
         // We have received work to do.  The system or framework is already
         // holding a wake lock for us at this point, so we can just go.
-        Log.i(TAG, "Executing work: " + intent);
+        Log.i(TAG, "Executing work.");
         String label = intent.getStringExtra("label");
         if (label == null) {
             label = "TChoresService Default Intent Label";
         }
         toast("Executing: " + label);
-        for (int i = 0; i < 5; i++) {
-            Log.i(TAG, "Running service " + (i + 1)
-                    + "/5 @ " + SystemClock.elapsedRealtime());
-            try {
 
-                // TODO this piece
-                Thread.sleep(1000);
+        setAlarms();
 
 
+    }
 
-            } catch (InterruptedException e) {
-            }
-        }
-        Log.i(TAG, "Completed service @ " + SystemClock.elapsedRealtime());
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mServiceContext = this;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "Destroying service @ " + SystemClock.elapsedRealtime());
         toast("TChoresService Destroyed.");
     }
 
@@ -88,12 +97,55 @@ public class TChoresService extends JobIntentService {
                     mFirestore = FirebaseFirestore.getInstance();
 
                     String mCurrentUserName = user.getDisplayName();
+                    Log.i(TAG, "Got username: " + mCurrentUserName);
 
-                    // Get ${LIMIT} restaurants
-                    mQuery = mFirestore.collection("restaurants")
+                    mFirestore.collection("restaurants")
                             .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
                             .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
-                            .limit(LIMIT);
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            Map<String, Object> d = document.getData();
+
+                                            String id = document.getId();
+                                            String name = d.get(Restaurant.FIELD_NAME).toString();
+                                            LocalDateTime ldt;
+                                            try {
+                                                ldt = LocalDateTime.parse(d.get(Restaurant.FIELD_ADTIME).toString());
+                                            } catch (Exception e) {
+                                                Log.e(TAG, "Date stored on Firebase database is badly formated.");
+                                                ldt = LocalDateTime.MIN;
+                                            }
+
+                                            Log.d(TAG, "Got Restaurant: " + id +
+                                                    " = " + name +
+                                                    " at " + ldt.toString() +
+                                                    " => " + d);
+
+
+                                            Intent i2 = new Intent(mServiceContext, RestaurantDetailActivity.class);
+                                            i2.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
+                                            i2.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
+                                            i2.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_VIEW);
+                                            i2.setAction(RestaurantDetailActivity.ACTION_VIEW); // Needed to differentiate Intents so Notification manager doesn't squash them together
+
+                                            Intent i3 = new Intent(mServiceContext, NotificationChoreCompleteBR.class);
+                                            i3.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
+                                            i3.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
+                                            i3.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_COMPLETED);
+                                            i3.setAction(RestaurantDetailActivity.ACTION_COMPLETED);
+
+                                            AlarmManagerUtil.setAlarm(mServiceContext, id, i2, i3, ldt.toString(), name);
+
+                                        }
+                                    } else {
+                                        Log.w(TAG, "Error getting documents.", task.getException());
+                                    }
+                                }
+                            });
 
 
                 }else{

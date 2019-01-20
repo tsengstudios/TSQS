@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         // TODO do we need to check Setup alarms here?
+        TChoresService.enqueueWork(this, new Intent());
 
     }
 
@@ -239,18 +240,7 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
 
-        // TEST:  set alarm for this restaurant here
-        Intent i2 = new Intent(this, RestaurantDetailActivity.class);
-        i2.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
-        i2.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_VIEW);
-        i2.setAction(RestaurantDetailActivity.ACTION_VIEW); // Needed to differentiate Intents so Notification manager doesn't squash them together
 
-        Intent i3 = new Intent(this, NotificationChoreCompleteBR.class);
-        i3.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
-        i3.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_COMPLETED);
-        i3.setAction(RestaurantDetailActivity.ACTION_COMPLETED);
-
-        AlarmManagerUtil.setAlarm(this, i2, i3, restaurant.get(Restaurant.FIELD_ADTIME).toString());
     }
 
     @Override

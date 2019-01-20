@@ -18,6 +18,8 @@ public class Restaurant {
     public static final String FIELD_AVG_RATING = "avgRating";
     public static final String FIELD_ADTIME = "adtime";     // careful.  For some reason Firebase wants to decapitalize aDTime to adtime as a field name in the database.  So, leave this decapitalized....
 
+    public static final String RESTAURANT_URI_PREFIX = "restaurant:";
+
     private String name;
     private String city;
     private String category;

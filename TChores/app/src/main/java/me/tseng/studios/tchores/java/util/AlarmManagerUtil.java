@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
@@ -22,6 +23,8 @@ import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.NotificationPublisher;
 import me.tseng.studios.tchores.java.RestaurantAddActivity;
 
+import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
+
 public class AlarmManagerUtil {
     private static final String TAG = "TChores.RTC Alarm";
 
@@ -32,7 +35,8 @@ public class AlarmManagerUtil {
     public static final String CHANNEL_LOCAL_NAME = "The madeup Channel";
     public static final String CHANNEL_DESCRIPTION = "a description of this channel";
 
-    public static void setAlarm(Context context, Intent intent, Intent actionIntent, String sAlarmLocalDateTime) {
+
+    public static void setAlarm(Context context, String id, Intent intent, Intent actionIntent, String sAlarmLocalDateTime, String sContentTitle) {
 
         createNotificationChannel(context, CHANNEL_ID, CHANNEL_LOCAL_NAME, CHANNEL_DESCRIPTION);
 
@@ -51,19 +55,26 @@ public class AlarmManagerUtil {
         // BroadcastIntent instead, simply call getBroadcast instead of getIntent.
 
         Intent notificationIntent = new Intent(context, NotificationPublisher.class);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
+        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, id);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,
-                getNotification(context, "THIS IS THE CHORE TEXT TO FILL IN", pendingAfterTapNotificationIntent, pendingActionIntent));
+                getNotification(context, sContentTitle,"THIS IS THE CHORE TEXT TO FILL IN", pendingAfterTapNotificationIntent, pendingActionIntent));
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Calculate alarm time in Epoch milliseconds
         int alarmType = AlarmManager.RTC_WAKEUP;
-        long rtcAlarmMillis = ZonedDateTime.of(LocalDateTime.parse(sAlarmLocalDateTime),ZoneId.systemDefault()).toEpochSecond()*1000;
+        long rtcAlarmMillis;
+        try {
+            rtcAlarmMillis = ZonedDateTime.of(LocalDateTime.parse(sAlarmLocalDateTime),ZoneId.systemDefault()).toEpochSecond()*1000;
+        } catch (Exception e) {
+            Log.e(TAG, "Date in sAlarmLocalDateTime is badly formatted. = " + sAlarmLocalDateTime);
+            rtcAlarmMillis = 0;
+        }
 
-        Log.i(TAG,"rtcAlarmMillis     = " + String.valueOf(rtcAlarmMillis));
-        Log.i(TAG,"currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
-        Log.i(TAG,"LocalDateTime now  = " + LocalDateTime.now().toString());
+//        Log.i(TAG,"rtcAlarmMillis     = " + String.valueOf(rtcAlarmMillis));
+//        Log.i(TAG,"currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
+//        Log.i(TAG,"LocalDateTime now  = " + LocalDateTime.now().toString());
 
         if (rtcAlarmMillis < System.currentTimeMillis())
             return;     // don't set alarms to the past
@@ -75,11 +86,11 @@ public class AlarmManagerUtil {
 
         // END_INCLUDE (configure_alarm_manager);
 
-        Log.i(TAG,"Alarm set.");
+        Log.i(TAG,"Alarm set. @" + rtcAlarmMillis + " Title: " + sContentTitle + " : " + id);
     }
 
 
-    private static Notification getNotification(Context context, String content, PendingIntent pendingIntent, PendingIntent doneChorePendingIntent) {
+    private static Notification getNotification(Context context, String sContentTitle, String sContentText, PendingIntent pendingIntent, PendingIntent doneChorePendingIntent) {
 
         //Action Button
         Notification.Action actionCompleted = new Notification.Action.Builder(
@@ -89,8 +100,8 @@ public class AlarmManagerUtil {
 
 
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID);
-        builder.setContentTitle("TChores -- Content TItle in Notification.Builder");
-        builder.setContentText(content);
+        builder.setContentTitle(sContentTitle);
+        //builder.setContentText(sContentText);
         builder.setSmallIcon(R.drawable.ic_monetization_on_white_24px);
         builder.setContentIntent(pendingIntent);
         builder.addAction(actionCompleted);
