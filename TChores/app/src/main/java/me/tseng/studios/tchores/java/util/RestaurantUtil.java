@@ -1,7 +1,6 @@
 package me.tseng.studios.tchores.java.util;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 
 import me.tseng.studios.tchores.BuildConfig;
@@ -15,8 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
-
-import static android.content.res.Resources.getSystem;
 
 /**
  * Utilities for Restaurants.
@@ -79,6 +76,12 @@ public class RestaurantUtil {
 
         restaurant.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         restaurant.setRecuranceInterval(randomEnum(Restaurant.RecuranceInterval.class, random).name());
+
+        restaurant.setBDTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        restaurant.setSnoozeMinutes(10);
+        restaurant.setMustWithin(25*60);
+        restaurant.setNotifyWorldAfter(25*60);
+        restaurant.setPriorityChannel(randomEnum(Restaurant.PriorityChannel.class, random).name());
 
         return restaurant;
     }

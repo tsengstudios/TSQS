@@ -120,6 +120,8 @@ public class TChoresService extends JobIntentService {
                                                 ldt = LocalDateTime.MIN;
                                             }
 
+                                            String priorityChannel = d.get(Restaurant.FIELD_PRIORITYCHANNEL).toString();
+
                                             Log.d(TAG, "Got Restaurant: " + id +
                                                     " = " + name +
                                                     " at " + ldt.toString() +
@@ -138,7 +140,7 @@ public class TChoresService extends JobIntentService {
                                             i3.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_COMPLETED);
                                             i3.setAction(RestaurantDetailActivity.ACTION_COMPLETED);
 
-                                            AlarmManagerUtil.setAlarm(mServiceContext, id, i2, i3, ldt.toString(), name);
+                                            AlarmManagerUtil.setAlarm(mServiceContext, id, i2, i3, ldt.toString(), name, priorityChannel);
 
                                         }
                                     } else {

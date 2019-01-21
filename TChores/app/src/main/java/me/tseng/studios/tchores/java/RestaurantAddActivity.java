@@ -11,6 +11,7 @@ import me.tseng.studios.tchores.java.model.Restaurant;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.RatingBar;
@@ -27,8 +28,6 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import butterknife.OnClick;
@@ -46,6 +45,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
     CalendarView mCalendarView;
     LocalDate mLocalDateCalendarView;
     EditText mEditTextTime;
+    Spinner priorityChannelSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +88,12 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 mTimePicker.show();
             };
         });
+
+        // Init PriorityChannel spinner
+        ArrayAdapter pcAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Restaurant.PriorityChannel.values());
+        priorityChannelSpinner = (Spinner) findViewById(R.id.spinnerPriorityChannel);
+        priorityChannelSpinner .setAdapter(pcAdapter);
+
     }
 
     @OnClick(R.id.addRbutton)
@@ -102,6 +108,12 @@ public class RestaurantAddActivity extends AppCompatActivity {
         //getting assigned to whom data
         final Spinner feedbackSpinner = (Spinner) findViewById(R.id.spnrAssignee);
         String feedbackType = feedbackSpinner.getSelectedItem().toString();
+
+        //getting priortiyChannel
+        final Spinner priorityChannelSpinner = (Spinner) findViewById(R.id.spinnerPriorityChannel);
+        String sPriorityChannel = priorityChannelSpinner.getSelectedItem().toString();
+        Restaurant.PriorityChannel priorityChannel = Restaurant.PriorityChannel.valueOf(sPriorityChannel);
+
 
         //username
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -118,7 +130,12 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 0,
                 0,
                 ldt.toString(),
-                Restaurant.RecuranceInterval.DAILY);
+                Restaurant.RecuranceInterval.DAILY,
+                ldt.toString(),
+                10,
+                25*60,
+                2*60,
+                priorityChannel);
 
 
         List<Rating> randomRatings = RatingUtil.getRandomList(newChore.getNumRatings());

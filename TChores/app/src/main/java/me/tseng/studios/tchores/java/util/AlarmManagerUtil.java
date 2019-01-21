@@ -22,6 +22,7 @@ import java.time.ZonedDateTime;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.NotificationPublisher;
 import me.tseng.studios.tchores.java.RestaurantAddActivity;
+import me.tseng.studios.tchores.java.model.Restaurant;
 
 import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
 
@@ -31,14 +32,11 @@ public class AlarmManagerUtil {
     // This value is defined and consumed by app code, so any value will work.
     // There's no significance to this sample using 0.
     public static final int REQUEST_CODE = 0;
-    public static final String CHANNEL_ID = "Idunnochannel";
-    public static final String CHANNEL_LOCAL_NAME = "The madeup Channel";
-    public static final String CHANNEL_DESCRIPTION = "a description of this channel";
 
 
-    public static void setAlarm(Context context, String id, Intent intent, Intent actionIntent, String sAlarmLocalDateTime, String sContentTitle) {
+    public static void setAlarm(Context context, String id, Intent intent, Intent actionIntent, String sAlarmLocalDateTime, String sContentTitle, String notificationChannelId) {
 
-        createNotificationChannel(context, CHANNEL_ID, CHANNEL_LOCAL_NAME, CHANNEL_DESCRIPTION);
+        createNotificationChannel(context);
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK /*| Intent.FLAG_ACTIVITY_CLEAR_TASK*/);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -58,7 +56,7 @@ public class AlarmManagerUtil {
         notificationIntent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, id);
         notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,
-                getNotification(context, sContentTitle,"THIS IS THE CHORE TEXT TO FILL IN", pendingAfterTapNotificationIntent, pendingActionIntent));
+                getNotification(context, sContentTitle,"THIS IS THE CHORE TEXT TO FILL IN", notificationChannelId, pendingAfterTapNotificationIntent, pendingActionIntent));
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
@@ -90,7 +88,7 @@ public class AlarmManagerUtil {
     }
 
 
-    private static Notification getNotification(Context context, String sContentTitle, String sContentText, PendingIntent pendingIntent, PendingIntent doneChorePendingIntent) {
+    private static Notification getNotification(Context context, String sContentTitle, String sContentText, String channelId, PendingIntent pendingIntent, PendingIntent doneChorePendingIntent) {
 
         //Action Button
         Notification.Action actionCompleted = new Notification.Action.Builder(
@@ -99,7 +97,7 @@ public class AlarmManagerUtil {
                 doneChorePendingIntent).build();
 
 
-        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID);
+        Notification.Builder builder = new Notification.Builder(context, channelId);
         builder.setContentTitle(sContentTitle);
         //builder.setContentText(sContentText);
         builder.setSmallIcon(R.drawable.ic_monetization_on_white_24px);
@@ -110,18 +108,23 @@ public class AlarmManagerUtil {
         return builder.build();
     }
 
-    private static void createNotificationChannel(Context context, String channelId, String channelName, String channelDescription) {
+    private static void createNotificationChannel(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            int importance = NotificationManager.IMPORTANCE_HIGH;  // TODO customize this?  Or is it fine to leave for the user
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, channelName, importance);
-            channel.setDescription(channelDescription);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            for (Restaurant.PriorityChannel pc : Restaurant.PriorityChannel.values()) {
+                NotificationChannel channel = new NotificationChannel(
+                        pc.name(),
+                        pc.name(),
+                        Restaurant.PriorityChannelImportance(pc));
+                channel.setDescription(Restaurant.PriorityChannelDescription(pc));
+
+                // Register the channel with the system; you can't change the importance
+                // or other notification behaviors after this
+                NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+                notificationManager.createNotificationChannel(channel);
+            }
         }
     }
 
