@@ -115,7 +115,7 @@ public class AlarmManagerUtil {
         builder.setSmallIcon(R.drawable.ic_monetization_on_white_24px);
         builder.setContentIntent(pendingIntent);
         builder.addAction(actionCompleted);
-        builder.setAutoCancel(true);
+        builder.setAutoCancel(false);
         builder.setCategory(Notification.CATEGORY_ALARM);  // TODO this might change depending on chore
         return builder.build();
     }

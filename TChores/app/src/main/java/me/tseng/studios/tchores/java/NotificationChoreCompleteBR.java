@@ -8,14 +8,19 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 import java.time.LocalDateTime;
 
+import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
@@ -46,12 +51,32 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         mFirestore = FirebaseFirestore.getInstance();
+        final DocumentReference drChore = mFirestore.collection("restaurants").document(restaurantId);
 
-        // TODO mark chore complete
+        // mark chore complete
+        Rating rating = new Rating(
+                FirebaseAuth.getInstance().getCurrentUser(),
+                1,
+                actionId);
 
+        // In a transaction, add the new rating and update the aggregate totals
+        addRatingComplete(drChore, rating)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Chore marked completed now");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Chore marking failed", e);
+                    }
+                });
+
+        // TODO make Completion one transaction instead of currently adding a rating (above), and then modifying the new aDTime and bDTime. (below)
 
         // Reset chore target time
-        final DocumentReference drChore = mFirestore.collection("restaurants").document(restaurantId);
         drChore.get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -113,6 +138,37 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         notificationManager.cancel(restaurantId.hashCode());
 
     }
+
+    private Task<Void> addRatingComplete(final DocumentReference restaurantRef, final Rating rating) {
+        // Create reference for new rating, for use inside the transaction
+        final DocumentReference ratingRef = restaurantRef.collection("ratings").document();
+
+        // In a transaction, add the new rating and update the aggregate totals
+        return mFirestore.runTransaction(new Transaction.Function<Void>() {
+            @Override
+            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
+                Restaurant restaurant = transaction.get(restaurantRef).toObject(Restaurant.class);
+
+                // Compute new number of ratings
+                int newNumRatings = restaurant.getNumRatings() + 1;
+
+                // Compute new average rating
+                double oldRatingTotal = restaurant.getAvgRating() * restaurant.getNumRatings();
+                double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
+
+                // Set new restaurant info
+                restaurant.setNumRatings(newNumRatings);
+                restaurant.setAvgRating(newAvgRating);
+
+                // Commit to Firestore
+                transaction.set(restaurantRef, restaurant);
+                transaction.set(ratingRef, rating);
+
+                return null;
+            }
+        });
+    }
+
 
 }
 

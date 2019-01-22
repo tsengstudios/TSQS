@@ -132,6 +132,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="-28dp"
+        android:visibility="invisible"
         app:srcCompat="@drawable/fui_ic_check_circle_black_128dp" />
 
 
@@ -139,13 +140,13 @@
         android:id="@+id/fabShowEditDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/restaurant_top_card"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginRight="328dp"
-        android:layout_marginBottom="15dp"
-        app:srcCompat="@drawable/ic_add_white_24px" />
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginRight="7dp"
+        app:srcCompat="@drawable/ic_edit_pencil" />
 
     <!-- Ratings -->
     <android.support.v7.widget.RecyclerView

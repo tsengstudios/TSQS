@@ -1,5 +1,6 @@
 package me.tseng.studios.tchores.java;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,7 +44,7 @@ import butterknife.OnClick;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 public class RestaurantDetailActivity extends AppCompatActivity
-        implements EventListener<DocumentSnapshot>, RatingDialogFragment.RatingListener {
+        implements EventListener<DocumentSnapshot> {
 
     private static final String TAG = "TChores.RestaurantDetailActivity";
 
@@ -82,11 +83,11 @@ public class RestaurantDetailActivity extends AppCompatActivity
     @BindView(R.id.recyclerRatings)
     RecyclerView mRatingsRecycler;
 
-    private RatingDialogFragment mRatingDialog;
 
     private FirebaseFirestore mFirestore;
     private DocumentReference mRestaurantRef;
     private ListenerRegistration mRestaurantRegistration;
+    private String mRestaurantId;
 
     private RatingAdapter mRatingAdapter;
 
@@ -97,8 +98,8 @@ public class RestaurantDetailActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         // Get restaurant ID from extras
-        String restaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
-        if (restaurantId == null) {
+        mRestaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
+        if (mRestaurantId == null) {
             throw new IllegalArgumentException("Must pass extra " + KEY_RESTAURANT_ID);
         }
         String actionId = getIntent().getExtras().getString(KEY_ACTION);
@@ -106,13 +107,13 @@ public class RestaurantDetailActivity extends AppCompatActivity
             throw new IllegalArgumentException("Must pass extra " + KEY_ACTION);
         }
 
-        Log.i(TAG, "Restaurant Detail Activity  restaurant_id=" + restaurantId);
+        Log.i(TAG, "Restaurant Detail Activity  restaurant_id=" + mRestaurantId);
 
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
         // Get reference to the restaurant
-        mRestaurantRef = mFirestore.collection("restaurants").document(restaurantId);
+        mRestaurantRef = mFirestore.collection("restaurants").document(mRestaurantId);
 
         // Get ratings
         Query ratingsQuery = mRestaurantRef
@@ -136,7 +137,6 @@ public class RestaurantDetailActivity extends AppCompatActivity
         mRatingsRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRatingsRecycler.setAdapter(mRatingAdapter);
 
-        mRatingDialog = new RatingDialogFragment();
     }
 
     @Override
@@ -209,88 +209,14 @@ public class RestaurantDetailActivity extends AppCompatActivity
         onBackPressed();
     }
 
-    @OnClick(R.id.fabCompleteChore)
-    public void onCompleteChoreClicked(View view) {
-
-            Rating rating = new Rating(
-                FirebaseAuth.getInstance().getCurrentUser(),
-                1,
-                "COMPLETED");
-
-            onRating(rating);
-
-    }
 
     @OnClick(R.id.fabShowEditDialog)
-    public void onEditRatingClicked(View view) {
+    public void onEditChoreClicked(View view) {
         Intent intent = new Intent(this, RestaurantEditActivity.class);
         intent.putExtra(RestaurantEditActivity.KEY_RESTAURANT_ID, mRestaurantRef.getId());
 
         startActivity(intent);
     }
 
-    @Override
-    public void onRating(Rating rating) {
-        // In a transaction, add the new rating and update the aggregate totals
-        addRating(mRestaurantRef, rating)
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Rating added");
 
-                        // Hide keyboard and scroll to top
-                        hideKeyboard();
-                        mRatingsRecycler.smoothScrollToPosition(0);
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Add rating failed", e);
-
-                        // Show failure message and hide keyboard
-                        hideKeyboard();
-                        Snackbar.make(findViewById(android.R.id.content), "Failed to add rating",
-                                Snackbar.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private Task<Void> addRating(final DocumentReference restaurantRef, final Rating rating) {
-        // Create reference for new rating, for use inside the transaction
-        final DocumentReference ratingRef = restaurantRef.collection("ratings").document();
-
-        // In a transaction, add the new rating and update the aggregate totals
-        return mFirestore.runTransaction(new Transaction.Function<Void>() {
-            @Override
-            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
-                Restaurant restaurant = transaction.get(restaurantRef).toObject(Restaurant.class);
-
-                // Compute new number of ratings
-                int newNumRatings = restaurant.getNumRatings() + 1;
-
-                // Compute new average rating
-                double oldRatingTotal = restaurant.getAvgRating() * restaurant.getNumRatings();
-                double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
-
-                // Set new restaurant info
-                restaurant.setNumRatings(newNumRatings);
-                restaurant.setAvgRating(newAvgRating);
-
-                // Commit to Firestore
-                transaction.set(restaurantRef, restaurant);
-                transaction.set(ratingRef, rating);
-
-                return null;
-            }
-        });
-    }
-
-    private void hideKeyboard() {
-        View view = getCurrentFocus();
-        if (view != null) {
-            ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
-                    .hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
 }
