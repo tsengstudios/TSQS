@@ -26,6 +26,8 @@ import me.tseng.studios.tchores.java.adapter.RatingAdapter;
 import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
 import me.tseng.studios.tchores.java.util.RestaurantUtil;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -207,9 +209,16 @@ public class RestaurantDetailActivity extends AppCompatActivity
         onBackPressed();
     }
 
-    @OnClick(R.id.fabShowRatingDialog)
-    public void onAddRatingClicked(View view) {
-        mRatingDialog.show(getSupportFragmentManager(), RatingDialogFragment.TAG);
+    @OnClick(R.id.fabCompleteChore)
+    public void onCompleteChoreClicked(View view) {
+
+            Rating rating = new Rating(
+                FirebaseAuth.getInstance().getCurrentUser(),
+                1,
+                "COMPLETED");
+
+            onRating(rating);
+
     }
 
     @OnClick(R.id.fabShowEditDialog)

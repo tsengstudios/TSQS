@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+// TODO rename NotificationPublisher to ActOnAlarmBR
 public class NotificationPublisher extends BroadcastReceiver {
 
     private static final String TAG = "TChores.NotificationPublisher";

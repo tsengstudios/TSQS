@@ -233,7 +233,6 @@ public class RestaurantEditActivity extends AppCompatActivity
 
     @OnClick(R.id.EReditRbutton)
     public void submitRestaurant(View button) {
-        DocumentReference restRef = mFirestore.collection("restaurants").document();
 
         //getting text input
         LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());
@@ -248,6 +247,7 @@ public class RestaurantEditActivity extends AppCompatActivity
 
         mRestaurantRef.update(Restaurant.FIELD_NAME, mNameView.getText().toString());
         mRestaurantRef.update(Restaurant.FIELD_ADTIME, ldt.toString());
+        mRestaurantRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
         mRestaurantRef.update(Restaurant.FIELD_CATEGORY, feedbackType)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

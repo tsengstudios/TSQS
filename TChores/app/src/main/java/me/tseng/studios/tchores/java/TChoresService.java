@@ -2,9 +2,7 @@ package me.tseng.studios.tchores.java;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
@@ -26,7 +24,6 @@ import java.util.Map;
 import me.tseng.studios.tchores.java.model.Restaurant;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
-import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
 
 public class TChoresService extends JobIntentService {
 
@@ -77,7 +74,6 @@ public class TChoresService extends JobIntentService {
 
 
     private FirebaseFirestore mFirestore;
-    private Query mQuery;
 
     private static final int LIMIT = 50;
 
@@ -127,20 +123,7 @@ public class TChoresService extends JobIntentService {
                                                     " at " + ldt.toString() +
                                                     " => " + d);
 
-
-                                            Intent i2 = new Intent(mServiceContext, RestaurantDetailActivity.class);
-                                            i2.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
-                                            i2.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
-                                            i2.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_VIEW);
-                                            i2.setAction(RestaurantDetailActivity.ACTION_VIEW); // Needed to differentiate Intents so Notification manager doesn't squash them together
-
-                                            Intent i3 = new Intent(mServiceContext, NotificationChoreCompleteBR.class);
-                                            i3.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
-                                            i3.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
-                                            i3.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_COMPLETED);
-                                            i3.setAction(RestaurantDetailActivity.ACTION_COMPLETED);
-
-                                            AlarmManagerUtil.setAlarm(mServiceContext, id, i2, i3, ldt.toString(), name, priorityChannel);
+                                            AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, priorityChannel);
 
                                         }
                                     } else {

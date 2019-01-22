@@ -20,8 +20,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.NotificationChoreCompleteBR;
 import me.tseng.studios.tchores.java.NotificationPublisher;
 import me.tseng.studios.tchores.java.RestaurantAddActivity;
+import me.tseng.studios.tchores.java.RestaurantDetailActivity;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
 import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
@@ -34,13 +36,23 @@ public class AlarmManagerUtil {
     public static final int REQUEST_CODE = 0;
 
 
-    public static void setAlarm(Context context, String id, Intent intent, Intent actionIntent, String sAlarmLocalDateTime, String sContentTitle, String notificationChannelId) {
+    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String notificationChannelId) {
 
         createNotificationChannel(context);
 
+        Intent intent = new Intent(context, RestaurantDetailActivity.class);
+        intent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
+        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
+        intent.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_VIEW);
+        intent.setAction(RestaurantDetailActivity.ACTION_VIEW); // Needed to differentiate Intents so Notification manager doesn't squash them together
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK /*| Intent.FLAG_ACTIVITY_CLEAR_TASK*/);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent actionIntent = new Intent(context, NotificationChoreCompleteBR.class);
+        actionIntent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
+        actionIntent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
+        actionIntent.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_COMPLETED);
+        actionIntent.setAction(RestaurantDetailActivity.ACTION_COMPLETED);
         actionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK /*| Intent.FLAG_ACTIVITY_CLEAR_TASK*/);
         PendingIntent pendingActionIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -112,6 +124,7 @@ public class AlarmManagerUtil {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // TODO Perhaps we should only do this if NotificationManager.getNotificationChannels().count() == 0
 
             for (Restaurant.PriorityChannel pc : Restaurant.PriorityChannel.values()) {
                 NotificationChannel channel = new NotificationChannel(

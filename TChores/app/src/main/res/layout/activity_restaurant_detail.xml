@@ -116,15 +116,23 @@
 
     </RelativeLayout>
 
+    <!-- FAKE CONTROL JUST TO AVOID FIXING KOTLIN-->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabShowRatingDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabCompleteChore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/restaurant_top_card"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="-28dp"
         android:layout_marginRight="16dp"
-        app:srcCompat="@drawable/ic_add_white_24px" />
+        android:layout_marginBottom="-28dp"
+        app:srcCompat="@drawable/fui_ic_check_circle_black_128dp" />
 
 
     <android.support.design.widget.FloatingActionButton
