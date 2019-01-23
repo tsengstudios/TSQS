@@ -9,5 +9,6 @@ include ':database:app',
         ':inappmessaging:app',
         ':messaging:app',
         ':mlkit:app',
-        ':perf:app'
+        ':perf:app',
+        ':hover'
 
