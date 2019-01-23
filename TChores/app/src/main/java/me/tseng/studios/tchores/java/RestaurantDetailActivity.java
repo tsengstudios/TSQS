@@ -53,7 +53,11 @@ public class RestaurantDetailActivity extends AppCompatActivity
 
     public static final String ACTION_VIEW = BuildConfig.APPLICATION_ID + ".VIEW";                      // Prefix for Intent Action
     public static final String ACTION_COMPLETED = BuildConfig.APPLICATION_ID + ".COMPLETED";
+    public static final String ACTION_COMPLETED_LOCALIZED = "Finished";
     public static final String ACTION_SNOOZED = BuildConfig.APPLICATION_ID + ".SNOOZED";
+    public static final String ACTION_SNOOZED_LOCALIZED = "Snooze2minutes";
+    public static final String ACTION_REFUSED = BuildConfig.APPLICATION_ID + ".REFUSED";
+    public static final String ACTION_REFUSED_LOCALIZED = "Refuse";
 
 
     @BindView(R.id.restaurantImage)

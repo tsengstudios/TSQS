@@ -46,31 +46,52 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         if (actionId== null) {
             throw new IllegalArgumentException("Must pass extra " + RestaurantDetailActivity.KEY_ACTION);
         }
+        String recordedActionLocal = "error: improper action sent";
+        Boolean tempSetNormalRecurance = true;
+        switch (actionId) {
+            case RestaurantDetailActivity.ACTION_COMPLETED :
+                recordedActionLocal = RestaurantDetailActivity.ACTION_COMPLETED_LOCALIZED;
 
-        Log.i(TAG, "got into Compelete Broadcast Receiver. restaurantId= " + restaurantId + "  and action id= " + actionId);
+                break;
+            case RestaurantDetailActivity.ACTION_REFUSED :
+                recordedActionLocal = RestaurantDetailActivity.ACTION_REFUSED_LOCALIZED;
+
+                break;
+            case RestaurantDetailActivity.ACTION_SNOOZED :
+                recordedActionLocal = RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED;
+                tempSetNormalRecurance = false;
+                break;
+            case RestaurantDetailActivity.ACTION_VIEW :
+                throw new UnsupportedOperationException("Didn't implement the View action yet");  // TODO maybe useful to have this BR support recasting the View RestaurantDetailActivity intent.
+                // return; break;
+            default:
+        }
+        final Boolean setNormalRecurance = tempSetNormalRecurance;
+
+        Log.d(TAG, "got into Compelete Broadcast Receiver. restaurantId= " + restaurantId + "  and action id= " + actionId);
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         mFirestore = FirebaseFirestore.getInstance();
         final DocumentReference drChore = mFirestore.collection("restaurants").document(restaurantId);
 
-        // mark chore complete
+        // mark chore action
         Rating rating = new Rating(
                 FirebaseAuth.getInstance().getCurrentUser(),
                 1,
-                actionId);
+                recordedActionLocal);
 
         // In a transaction, add the new rating and update the aggregate totals
         addRatingComplete(drChore, rating)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Chore marked completed now");
+                        Log.d(TAG, "Chore action marked now");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Chore marking failed", e);
+                        Log.w(TAG, "Chore action marking failed", e);
                     }
                 });
 
@@ -105,16 +126,40 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                             if (ldt.isAfter(LocalDateTime.now())) {
                                 // This was already bumped
+                                Log.d(TAG, "Weird -- this action is trying to bump the alarm time when it is already in the future.");
                                 return;
                             }
 
                             // calculate new alarm time
-                            ldt = ldt.plusMinutes(2);   // TODO iumplement switch(chore.getPriorityChannel())
-
                             // record new alarm times for chore into Firestore
-                            chore.setBDTime(ldt.toString());
+                            if (setNormalRecurance) {
+                                switch(chore.getRecuranceIntervalAsEnum()) {
+                                    case HOURLY:
+                                        ldt = ldt.plusMinutes(60);
+                                        break;
+                                    case DAILY:
+                                        ldt = ldt.plusDays(1);
+                                        break;
+                                    case WEEKLY:
+                                        ldt = ldt.plusWeeks(1);
+                                        break;
+                                    default:
+                                        throw new UnsupportedOperationException("not finished building recurance interval support");
+                                }
+
+                                // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
+
+                                chore.setBDTime(ldt.toString());
+                                drChore.update(Restaurant.FIELD_BDTIME, ldt.toString());
+
+                            } else {
+                                ldt = ldt.plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                                // DO NOT set or update BDTime on snooze action
+                                // chore.setBDTime(ldt.toString());
+                                // drChore.update(Restaurant.FIELD_BDTIME, ldt.toString());
+                            }
+
                             chore.setADTime(ldt.toString());
-                            drChore.update(Restaurant.FIELD_BDTIME, ldt.toString());
                             drChore.update(Restaurant.FIELD_ADTIME, ldt.toString())
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -125,6 +170,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                             // set the alarm
                             AlarmManagerUtil.setAlarm(context, id, ldt.toString(), name, priorityChannel);
+
+                            // TODO compute awards here?
 
                         } else {
                             Log.d(TAG, "Chore get() failed with ", task.getException());
