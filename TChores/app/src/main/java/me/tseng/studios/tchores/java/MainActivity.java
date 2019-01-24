@@ -26,6 +26,8 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+
+import io.mattcarroll.hover.overlay.OverlayPermission;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.RestaurantAdapter;
 import me.tseng.studios.tchores.java.model.Rating;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG = "MainActivity";
 
     private static final int RC_SIGN_IN = 9001;
+    private static final int REQUEST_CODE_HOVER_PERMISSION = 1800;  // To manage Permission to show chat head above all other apps. Note: Can only use lower 16 bits for requestCode -- Keep number low enough.
 
     private static final int LIMIT = 50;
 
@@ -74,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @BindView(R.id.viewEmpty)
     ViewGroup mEmptyView;
+
+
+    private boolean mPermissionsRequested = false;                  // To manage Permission to show chat head above all other apps
 
     private FirebaseFirestore mFirestore;
     private Query mQuery;
@@ -184,10 +190,28 @@ public class MainActivity extends AppCompatActivity implements
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
                 break;
+            case R.id.menu_open_chat_head:
+                Intent startHoverIntent = new Intent(MainActivity.this, TChoreHoverMenuService.class);
+                startService(startHoverIntent);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // On Android M and above we need to ask the user for permission to display the Hover
+        // menu within the "alert window" layer.  Use OverlayPermission to check for the permission
+        // and to request it.
+        if (!mPermissionsRequested && !OverlayPermission.hasRuntimePermissionToDrawOverlay(this)) {
+            @SuppressWarnings("NewApi")
+            Intent myIntent = OverlayPermission.createIntentToRequestOverlayPermission(this);
+            startActivityForResult(myIntent, REQUEST_CODE_HOVER_PERMISSION);
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -208,6 +232,12 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         }
+        if (requestCode == REQUEST_CODE_HOVER_PERMISSION) {
+            mPermissionsRequested = true;
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
     }
 
     @OnClick(R.id.filterBar)
