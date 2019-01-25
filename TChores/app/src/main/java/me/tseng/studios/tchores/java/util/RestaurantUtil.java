@@ -94,7 +94,7 @@ public class RestaurantUtil {
     /**
      * Get a random image.
      */
-    private static String getRandomImageUrl(Random random, Context context) {
+    public static String getRandomImageUrl(Random random, Context context) {
         // Integer between 1 and MAX_IMAGE_NUM (inclusive)
         int id = random.nextInt(MAX_IMAGE_NUM) + 1;
 

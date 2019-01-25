@@ -17,33 +17,69 @@ package me.tseng.studios.tchores.java;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.util.Random;
+
 import io.mattcarroll.hover.Content;
+import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.util.RestaurantUtil;
 
 /**
  * A screen that is displayed in our Hello World Hover Menu.
  */
-public class HoverMenuScreen implements Content {
+public class HoverMenuScreen extends FrameLayout implements Content {
 
     private final Context mContext;
     private final String mPageTitle;
-    private final View mWholeScreen;
+
+    private ImageView mImageViewPhoto;
+    private TextView mTextViewName;
+    private Button mButtonRefuse;
+    private Button mButtonComplete;
+    private Button mButtonSnooze;
 
     public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle) {
+        super(context);
         mContext = context.getApplicationContext();
         mPageTitle = pageTitle;
-        mWholeScreen = createScreenView();
+
+        init();
     }
 
     @NonNull
-    private View createScreenView() {
-        TextView wholeScreen = new TextView(mContext);
-        wholeScreen.setText("Screen: " + mPageTitle);
-        wholeScreen.setGravity(Gravity.CENTER);
-        return wholeScreen;
+    private void init() {
+        LayoutInflater.from(getContext()).inflate(R.layout.chore_actions, this, true);
+
+        mImageViewPhoto = (ImageView) findViewById(R.id.ca_chore_image);
+        mTextViewName = (TextView) findViewById(R.id.ca_chore_name);
+        mButtonRefuse = (Button) findViewById(R.id.ca_button_refuse);
+        mButtonComplete = (Button) findViewById(R.id.ca_button_complete);
+        mButtonSnooze = (Button) findViewById(R.id.ca_button_snooze);
+
+        mTextViewName.setText(mPageTitle);
+
+        String tempPhoto = RestaurantUtil.getRandomImageUrl(new Random(), getContext());
+        if (RestaurantUtil.isURL(tempPhoto)) {
+            Glide.with(mImageViewPhoto.getContext())
+                    .load(tempPhoto)
+                    .into(mImageViewPhoto);
+        } else {
+            try {
+                int tp = Integer.valueOf(tempPhoto);
+                mImageViewPhoto.setImageResource(tp);
+            } catch (Exception e) {
+                // not an int or not a resource number; use default image
+            }
+        }
+
     }
 
     // Make sure that this method returns the SAME View.  It should NOT create a new View each time
@@ -51,7 +87,7 @@ public class HoverMenuScreen implements Content {
     @NonNull
     @Override
     public View getView() {
-        return mWholeScreen;
+        return this;
     }
 
     @Override
