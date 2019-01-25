@@ -114,7 +114,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                             LocalDateTime ldt;
                             try {
-                                ldt = LocalDateTime.parse(chore.getBDTime());
+                                ldt = LocalDateTime.parse(chore.getADTime());
                             } catch (Exception e) {
                                 Log.e(TAG, "Date stored on Firebase database is badly formated.");
                                 ldt = LocalDateTime.MIN;
