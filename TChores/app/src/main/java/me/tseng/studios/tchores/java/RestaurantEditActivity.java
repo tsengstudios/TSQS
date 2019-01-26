@@ -66,7 +66,10 @@ public class RestaurantEditActivity extends AppCompatActivity
 //    TextView mCityView;
 
     @BindView(R.id.ERspnrAssignee)
-    Spinner mCategoryView;
+    Spinner mSpinnerAssignee;
+
+    @BindView(R.id.ERspinnerPhoto)
+    Spinner mSpinnerPhoto;
 
     @BindView(R.id.ERdiffucultyBar)
     RatingBar mPriceView;
@@ -75,7 +78,6 @@ public class RestaurantEditActivity extends AppCompatActivity
     CalendarView mCalendarView;
     LocalDate mLocalDateOnCalendarView;
     EditText mEditTextTime;
-    Spinner mSpinnerPhoto;
 
     DocumentSnapshot document;
 
@@ -104,7 +106,8 @@ public class RestaurantEditActivity extends AppCompatActivity
                        document = task.getResult();
                        if (document.exists()) {
                            mNameView.setText(document.getString(Restaurant.FIELD_NAME));
-                           mCategoryView.setSelection(getIndex(mCategoryView, document.getString(Restaurant.FIELD_CATEGORY)));
+                           mSpinnerAssignee.setSelection(getIndex(mSpinnerAssignee, document.getString(Restaurant.FIELD_CATEGORY)));
+                           mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, document.getString(Restaurant.FIELD_PHOTO)));
 
                            LocalDateTime ldt;
                            try {
@@ -214,7 +217,7 @@ public class RestaurantEditActivity extends AppCompatActivity
 //        mRatingIndicator.setRating((float) restaurant.getAvgRating());
 //        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, restaurant.getNumRatings()));
 //        mCityView.setText(restaurant.getCity());
-//        mCategoryView.setText(restaurant.getCategory());
+//        mSpinnerAssignee.setText(restaurant.getCategory());
 //        mPriceView.setText(RestaurantUtil.getPriceString(restaurant));
 //
 //        // Background image
@@ -245,7 +248,10 @@ public class RestaurantEditActivity extends AppCompatActivity
         LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());
 
         //getting assigned to whom data
-        String feedbackType = mCategoryView.getSelectedItem().toString();
+        String sAssignee = mSpinnerAssignee.getSelectedItem().toString();
+
+        // get selected photo
+        String sPhoto = mSpinnerPhoto.getSelectedItem().toString();
 
         // TODO MOve this code to get the username to the filter for this user
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -255,7 +261,8 @@ public class RestaurantEditActivity extends AppCompatActivity
         mRestaurantRef.update(Restaurant.FIELD_NAME, mNameView.getText().toString());
         mRestaurantRef.update(Restaurant.FIELD_ADTIME, ldt.toString());
         mRestaurantRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
-        mRestaurantRef.update(Restaurant.FIELD_CATEGORY, feedbackType)
+        mRestaurantRef.update(Restaurant.FIELD_PHOTO, sPhoto);
+        mRestaurantRef.update(Restaurant.FIELD_CATEGORY, sAssignee)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
