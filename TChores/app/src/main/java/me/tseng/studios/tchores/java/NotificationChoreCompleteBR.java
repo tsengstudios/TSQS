@@ -109,6 +109,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                             String id = document.getId();
                             String name = chore.getName();
+                            String photo = chore.getPhoto();
                             String priorityChannel = chore.getPriorityChannel();
                             Restaurant.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
 
@@ -169,7 +170,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                                     });
 
                             // set the alarm
-                            AlarmManagerUtil.setAlarm(context, id, ldt.toString(), name, priorityChannel);
+                            AlarmManagerUtil.setAlarm(context, id, ldt.toString(), name, photo, priorityChannel);
 
                             // TODO compute awards here?
 

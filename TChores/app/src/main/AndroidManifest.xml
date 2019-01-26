@@ -43,7 +43,7 @@
         <activity android:name=".java.RestaurantEditActivity" />
 
         <receiver
-            android:name=".java.NotificationPublisher"
+            android:name=".java.AfterAlarmBR"
             android:enabled="true"
             android:exported="true" />
         <receiver

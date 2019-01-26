@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -19,7 +20,7 @@ import java.time.ZonedDateTime;
 
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.NotificationChoreCompleteBR;
-import me.tseng.studios.tchores.java.NotificationPublisher;
+import me.tseng.studios.tchores.java.AfterAlarmBR;
 import me.tseng.studios.tchores.java.RestaurantDetailActivity;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
@@ -33,7 +34,7 @@ public class AlarmManagerUtil {
     public static final int REQUEST_CODE = 0;
 
 
-    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String notificationChannelId) {
+    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String sPhoto, String notificationChannelId) {
 
         createNotificationChannel(context);
 
@@ -56,12 +57,10 @@ public class AlarmManagerUtil {
                 RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED, pendingAction3Intent).build();
 
 
-        Intent notificationIntent = new Intent(context, NotificationPublisher.class);
-        notificationIntent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION_ID, id);
-        notificationIntent.putExtra(NotificationPublisher.NOTIFICATION,
-                getNotification(context, sContentTitle, "THIS IS THE CHORE TEXT TO FILL IN", notificationChannelId, pendingAfterTapNotificationIntent, action1, action2, action3));
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, id, RestaurantDetailActivity.ACTION_VIEW);
+        afterAlarmIntent.putExtra(AfterAlarmBR.NOTIFICATION,
+                getNotification(context, sContentTitle, "THIS IS THE CHORE TEXT TO FILL IN", sPhoto, notificationChannelId, pendingAfterTapNotificationIntent, action1, action2, action3));
+        PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         // Calculate alarm time in Epoch milliseconds
@@ -84,7 +83,7 @@ public class AlarmManagerUtil {
         // The AlarmManager, like most system services, isn't created by application code, but
         // requested from the system.
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(alarmType,rtcAlarmMillis, pendingIntent);
+        alarmManager.setExactAndAllowWhileIdle(alarmType,rtcAlarmMillis, afterAlarmPendingIntent);
 
         // END_INCLUDE (configure_alarm_manager);
 
@@ -103,10 +102,21 @@ public class AlarmManagerUtil {
     }
 
 
-    private static Notification getNotification(Context context, String sContentTitle, String sContentText, String channelId, PendingIntent pendingAfterTapNotificationIntent, Notification.Action action1, Notification.Action action2, Notification.Action action3) {
+    private static Notification getNotification(Context context, String sContentTitle, String sContentText, String sPhoto, String channelId, PendingIntent pendingAfterTapNotificationIntent, Notification.Action action1, Notification.Action action2, Notification.Action action3) {
+
+        int resourceSPhoto = -1;
+        try {
+             resourceSPhoto = Integer.valueOf(sPhoto);
+        } catch (Exception e){
+            // not an int or not a resource number; use default image
+            Log.e(TAG, "There was an illegal resourceId for a chore. sPhoto =" + sPhoto);
+        }
+
         Notification.Builder builder = new Notification.Builder(context, channelId);
         builder.setContentTitle(sContentTitle);
         //builder.setContentText(sContentText);
+        if (resourceSPhoto != -1)
+            builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), resourceSPhoto));  // setLargeIcon() before setSmallIcon()
         builder.setSmallIcon(R.drawable.ic_monetization_on_white_24px);
         builder.setContentIntent(pendingAfterTapNotificationIntent);
         builder.addAction(action1);

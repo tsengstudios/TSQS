@@ -116,6 +116,7 @@ public class TChoresService extends JobIntentService {
                                                 ldt = LocalDateTime.MIN;
                                             }
 
+                                            String photo = d.get(Restaurant.FIELD_PHOTO).toString();
                                             String priorityChannel = d.get(Restaurant.FIELD_PRIORITYCHANNEL).toString();
 
                                             Log.d(TAG, "Got Restaurant: " + id +
@@ -123,7 +124,7 @@ public class TChoresService extends JobIntentService {
                                                     " at " + ldt.toString() +
                                                     " => " + d);
 
-                                            AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, priorityChannel);
+                                            AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel);
 
                                         }
                                     } else {

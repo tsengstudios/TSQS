@@ -15,10 +15,13 @@
  */
 package me.tseng.studios.tchores.java;
 
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -40,13 +43,15 @@ public class TChoreHoverMenuService extends HoverMenuService {
 
     @Override
     protected void onHoverMenuLaunched(@NonNull Intent intent, @NonNull HoverView hoverView) {
-        hoverView.setMenu(createHoverMenu());
+        Notification notification = intent.getParcelableExtra(AfterAlarmBR.NOTIFICATION);
+
+        hoverView.setMenu(createHoverMenu(notification));
         hoverView.collapse();
     }
 
     @NonNull
-    private HoverMenu createHoverMenu() {
-        return new MultiSectionHoverMenu(getApplicationContext());
+    private HoverMenu createHoverMenu(Notification notification) {
+        return new MultiSectionHoverMenu(getApplicationContext(), notification);
     }
 
     private static class MultiSectionHoverMenu extends HoverMenu {
@@ -54,24 +59,26 @@ public class TChoreHoverMenuService extends HoverMenuService {
         private final Context mContext;
         private final List<Section> mSections;
 
-        public MultiSectionHoverMenu(@NonNull Context context) {
+        public MultiSectionHoverMenu(@NonNull Context context, Notification notification) {
             mContext = context.getApplicationContext();
+            String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
+            Icon icon = notification.getLargeIcon();
 
             mSections = Arrays.asList(
                     new Section(
                             new SectionId("1"),
-                            createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 1")
+                            createTabView(icon),
+                            new HoverMenuScreen(mContext, sContentTitle, icon)
                     ),
                     new Section(
                             new SectionId("2"),
                             createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 2")
+                            new HoverMenuScreen(mContext, "Screen 2", icon)
                     ),
                     new Section(
                             new SectionId("3"),
                             createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 3")
+                            new HoverMenuScreen(mContext, "Screen 3", icon)
                     )
             );
         }
@@ -79,6 +86,13 @@ public class TChoreHoverMenuService extends HoverMenuService {
         private View createTabView() {
             ImageView imageView = new ImageView(mContext);
             imageView.setImageResource(R.drawable.fui_ic_check_circle_black_128dp);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            return imageView;
+        }
+
+        private View createTabView(Icon icon) {
+            ImageView imageView = new ImageView(mContext);
+            imageView.setImageIcon(icon);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             return imageView;
         }

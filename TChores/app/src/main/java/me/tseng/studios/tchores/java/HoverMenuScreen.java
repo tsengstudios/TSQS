@@ -16,6 +16,7 @@
 package me.tseng.studios.tchores.java;
 
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ public class HoverMenuScreen extends FrameLayout implements Content {
 
     private final Context mContext;
     private final String mPageTitle;
+    private Icon mIcon;
 
     private ImageView mImageViewPhoto;
     private TextView mTextViewName;
@@ -46,10 +48,11 @@ public class HoverMenuScreen extends FrameLayout implements Content {
     private Button mButtonComplete;
     private Button mButtonSnooze;
 
-    public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle) {
+    public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon) {
         super(context);
         mContext = context.getApplicationContext();
         mPageTitle = pageTitle;
+        mIcon = icon;
 
         init();
     }
@@ -66,19 +69,21 @@ public class HoverMenuScreen extends FrameLayout implements Content {
 
         mTextViewName.setText(mPageTitle);
 
-        String tempPhoto = RestaurantUtil.getRandomImageUrl(new Random(), getContext());
-        if (RestaurantUtil.isURL(tempPhoto)) {
-            Glide.with(mImageViewPhoto.getContext())
-                    .load(tempPhoto)
-                    .into(mImageViewPhoto);
-        } else {
-            try {
-                int tp = Integer.valueOf(tempPhoto);
-                mImageViewPhoto.setImageResource(tp);
-            } catch (Exception e) {
-                // not an int or not a resource number; use default image
-            }
-        }
+//        String tempPhoto = RestaurantUtil.getRandomImageUrl(new Random(), getContext());
+//        if (RestaurantUtil.isURL(tempPhoto)) {
+//            Glide.with(mImageViewPhoto.getContext())
+//                    .load(tempPhoto)
+//                    .into(mImageViewPhoto);
+//        } else {
+//            try {
+//                int tp = Integer.valueOf(tempPhoto);
+//                mImageViewPhoto.setImageResource(tp);
+//            } catch (Exception e) {
+//                // not an int or not a resource number; use default image
+//            }
+//        }
+
+        mImageViewPhoto.setImageIcon(mIcon);  // TODO stuff a better bitmap through all the Intent s  just to get a higher res image here.
 
     }
 

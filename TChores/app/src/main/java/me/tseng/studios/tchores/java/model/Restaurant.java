@@ -15,6 +15,7 @@ public class Restaurant {
 
     public static final String FIELD_CITY = "city";
     public static final String FIELD_CATEGORY = "category";
+    public static final String FIELD_PHOTO = "photo";
     public static final String FIELD_PRICE = "price";
     public static final String FIELD_NAME = "name";
     public static final String FIELD_POPULARITY = "numRatings";
