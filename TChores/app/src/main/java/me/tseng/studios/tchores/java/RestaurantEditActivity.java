@@ -33,6 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.adapter.ChoreImageAdapter;
 import me.tseng.studios.tchores.java.model.Restaurant;
 
 import static me.tseng.studios.tchores.java.util.RestaurantUtil.getLocalDateTime;
@@ -74,6 +75,7 @@ public class RestaurantEditActivity extends AppCompatActivity
     CalendarView mCalendarView;
     LocalDate mLocalDateOnCalendarView;
     EditText mEditTextTime;
+    Spinner mSpinnerPhoto;
 
     DocumentSnapshot document;
 
@@ -166,6 +168,11 @@ public class RestaurantEditActivity extends AppCompatActivity
                 mTimePicker.show();
             };
         });
+
+        // initiate the spinner for chore Photo
+        mSpinnerPhoto = (Spinner) findViewById(R.id.ERspinnerPhoto);
+        ChoreImageAdapter adapter = ChoreImageAdapter.getChoreImageAdapter(this);
+        mSpinnerPhoto.setAdapter(adapter);
     }
 
     @Override
