@@ -14,11 +14,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import me.tseng.studios.tchores.java.model.Rating;
 import me.tseng.studios.tchores.java.model.Restaurant;
@@ -207,6 +210,12 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 // Set new restaurant info
                 restaurant.setNumRatings(newNumRatings);
                 restaurant.setAvgRating(newAvgRating);
+
+                // Update the timestamp field with the value from the server
+                Map<String,Object> updates = new HashMap<>();
+                updates.put("timestamp", FieldValue.serverTimestamp());
+
+                ratingRef.update(updates);
 
                 // Commit to Firestore
                 transaction.set(restaurantRef, restaurant);

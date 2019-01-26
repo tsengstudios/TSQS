@@ -11,6 +11,9 @@ import me.tseng.studios.tchores.java.model.Rating;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -65,7 +68,7 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
             textView.setText(rating.getText());
 
             if (rating.getTimestamp() != null) {
-                dateView.setText(FORMAT.format(rating.getTimestamp()));
+                dateView.setText(rating.getTimestamp().toDate().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
             }
         }
     }
