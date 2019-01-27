@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -33,7 +34,7 @@ public class TChoresService extends JobIntentService {
     /**
      * Unique job ID for this service.
      */
-    static final int JOB_ID = 1000;
+    static final int JOB_ID = 888;
 
     /**
      * Convenience method for enqueuing work in to this service.
@@ -53,7 +54,8 @@ public class TChoresService extends JobIntentService {
         }
         toast("Executing: " + label);
 
-        setAlarms();
+        String sChoreId = intent.getStringExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID);
+        setAlarms(sChoreId);
 
 
     }
@@ -77,7 +79,8 @@ public class TChoresService extends JobIntentService {
 
     private static final int LIMIT = 50;
 
-    public void setAlarms() {
+    // sChoreId == null if all chores should be scanned for setting alarm
+    public void setAlarms(final String sChoreId) {
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -95,43 +98,28 @@ public class TChoresService extends JobIntentService {
                     String mCurrentUserName = user.getDisplayName();
                     Log.i(TAG, "Got username: " + mCurrentUserName);
 
-                    mFirestore.collection("restaurants")
-                            .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
-                            .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            Map<String, Object> d = document.getData();
 
-                                            String id = document.getId();
-                                            String name = d.get(Restaurant.FIELD_NAME).toString();
-                                            LocalDateTime ldt;
-                                            try {
-                                                ldt = LocalDateTime.parse(d.get(Restaurant.FIELD_ADTIME).toString());
-                                            } catch (Exception e) {
-                                                Log.e(TAG, "Date stored on Firebase database is badly formated.");
-                                                ldt = LocalDateTime.MIN;
-                                            }
+                    Query q = (sChoreId == null) ?
+                            mFirestore.collection("restaurants")
+                                    .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
+                                    .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
+                            :
+                            mFirestore.collection("restaurants").whereEqualTo(FieldPath.documentId(), sChoreId);
 
-                                            String photo = d.get(Restaurant.FIELD_PHOTO).toString();
-                                            String priorityChannel = d.get(Restaurant.FIELD_PRIORITYCHANNEL).toString();
+                    q.get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        setAlmOnQDS(mServiceContext, document);
 
-                                            Log.d(TAG, "Got Restaurant: " + id +
-                                                    " = " + name +
-                                                    " at " + ldt.toString() +
-                                                    " => " + d);
-
-                                            AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel);
-
-                                        }
-                                    } else {
-                                        Log.w(TAG, "Error getting documents.", task.getException());
                                     }
+                                } else {
+                                    Log.w(TAG, "Error getting documents.", task.getException());
                                 }
-                            });
+                            }
+                        });
 
 
                 }else{
@@ -141,7 +129,30 @@ public class TChoresService extends JobIntentService {
             }
         });
 
+    }
 
+    private static void setAlmOnQDS(Context mServiceContext, QueryDocumentSnapshot document) {
+        Map<String, Object> d = document.getData();
+
+        String id = document.getId();
+        String name = d.get(Restaurant.FIELD_NAME).toString();
+        LocalDateTime ldt;
+        try {
+            ldt = LocalDateTime.parse(d.get(Restaurant.FIELD_ADTIME).toString());
+        } catch (Exception e) {
+            Log.e(TAG, "Date stored on Firebase database is badly formated.");
+            ldt = LocalDateTime.MIN;
+        }
+
+        String photo = d.get(Restaurant.FIELD_PHOTO).toString();
+        String priorityChannel = d.get(Restaurant.FIELD_PRIORITYCHANNEL).toString();
+
+        Log.d(TAG, "Got Restaurant: " + id +
+                " = " + name +
+                " at " + ldt.toString() +
+                " => " + d);
+
+        AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel);
     }
 
 

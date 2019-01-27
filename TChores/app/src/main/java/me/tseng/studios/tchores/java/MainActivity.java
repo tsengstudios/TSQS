@@ -141,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // Filter Dialog
         mFilterDialog = new FilterDialogFragment();
+
+        TChoresService.enqueueWork(this, new Intent());
+
     }
 
     @Override
@@ -161,8 +164,6 @@ public class MainActivity extends AppCompatActivity implements
             mAdapter.startListening();
         }
 
-        // TODO do we need to check Setup alarms here?
-        TChoresService.enqueueWork(this, new Intent());
 
     }
 

@@ -1,6 +1,8 @@
 package me.tseng.studios.tchores.java;
 
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -80,6 +82,7 @@ public class RestaurantEditActivity extends AppCompatActivity
     EditText mEditTextTime;
 
     DocumentSnapshot document;
+    String mRestaurantId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +90,8 @@ public class RestaurantEditActivity extends AppCompatActivity
         setContentView(R.layout.activity_edit_restaurant);
         ButterKnife.bind(this);
 
-        String restaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
-        if (restaurantId == null) {
+        mRestaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
+        if (mRestaurantId == null) {
             throw new IllegalArgumentException("Must pass extra " + KEY_RESTAURANT_ID);
         }
 
@@ -96,7 +99,7 @@ public class RestaurantEditActivity extends AppCompatActivity
         mFirestore = FirebaseFirestore.getInstance();
 
         // Get reference to the restaurant
-        mRestaurantRef = mFirestore.collection("restaurants").document(restaurantId);
+        mRestaurantRef = mFirestore.collection("restaurants").document(mRestaurantId);
 
 
         mRestaurantRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -257,6 +260,7 @@ public class RestaurantEditActivity extends AppCompatActivity
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getDisplayName();
 
+        final Context context = this;
 
         mRestaurantRef.update(Restaurant.FIELD_NAME, mNameView.getText().toString());
         mRestaurantRef.update(Restaurant.FIELD_ADTIME, ldt.toString());
@@ -267,6 +271,11 @@ public class RestaurantEditActivity extends AppCompatActivity
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG,"YAY!");
+
+                        Intent intent = new Intent();
+                        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, mRestaurantId);
+                        TChoresService.enqueueWork(context, intent);
+
                     }
                 });
 
