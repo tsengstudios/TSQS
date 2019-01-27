@@ -150,8 +150,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
 
                 } else {
-                    ldt = ldt.plusMinutes(2);   // TODO proper snooze of 10 minutes later...
-                    // DO NOT set or update BDTime on snooze action
+                    ldt = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                    // DO NOT set or update BDTime on !setNormalRecurance / snooze action
                     // chore.setBDTime(ldt.toString());
                     // choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
                 }
