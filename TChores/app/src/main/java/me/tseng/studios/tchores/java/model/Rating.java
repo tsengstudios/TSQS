@@ -17,7 +17,7 @@ public class Rating {
     private String userName;
     private double rating;
     private String text;
-    private Timestamp timestamp;
+    private @ServerTimestamp Timestamp timestamp;
 
     public Rating() {}
 

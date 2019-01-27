@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +29,7 @@ import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
 public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
-    private static final String TAG = "NotificationChoreCompleteBR";
+    private static final String TAG = "TChores.NotificationChoreCompleteBR";
 
     public static String NOTIFICATION_ID = "notification-id";
     public static String NOTIFICATION = "notification";
@@ -41,7 +40,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        String restaurantId = intent.getExtras().getString(RestaurantDetailActivity.KEY_RESTAURANT_ID);
+        final String restaurantId = intent.getExtras().getString(RestaurantDetailActivity.KEY_RESTAURANT_ID);
         if (restaurantId == null) {
             throw new IllegalArgumentException("Must pass extra " + RestaurantDetailActivity.KEY_RESTAURANT_ID);
         }
@@ -75,157 +74,125 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         mFirestore = FirebaseFirestore.getInstance();
-        final DocumentReference drChore = mFirestore.collection("restaurants").document(restaurantId);
+        final DocumentReference choreRef = mFirestore.collection("restaurants").document(restaurantId);
 
         // mark chore action
-        Rating rating = new Rating(
+        final Rating rating = new Rating(
                 FirebaseAuth.getInstance().getCurrentUser(),
                 1,
                 recordedActionLocal);
+        final DocumentReference ratingRef = choreRef.collection("ratings").document();  // Create reference for new rating, for use inside the transaction
 
-        // In a transaction, add the new rating and update the aggregate totals
-        addRatingComplete(drChore, rating)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Chore action marked now");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Chore action marking failed", e);
-                    }
-                });
+//        // Update the rating timestamp field with the value from the server
+//        Map<String, Object> updates = new HashMap<>();
+//        updates.put("timestamp", FieldValue.serverTimestamp());
+//        ratingRef.update(updates);
 
-        // TODO make Completion one transaction instead of currently adding a rating (above), and then modifying the new aDTime and bDTime. (below)
-
-        // Reset chore target time
-        drChore.get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-
-                            Restaurant chore = document.toObject(Restaurant.class);
-
-                            String id = document.getId();
-                            String name = chore.getName();
-                            String photo = chore.getPhoto();
-                            String priorityChannel = chore.getPriorityChannel();
-                            Restaurant.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
-
-                            LocalDateTime ldt;
-                            try {
-                                ldt = LocalDateTime.parse(chore.getADTime());
-                            } catch (Exception e) {
-                                Log.e(TAG, "Date stored on Firebase database is badly formated.");
-                                ldt = LocalDateTime.MIN;
-                            }
-
-                            Log.d(TAG, "Got Restaurant: " + id +
-                                    " = " + name +
-                                    " at " + ldt.toString());
-
-                            if (ldt.isAfter(LocalDateTime.now())) {
-                                // This was already bumped
-                                Log.d(TAG, "Weird -- this action is trying to bump the alarm time when it is already in the future.");
-                                return;
-                            }
-
-                            // calculate new alarm time
-                            // record new alarm times for chore into Firestore
-                            if (setNormalRecurance) {
-                                switch(chore.getRecuranceIntervalAsEnum()) {
-                                    case HOURLY:
-                                        ldt = ldt.plusMinutes(60);
-                                        break;
-                                    case DAILY:
-                                        ldt = ldt.plusDays(1);
-                                        break;
-                                    case WEEKLY:
-                                        ldt = ldt.plusWeeks(1);
-                                        break;
-                                    default:
-                                        throw new UnsupportedOperationException("not finished building recurance interval support");
-                                }
-
-                                // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
-
-                                chore.setBDTime(ldt.toString());
-                                drChore.update(Restaurant.FIELD_BDTIME, ldt.toString());
-
-                            } else {
-                                ldt = ldt.plusMinutes(2);   // TODO proper snooze of 10 minutes later...
-                                // DO NOT set or update BDTime on snooze action
-                                // chore.setBDTime(ldt.toString());
-                                // drChore.update(Restaurant.FIELD_BDTIME, ldt.toString());
-                            }
-
-                            chore.setADTime(ldt.toString());
-                            drChore.update(Restaurant.FIELD_ADTIME, ldt.toString())
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.i(TAG, "ADTime sucessfully updated in Firestore");
-                                        }
-                                    });
-
-                            // set the alarm
-                            AlarmManagerUtil.setAlarm(context, id, ldt.toString(), name, photo, priorityChannel);
-
-                            // TODO compute awards here?
-
-                        } else {
-                            Log.d(TAG, "Chore get() failed with ", task.getException());
-                        }
-
-                    }
-                });
-
-        // cancel the notification
-        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(restaurantId.hashCode());
-
-    }
-
-    private Task<Void> addRatingComplete(final DocumentReference restaurantRef, final Rating rating) {
-        // Create reference for new rating, for use inside the transaction
-        final DocumentReference ratingRef = restaurantRef.collection("ratings").document();
-
-        // In a transaction, add the new rating and update the aggregate totals
-        return mFirestore.runTransaction(new Transaction.Function<Void>() {
+        // In a transaction, add the new rating and update the aggregate totals and Reset chore target time
+        mFirestore.runTransaction(new Transaction.Function<Restaurant>() {
             @Override
-            public Void apply(Transaction transaction) throws FirebaseFirestoreException {
-                Restaurant restaurant = transaction.get(restaurantRef).toObject(Restaurant.class);
+            public Restaurant apply(Transaction transaction) throws FirebaseFirestoreException {
+                DocumentSnapshot choreSnapshot = transaction.get(choreRef);
+                Restaurant chore = choreSnapshot.toObject(Restaurant.class);
 
-                // Compute new number of ratings
-                int newNumRatings = restaurant.getNumRatings() + 1;
+                        // Compute new number of ratings
+                        int newNumRatings = chore.getNumRatings() + 1;
 
-                // Compute new average rating
-                double oldRatingTotal = restaurant.getAvgRating() * restaurant.getNumRatings();
-                double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
+                        // Compute new average rating
+                        double oldRatingTotal = chore.getAvgRating() * chore.getNumRatings();
+                        double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
 
-                // Set new restaurant info
-                restaurant.setNumRatings(newNumRatings);
-                restaurant.setAvgRating(newAvgRating);
+                        // Set new chore info
+                        chore.setNumRatings(newNumRatings);
+                        chore.setAvgRating(newAvgRating);
 
-                // Update the timestamp field with the value from the server
-                Map<String,Object> updates = new HashMap<>();
-                updates.put("timestamp", FieldValue.serverTimestamp());
+                String name = chore.getName();
+                Restaurant.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
 
-                ratingRef.update(updates);
+                LocalDateTime ldt;
+                try {
+                    ldt = LocalDateTime.parse(chore.getADTime());
+                } catch (Exception e) {
+                    Log.e(TAG, "Date stored on Firebase database is badly formated.");
+                    ldt = LocalDateTime.MIN;
+                }
+
+                Log.d(TAG, "Got Restaurant: " + restaurantId +
+                        " -  Alarm was at " + ldt.toString() +
+                        " Name=" + name);
+
+                if (ldt.isAfter(LocalDateTime.now())) {
+                    // This was already bumped
+                    throw new FirebaseFirestoreException("Weird -- this action is trying to bump the alarm time when it is already in the future.",
+                            FirebaseFirestoreException.Code.INVALID_ARGUMENT);
+                }
+
+                // calculate new alarm time
+                // record new alarm times for chore into Firestore
+                if (setNormalRecurance) {
+                    switch (chore.getRecuranceIntervalAsEnum()) {
+                        case HOURLY:
+                            ldt = ldt.plusMinutes(60);
+                            break;
+                        case DAILY:
+                            ldt = ldt.plusDays(1);
+                            break;
+                        case WEEKLY:
+                            ldt = ldt.plusWeeks(1);
+                            break;
+                        default:
+                            throw new UnsupportedOperationException("not finished building recurance interval support");
+                    }
+
+                    // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
+
+                    chore.setBDTime(ldt.toString());
+                    choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
+
+                } else {
+                    ldt = ldt.plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                    // DO NOT set or update BDTime on snooze action
+                    // chore.setBDTime(ldt.toString());
+                    // choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
+                }
+
+                chore.setADTime(ldt.toString());
 
                 // Commit to Firestore
-                transaction.set(restaurantRef, restaurant);
+                transaction.set(choreRef, chore);
                 transaction.set(ratingRef, rating);
 
-                return null;
+                return chore;
+            }
+
+        }).addOnSuccessListener(new OnSuccessListener<Restaurant>() {
+            @Override
+            public void onSuccess(Restaurant chore) {
+            Log.i(TAG, "Chore action now marked");
+
+            // TODO toast success
+
+
+            // cancel the notification
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(restaurantId.hashCode());
+
+            // TODO cancel the chat head
+
+            // set the new alarm
+            AlarmManagerUtil.setAlarm(context, restaurantId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
+
+            // TODO compute awards here?
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Chore action marking failed", e);
             }
         });
-    }
 
+    }
 
 }
 

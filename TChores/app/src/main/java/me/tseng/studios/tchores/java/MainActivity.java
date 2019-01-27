@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements
         FilterDialogFragment.FilterListener,
         RestaurantAdapter.OnRestaurantSelectedListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TChores.MainActivity";
 
     private static final int RC_SIGN_IN = 9001;
     private static final int REQUEST_CODE_HOVER_PERMISSION = 1800;  // To manage Permission to show chat head above all other apps. Note: Can only use lower 16 bits for requestCode -- Keep number low enough.

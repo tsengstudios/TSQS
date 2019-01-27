@@ -15,9 +15,11 @@
  */
 package me.tseng.studios.tchores.java;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -25,22 +27,22 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-
-import java.util.Random;
+import java.util.Map;
 
 import io.mattcarroll.hover.Content;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
 
 /**
  * A screen that is displayed in our Hello World Hover Menu.
  */
 public class HoverMenuScreen extends FrameLayout implements Content {
 
+    private static final String TAG = "TChores.HoverMenuScreen";
+
     private final Context mContext;
     private final String mPageTitle;
     private Icon mIcon;
+    private Map<String, PendingIntent> mMapPendingIntents;
 
     private ImageView mImageViewPhoto;
     private TextView mTextViewName;
@@ -48,11 +50,12 @@ public class HoverMenuScreen extends FrameLayout implements Content {
     private Button mButtonComplete;
     private Button mButtonSnooze;
 
-    public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon) {
+    public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon, Map<String, PendingIntent> mapPendingIntents) {
         super(context);
         mContext = context.getApplicationContext();
         mPageTitle = pageTitle;
         mIcon = icon;
+        mMapPendingIntents = mapPendingIntents;
 
         init();
     }
@@ -67,24 +70,31 @@ public class HoverMenuScreen extends FrameLayout implements Content {
         mButtonComplete = (Button) findViewById(R.id.ca_button_complete);
         mButtonSnooze = (Button) findViewById(R.id.ca_button_snooze);
 
+        hookupButtonWithPendingIntent(mButtonRefuse, RestaurantDetailActivity.ACTION_REFUSED_LOCALIZED);
+        hookupButtonWithPendingIntent(mButtonComplete, RestaurantDetailActivity.ACTION_COMPLETED_LOCALIZED);
+        hookupButtonWithPendingIntent(mButtonSnooze, RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED);
         mTextViewName.setText(mPageTitle);
-
-//        String tempPhoto = RestaurantUtil.getRandomImageUrl(new Random(), getContext());
-//        if (RestaurantUtil.isURL(tempPhoto)) {
-//            Glide.with(mImageViewPhoto.getContext())
-//                    .load(tempPhoto)
-//                    .into(mImageViewPhoto);
-//        } else {
-//            try {
-//                int tp = Integer.valueOf(tempPhoto);
-//                mImageViewPhoto.setImageResource(tp);
-//            } catch (Exception e) {
-//                // not an int or not a resource number; use default image
-//            }
-//        }
-
         mImageViewPhoto.setImageIcon(mIcon);  // TODO stuff a better bitmap through all the Intent s  just to get a higher res image here.
 
+    }
+
+    private void hookupButtonWithPendingIntent(Button button, final String actionKey) {
+        button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                PendingIntent pi = mMapPendingIntents.get(actionKey);
+                if (pi != null) {
+                    try {
+                        pi.send();
+                    } catch (PendingIntent.CanceledException e) {
+                        Log.e(TAG, "Failed PendingIntent.send() " + e.getLocalizedMessage());
+                    }
+
+                }
+            }
+
+        });
     }
 
     // Make sure that this method returns the SAME View.  It should NOT create a new View each time

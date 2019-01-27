@@ -16,18 +16,20 @@
 package me.tseng.studios.tchores.java;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.mattcarroll.hover.HoverMenu;
 import io.mattcarroll.hover.HoverView;
@@ -39,7 +41,7 @@ import me.tseng.studios.tchores.R;
  */
 public class TChoreHoverMenuService extends HoverMenuService {
 
-    private static final String TAG = "TChore.TChoreHoverMenuService";
+    private static final String TAG = "TChores.TChoreHoverMenuService";
 
     @Override
     protected void onHoverMenuLaunched(@NonNull Intent intent, @NonNull HoverView hoverView) {
@@ -64,23 +66,36 @@ public class TChoreHoverMenuService extends HoverMenuService {
             String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
             Icon icon = notification.getLargeIcon();
 
+            Map<String, PendingIntent> mapPendingIntents = getMapPendingIntents(notification.actions);
+
             mSections = Arrays.asList(
                     new Section(
                             new SectionId("1"),
                             createTabView(icon),
-                            new HoverMenuScreen(mContext, sContentTitle, icon)
+                            new HoverMenuScreen(mContext, sContentTitle, icon, mapPendingIntents)
                     ),
                     new Section(
                             new SectionId("2"),
                             createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 2", icon)
+                            new HoverMenuScreen(mContext, "Screen 2", icon, mapPendingIntents)
                     ),
                     new Section(
                             new SectionId("3"),
                             createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 3", icon)
+                            new HoverMenuScreen(mContext, "Screen 3", icon, mapPendingIntents)
                     )
             );
+        }
+
+
+        private Map<String,PendingIntent> getMapPendingIntents(Notification.Action[] actions) {
+            Map<String,PendingIntent> map = new HashMap<>();
+
+            for (Notification.Action a: actions) {
+                  map.put(a.title.toString(), a.actionIntent);
+            }
+
+            return map;
         }
 
         private View createTabView() {

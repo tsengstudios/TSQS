@@ -125,7 +125,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 name,
                 uid,
                 feedbackType,
-                "d",
+                "2131230816",
                 Math.round(mRatingBar.getRating()),
                 0,
                 0,
