@@ -36,9 +36,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        final String choreId = intent.getExtras().getString(ChoreDetailActivity.KEY_chore_ID);
+        final String choreId = intent.getExtras().getString(ChoreDetailActivity.KEY_CHORE_ID);
         if (choreId == null) {
-            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_chore_ID);
+            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_CHORE_ID);
         }
         String actionId = intent.getExtras().getString(ChoreDetailActivity.KEY_ACTION);
         if (actionId== null) {
@@ -76,8 +76,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         final Flurr flurr = new Flurr(
                 FirebaseAuth.getInstance().getCurrentUser(),
                 1,
-                recordedActionLocal);
-        final DocumentReference ratingRef = choreRef.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
+                recordedActionLocal,
+                choreId);
+        final DocumentReference flurrRef = mFirestore.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
 
 //        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
@@ -156,7 +157,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 // Commit to Firestore
                 transaction.set(choreRef, chore);
-                transaction.set(ratingRef, flurr);
+                transaction.set(flurrRef, flurr);
 
                 return chore;
             }

@@ -137,16 +137,8 @@ public class ChoreAddActivity extends AppCompatActivity {
                 2*60,
                 priorityChannel);
 
-
-        List<Flurr> randomFlurrs = FlurrUtil.getRandomList(newChore.getNumRatings());
-        newChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
-
         batch.set(restRef, newChore);
-
-        for (Flurr flurr : randomFlurrs) {
-            batch.set(restRef.collection("flurrs").document(), flurr);
-        }
-
+        // removed random flurr generation
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

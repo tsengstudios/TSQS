@@ -23,13 +23,13 @@ public class AfterAlarmBR extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
-        String id = intent.getStringExtra(ChoreDetailActivity.KEY_chore_ID);
+        String id = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
         notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
         Log.i(TAG, "Fire notification id = " + id.hashCode());
 
         Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
         startHoverIntent.setData(Uri.parse(chore_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
-        startHoverIntent.putExtra(ChoreDetailActivity.KEY_chore_ID, id);
+        startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, id);
         startHoverIntent.putExtra(NOTIFICATION, notification);
         context.startService(startHoverIntent);
     }

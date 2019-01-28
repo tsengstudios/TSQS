@@ -30,10 +30,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import io.mattcarroll.hover.overlay.OverlayPermission;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.ChoreAdapter;
-import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.util.ChoreUtil;
-import me.tseng.studios.tchores.java.util.FlurrUtil;
 import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,7 +41,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Collections;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -264,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onchoreSelected(DocumentSnapshot chore) {
         // Go to the details page for the selected chore
         Intent intent = new Intent(this, ChoreDetailActivity.class);
-        intent.putExtra(ChoreDetailActivity.KEY_chore_ID, chore.getId());
+        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, chore.getId());
         intent.putExtra(ChoreDetailActivity.KEY_ACTION, ChoreDetailActivity.ACTION_VIEW);
 
         startActivity(intent);
@@ -334,18 +331,18 @@ public class MainActivity extends AppCompatActivity implements
         for (int i = 0; i < 10; i++) {
             DocumentReference restRef = mFirestore.collection("chores").document();
 
-            // Create random chore / ratings
+            // Create random chore
             Chore randomChore = ChoreUtil.getRandom(this);
-            List<Flurr> randomFlurrs = FlurrUtil.getRandomList(randomChore.getNumRatings());
-            randomChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
+//            List<Flurr> randomFlurrs = FlurrUtil.getRandomList(randomChore.getNumRatings());
+//            randomChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
 
             // Add chore
             batch.set(restRef, randomChore);
 
-            // Add ratings to subcollection
-            for (Flurr flurr : randomFlurrs) {
-                batch.set(restRef.collection("flurrs").document(), flurr);
-            }
+//            // Add ratings to subcollection
+//            for (Flurr flurr : randomFlurrs) {
+//                batch.set(restRef.collection("flurrs").document(), flurr);
+//            }
         }
 
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {

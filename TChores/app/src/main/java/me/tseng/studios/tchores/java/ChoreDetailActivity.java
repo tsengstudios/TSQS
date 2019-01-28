@@ -17,6 +17,7 @@ import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.FlurrAdapter;
 import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -37,7 +38,7 @@ public class ChoreDetailActivity extends AppCompatActivity
 
     private static final String TAG = "TChores.ChoreDetailActivity";
 
-    public static final String KEY_chore_ID = BuildConfig.APPLICATION_ID + ".key_chore_id";   // Prefix for Intent Extra Keys
+    public static final String KEY_CHORE_ID = BuildConfig.APPLICATION_ID + ".key_chore_id";   // Prefix for Intent Extra Keys
     public static final String KEY_ACTION = BuildConfig.APPLICATION_ID + ".key_action";
 
     public static final String ACTION_VIEW = BuildConfig.APPLICATION_ID + ".VIEW";                      // Prefix for Intent Action
@@ -78,9 +79,9 @@ public class ChoreDetailActivity extends AppCompatActivity
 
 
     private FirebaseFirestore mFirestore;
-    private DocumentReference mchoreRef;
+    private DocumentReference mChoreRef;
     private ListenerRegistration mchoreRegistration;
-    private String mchoreId;
+    private String mChoreId;
 
     private FlurrAdapter mFlurrAdapter;
 
@@ -91,31 +92,32 @@ public class ChoreDetailActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         // Get chore ID from extras
-        mchoreId = getIntent().getExtras().getString(KEY_chore_ID);
-        if (mchoreId == null) {
-            throw new IllegalArgumentException("Must pass extra " + KEY_chore_ID);
+        mChoreId = getIntent().getExtras().getString(KEY_CHORE_ID);
+        if (mChoreId == null) {
+            throw new IllegalArgumentException("Must pass extra " + KEY_CHORE_ID);
         }
         String actionId = getIntent().getExtras().getString(KEY_ACTION);
         if (actionId== null) {
             throw new IllegalArgumentException("Must pass extra " + KEY_ACTION);
         }
 
-        Log.i(TAG, "Chore Detail Activity  chore_id=" + mchoreId);
+        Log.i(TAG, "Chore Detail Activity  chore_id=" + mChoreId);
 
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
         // Get reference to the chore
-        mchoreRef = mFirestore.collection("chores").document(mchoreId);
+        mChoreRef = mFirestore.collection("chores").document(mChoreId);
 
         // Get ratings
-        Query ratingsQuery = mchoreRef
+        Query flurrsQuery = mFirestore
                 .collection("flurrs")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
+                .whereEqualTo(Flurr.FIELD_CHOREID, mChoreId)
                 .limit(50);
 
         // RecyclerView
-        mFlurrAdapter = new FlurrAdapter(ratingsQuery) {
+        mFlurrAdapter = new FlurrAdapter(flurrsQuery) {
             @Override
             protected void onDataChanged() {
                 if (getItemCount() == 0) {
@@ -137,7 +139,7 @@ public class ChoreDetailActivity extends AppCompatActivity
         super.onStart();
 
         mFlurrAdapter.startListening();
-        mchoreRegistration = mchoreRef.addSnapshotListener(this);
+        mchoreRegistration = mChoreRef.addSnapshotListener(this);
     }
 
     @Override
@@ -159,7 +161,7 @@ public class ChoreDetailActivity extends AppCompatActivity
     }
 
     /**
-     * Listener for the Chore document ({@link #mchoreRef}).
+     * Listener for the Chore document ({@link #mChoreRef}).
      */
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
@@ -168,10 +170,10 @@ public class ChoreDetailActivity extends AppCompatActivity
             return;
         }
 
-        onchoreLoaded(snapshot.toObject(Chore.class));
+        onChoreLoaded(snapshot.toObject(Chore.class));
     }
 
-    private void onchoreLoaded(Chore chore) {
+    private void onChoreLoaded(Chore chore) {
         mNameView.setText(chore.getName());
         mRatingIndicator.setRating((float) chore.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
@@ -206,7 +208,7 @@ public class ChoreDetailActivity extends AppCompatActivity
     @OnClick(R.id.fabShowEditDialog)
     public void onEditChoreClicked(View view) {
         Intent intent = new Intent(this, ChoreEditActivity.class);
-        intent.putExtra(ChoreEditActivity.KEY_chore_ID, mchoreRef.getId());
+        intent.putExtra(ChoreEditActivity.KEY_chore_ID, mChoreId);
 
         startActivity(intent);
     }

@@ -94,7 +94,7 @@ public class AlarmManagerUtil {
     private static Intent buildIntent(Context context, Class classReceiving, String id, String action) {
         Intent intent = new Intent(context, classReceiving);
         intent.setData(Uri.parse(chore_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
-        intent.putExtra(ChoreDetailActivity.KEY_chore_ID, id);
+        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, id);
         intent.putExtra(ChoreDetailActivity.KEY_ACTION, action);
         intent.setAction(action); // Needed to differentiate Intents so Notification manager doesn't squash them together
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

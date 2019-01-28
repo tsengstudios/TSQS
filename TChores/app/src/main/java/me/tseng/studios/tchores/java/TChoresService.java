@@ -54,7 +54,7 @@ public class TChoresService extends JobIntentService {
         }
         toast("Executing: " + label);
 
-        String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_chore_ID);
+        String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
         setAlarms(sChoreId);
 
 

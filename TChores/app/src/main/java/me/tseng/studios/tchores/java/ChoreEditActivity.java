@@ -273,7 +273,7 @@ public class ChoreEditActivity extends AppCompatActivity
                         Log.i(TAG,"YAY!");
 
                         Intent intent = new Intent();
-                        intent.putExtra(ChoreDetailActivity.KEY_chore_ID, mchoreId);
+                        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, mchoreId);
                         TChoresService.enqueueWork(context, intent);
 
                     }
