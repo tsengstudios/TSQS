@@ -9,21 +9,17 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
-import me.tseng.studios.tchores.java.model.Rating;
-import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
 
@@ -40,31 +36,31 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        final String restaurantId = intent.getExtras().getString(RestaurantDetailActivity.KEY_RESTAURANT_ID);
+        final String restaurantId = intent.getExtras().getString(ChoreDetailActivity.KEY_RESTAURANT_ID);
         if (restaurantId == null) {
-            throw new IllegalArgumentException("Must pass extra " + RestaurantDetailActivity.KEY_RESTAURANT_ID);
+            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_RESTAURANT_ID);
         }
-        String actionId = intent.getExtras().getString(RestaurantDetailActivity.KEY_ACTION);
+        String actionId = intent.getExtras().getString(ChoreDetailActivity.KEY_ACTION);
         if (actionId== null) {
-            throw new IllegalArgumentException("Must pass extra " + RestaurantDetailActivity.KEY_ACTION);
+            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_ACTION);
         }
         String recordedActionLocal = "error: improper action sent";
         Boolean tempSetNormalRecurance = true;
         switch (actionId) {
-            case RestaurantDetailActivity.ACTION_COMPLETED :
-                recordedActionLocal = RestaurantDetailActivity.ACTION_COMPLETED_LOCALIZED;
+            case ChoreDetailActivity.ACTION_COMPLETED :
+                recordedActionLocal = ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED;
 
                 break;
-            case RestaurantDetailActivity.ACTION_REFUSED :
-                recordedActionLocal = RestaurantDetailActivity.ACTION_REFUSED_LOCALIZED;
+            case ChoreDetailActivity.ACTION_REFUSED :
+                recordedActionLocal = ChoreDetailActivity.ACTION_REFUSED_LOCALIZED;
 
                 break;
-            case RestaurantDetailActivity.ACTION_SNOOZED :
-                recordedActionLocal = RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED;
+            case ChoreDetailActivity.ACTION_SNOOZED :
+                recordedActionLocal = ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED;
                 tempSetNormalRecurance = false;
                 break;
-            case RestaurantDetailActivity.ACTION_VIEW :
-                throw new UnsupportedOperationException("Didn't implement the View action yet");  // TODO maybe useful to have this BR support recasting the View RestaurantDetailActivity intent.
+            case ChoreDetailActivity.ACTION_VIEW :
+                throw new UnsupportedOperationException("Didn't implement the View action yet");  // TODO maybe useful to have this BR support recasting the View ChoreDetailActivity intent.
                 // return; break;
             default:
         }
@@ -77,37 +73,37 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         final DocumentReference choreRef = mFirestore.collection("restaurants").document(restaurantId);
 
         // mark chore action
-        final Rating rating = new Rating(
+        final Flurr flurr = new Flurr(
                 FirebaseAuth.getInstance().getCurrentUser(),
                 1,
                 recordedActionLocal);
-        final DocumentReference ratingRef = choreRef.collection("ratings").document();  // Create reference for new rating, for use inside the transaction
+        final DocumentReference ratingRef = choreRef.collection("ratings").document();  // Create reference for new flurr, for use inside the transaction
 
-//        // Update the rating timestamp field with the value from the server
+//        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
 //        updates.put("timestamp", FieldValue.serverTimestamp());
 //        ratingRef.update(updates);
 
-        // In a transaction, add the new rating and update the aggregate totals and Reset chore target time
-        mFirestore.runTransaction(new Transaction.Function<Restaurant>() {
+        // In a transaction, add the new flurr and update the aggregate totals and Reset chore target time
+        mFirestore.runTransaction(new Transaction.Function<Chore>() {
             @Override
-            public Restaurant apply(Transaction transaction) throws FirebaseFirestoreException {
+            public Chore apply(Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot choreSnapshot = transaction.get(choreRef);
-                Restaurant chore = choreSnapshot.toObject(Restaurant.class);
+                Chore chore = choreSnapshot.toObject(Chore.class);
 
                         // Compute new number of ratings
                         int newNumRatings = chore.getNumRatings() + 1;
 
-                        // Compute new average rating
+                        // Compute new average flurr
                         double oldRatingTotal = chore.getAvgRating() * chore.getNumRatings();
-                        double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
+                        double newAvgRating = (oldRatingTotal + flurr.getFlurr()) / newNumRatings;
 
                         // Set new chore info
                         chore.setNumRatings(newNumRatings);
                         chore.setAvgRating(newAvgRating);
 
                 String name = chore.getName();
-                Restaurant.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
+                Chore.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
 
                 LocalDateTime ldt;
                 try {
@@ -117,7 +113,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     ldt = LocalDateTime.MIN;
                 }
 
-                Log.d(TAG, "Got Restaurant: " + restaurantId +
+                Log.d(TAG, "Got Chore: " + restaurantId +
                         " -  Alarm was at " + ldt.toString() +
                         " Name=" + name);
 
@@ -147,27 +143,27 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
 
                     chore.setBDTime(ldt.toString());
-                    choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
+                    choreRef.update(Chore.FIELD_BDTIME, ldt.toString());
 
                 } else {
                     ldt = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
                     // DO NOT set or update BDTime on !setNormalRecurance / snooze action
                     // chore.setBDTime(ldt.toString());
-                    // choreRef.update(Restaurant.FIELD_BDTIME, ldt.toString());
+                    // choreRef.update(Chore.FIELD_BDTIME, ldt.toString());
                 }
 
                 chore.setADTime(ldt.toString());
 
                 // Commit to Firestore
                 transaction.set(choreRef, chore);
-                transaction.set(ratingRef, rating);
+                transaction.set(ratingRef, flurr);
 
                 return chore;
             }
 
-        }).addOnSuccessListener(new OnSuccessListener<Restaurant>() {
+        }).addOnSuccessListener(new OnSuccessListener<Chore>() {
             @Override
-            public void onSuccess(Restaurant chore) {
+            public void onSuccess(Chore chore) {
             Log.i(TAG, "Chore action now marked");
 
             // TODO toast success

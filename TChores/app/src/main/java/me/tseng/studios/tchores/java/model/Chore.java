@@ -8,10 +8,10 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import java.util.EnumMap;
 
 /**
- * Restaurant POJO.
+ * Chore POJO.
  */
 @IgnoreExtraProperties
-public class Restaurant {
+public class Chore {
 
     public static final String FIELD_CITY = "city";
     public static final String FIELD_CATEGORY = "category";
@@ -100,10 +100,10 @@ public class Restaurant {
     }
 
 
-    public Restaurant() {}
+    public Chore() {}
 
-    public Restaurant(String name, String city, String category, String photo,
-                      int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
+    public Chore(String name, String city, String category, String photo,
+                 int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
         this.name = name;
         this.city = city;
         this.category = category;

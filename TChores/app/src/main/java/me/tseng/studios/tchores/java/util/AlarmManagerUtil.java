@@ -19,12 +19,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.ChoreDetailActivity;
 import me.tseng.studios.tchores.java.NotificationChoreCompleteBR;
 import me.tseng.studios.tchores.java.AfterAlarmBR;
-import me.tseng.studios.tchores.java.RestaurantDetailActivity;
-import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.model.Chore;
 
-import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
+import static me.tseng.studios.tchores.java.model.Chore.RESTAURANT_URI_PREFIX;
 
 public class AlarmManagerUtil {
     private static final String TAG = "TChores.RTC Alarm";
@@ -38,26 +38,26 @@ public class AlarmManagerUtil {
 
         createNotificationChannel(context);
 
-        Intent intent = buildIntent(context, RestaurantDetailActivity.class, id, RestaurantDetailActivity.ACTION_VIEW);
+        Intent intent = buildIntent(context, ChoreDetailActivity.class, id, ChoreDetailActivity.ACTION_VIEW);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Intent action1Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, RestaurantDetailActivity.ACTION_COMPLETED);
+        Intent action1Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_COMPLETED);
         PendingIntent pendingActionIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, action1Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action1 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
-                RestaurantDetailActivity.ACTION_COMPLETED_LOCALIZED, pendingActionIntent).build();
+                ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED, pendingActionIntent).build();
 
-        Intent action2Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, RestaurantDetailActivity.ACTION_REFUSED);
+        Intent action2Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_REFUSED);
         PendingIntent pendingAction2Intent = PendingIntent.getBroadcast(context, REQUEST_CODE, action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action2 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
-                RestaurantDetailActivity.ACTION_REFUSED_LOCALIZED, pendingAction2Intent).build();
+                ChoreDetailActivity.ACTION_REFUSED_LOCALIZED, pendingAction2Intent).build();
 
-        Intent action3Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, RestaurantDetailActivity.ACTION_SNOOZED);
+        Intent action3Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_SNOOZED);
         PendingIntent pendingAction3Intent = PendingIntent.getBroadcast(context, REQUEST_CODE, action3Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action3 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
-                RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED, pendingAction3Intent).build();
+                ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED, pendingAction3Intent).build();
 
 
-        Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, id, RestaurantDetailActivity.ACTION_VIEW);
+        Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, id, ChoreDetailActivity.ACTION_VIEW);
         afterAlarmIntent.putExtra(AfterAlarmBR.NOTIFICATION,
                 getNotification(context, sContentTitle, "THIS IS THE CHORE TEXT TO FILL IN", sPhoto, notificationChannelId, pendingAfterTapNotificationIntent, action1, action2, action3));
         PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -94,8 +94,8 @@ public class AlarmManagerUtil {
     private static Intent buildIntent(Context context, Class classReceiving, String id, String action) {
         Intent intent = new Intent(context, classReceiving);
         intent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
-        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
-        intent.putExtra(RestaurantDetailActivity.KEY_ACTION, action);
+        intent.putExtra(ChoreDetailActivity.KEY_RESTAURANT_ID, id);
+        intent.putExtra(ChoreDetailActivity.KEY_ACTION, action);
         intent.setAction(action); // Needed to differentiate Intents so Notification manager doesn't squash them together
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
@@ -133,12 +133,12 @@ public class AlarmManagerUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // TODO Perhaps we should only do this if NotificationManager.getNotificationChannels().count() == 0
 
-            for (Restaurant.PriorityChannel pc : Restaurant.PriorityChannel.values()) {
+            for (Chore.PriorityChannel pc : Chore.PriorityChannel.values()) {
                 NotificationChannel channel = new NotificationChannel(
                         pc.name(),
                         pc.name(),
-                        Restaurant.PriorityChannelImportance(pc));
-                channel.setDescription(Restaurant.PriorityChannelDescription(pc));
+                        Chore.PriorityChannelImportance(pc));
+                channel.setDescription(Chore.PriorityChannelDescription(pc));
 
                 // Register the channel with the system; you can't change the importance
                 // or other notification behaviors after this

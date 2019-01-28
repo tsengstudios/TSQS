@@ -4,8 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Restaurant;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
+
 import com.google.firebase.firestore.Query;
 
 /**
@@ -23,14 +24,14 @@ public class Filters {
 
     public static Filters getDefault() {
         Filters filters = new Filters();
-        filters.setSortBy(Restaurant.FIELD_ADTIME);
+        filters.setSortBy(Chore.FIELD_ADTIME);
         filters.setSortDirection(Query.Direction.DESCENDING);
 
         return filters;
     }
     public static Filters getDefault(String currentUserName) {
         Filters filters = new Filters();
-        filters.setSortBy(Restaurant.FIELD_ADTIME);
+        filters.setSortBy(Chore.FIELD_ADTIME);
         filters.setSortDirection(Query.Direction.DESCENDING);
         filters.setCategory(currentUserName);
 
@@ -121,7 +122,7 @@ public class Filters {
         if (price > 0) {
             desc.append(" for ");
             desc.append("<b>");
-            desc.append(RestaurantUtil.getPriceString(price));
+            desc.append(ChoreUtil.getPriceString(price));
             desc.append("</b>");
         }
 
@@ -129,11 +130,11 @@ public class Filters {
     }
 
     public String getOrderDescription(Context context) {
-        if (Restaurant.FIELD_PRICE.equals(sortBy)) {
+        if (Chore.FIELD_PRICE.equals(sortBy)) {
             return context.getString(R.string.sorted_by_price);
-        } else if (Restaurant.FIELD_POPULARITY.equals(sortBy)) {
+        } else if (Chore.FIELD_POPULARITY.equals(sortBy)) {
             return context.getString(R.string.sorted_by_popularity);
-        } else if (Restaurant.FIELD_ADTIME.equals(sortBy)) {
+        } else if (Chore.FIELD_ADTIME.equals(sortBy)) {
             return context.getString(R.string.sorted_by_aDTime);
         } else {
             return context.getString(R.string.sorted_by_rating);

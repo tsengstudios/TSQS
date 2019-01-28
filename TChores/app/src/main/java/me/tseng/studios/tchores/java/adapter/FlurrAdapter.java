@@ -7,11 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Rating;
+import me.tseng.studios.tchores.java.model.Flurr;
+
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -21,23 +21,23 @@ import butterknife.ButterKnife;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 /**
- * RecyclerView adapter for a list of {@link Rating}.
+ * RecyclerView adapter for a list of {@link Flurr}.
  */
-public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
+public class FlurrAdapter extends FirestoreAdapter<FlurrAdapter.ViewHolder> {
 
-    public RatingAdapter(Query query) {
+    public FlurrAdapter(Query query) {
         super(query);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_rating, parent, false));
+                .inflate(R.layout.item_flurr, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.bind(getSnapshot(position).toObject(Rating.class));
+        holder.bind(getSnapshot(position).toObject(Flurr.class));
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -62,13 +62,13 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Rating rating) {
-            nameView.setText(rating.getUserName());
-            ratingBar.setRating((float) rating.getRating());
-            textView.setText(rating.getText());
+        public void bind(Flurr flurr) {
+            nameView.setText(flurr.getUserName());
+            ratingBar.setRating((float) flurr.getFlurr());
+            textView.setText(flurr.getText());
 
-            if (rating.getTimestamp() != null) {
-                dateView.setText(rating.getTimestamp().toDate().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+            if (flurr.getTimestamp() != null) {
+                dateView.setText(flurr.getTimestamp().toDate().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
             }
         }
     }

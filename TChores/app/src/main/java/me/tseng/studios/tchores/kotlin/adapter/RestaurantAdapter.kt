@@ -10,13 +10,13 @@ import me.tseng.studios.tchores.kotlin.model.Restaurant
 import me.tseng.studios.tchores.kotlin.util.RestaurantUtil
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemCategory
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemCity
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemImage
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemName
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemNumRatings
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemPrice
-import kotlinx.android.synthetic.main.item_restaurant.view.restaurantItemRating
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemCategory
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemCity
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemImage
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemName
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemNumRatings
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemPrice
+import kotlinx.android.synthetic.main.item_chore.view.restaurantItemRating
 
 /**
  * RecyclerView adapter for a list of Restaurants.
@@ -31,7 +31,7 @@ open class RestaurantAdapter(query: Query, private val listener: OnRestaurantSel
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return ViewHolder(inflater.inflate(R.layout.item_restaurant, parent, false))
+        return ViewHolder(inflater.inflate(R.layout.item_chore, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

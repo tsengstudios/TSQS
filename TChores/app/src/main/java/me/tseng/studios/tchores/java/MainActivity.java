@@ -29,12 +29,11 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import io.mattcarroll.hover.overlay.OverlayPermission;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.adapter.RestaurantAdapter;
-import me.tseng.studios.tchores.java.model.Rating;
-import me.tseng.studios.tchores.java.model.Restaurant;
-import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
-import me.tseng.studios.tchores.java.util.RatingUtil;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
+import me.tseng.studios.tchores.java.adapter.ChoreAdapter;
+import me.tseng.studios.tchores.java.model.Flurr;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
+import me.tseng.studios.tchores.java.util.FlurrUtil;
 import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -52,7 +51,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements
         FilterDialogFragment.FilterListener,
-        RestaurantAdapter.OnRestaurantSelectedListener {
+        ChoreAdapter.OnRestaurantSelectedListener {
 
     private static final String TAG = "TChores.MainActivity";
 
@@ -85,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements
     private Query mQuery;
 
     private FilterDialogFragment mFilterDialog;
-    private RestaurantAdapter mAdapter;
+    private ChoreAdapter mAdapter;
 
     private MainActivityViewModel mViewModel;
 
@@ -110,12 +109,12 @@ public class MainActivity extends AppCompatActivity implements
 
         // Get ${LIMIT} restaurants
         mQuery = mFirestore.collection("restaurants")
-                .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
-                .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
+                .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
+                .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
                 .limit(LIMIT);
 
         // RecyclerView
-        mAdapter = new RestaurantAdapter(mQuery, this) {
+        mAdapter = new ChoreAdapter(mQuery, this) {
             @Override
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
@@ -257,16 +256,16 @@ public class MainActivity extends AppCompatActivity implements
     @OnClick(R.id.fabShowRestaurantAddDialog)
     public void onAddRatingClicked(View view) {
         //new code
-        Intent intent = new Intent(this, RestaurantAddActivity.class);
+        Intent intent = new Intent(this, ChoreAddActivity.class);
         startActivity(intent);
     }
 
     @Override
     public void onRestaurantSelected(DocumentSnapshot restaurant) {
         // Go to the details page for the selected restaurant
-        Intent intent = new Intent(this, RestaurantDetailActivity.class);
-        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
-        intent.putExtra(RestaurantDetailActivity.KEY_ACTION, RestaurantDetailActivity.ACTION_VIEW);
+        Intent intent = new Intent(this, ChoreDetailActivity.class);
+        intent.putExtra(ChoreDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
+        intent.putExtra(ChoreDetailActivity.KEY_ACTION, ChoreDetailActivity.ACTION_VIEW);
 
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
@@ -281,17 +280,17 @@ public class MainActivity extends AppCompatActivity implements
 
         // Category (equality filter)
         if (filters.hasCategory()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CATEGORY, filters.getCategory());
+            query = query.whereEqualTo(Chore.FIELD_CATEGORY, filters.getCategory());
         }
 
         // City (equality filter)
         if (filters.hasCity()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CITY, filters.getCity());
+            query = query.whereEqualTo(Chore.FIELD_CITY, filters.getCity());
         }
 
         // Price (equality filter)
         if (filters.hasPrice()) {
-            query = query.whereEqualTo(Restaurant.FIELD_PRICE, filters.getPrice());
+            query = query.whereEqualTo(Chore.FIELD_PRICE, filters.getPrice());
         }
 
         // Sort by (orderBy with direction)
@@ -336,16 +335,16 @@ public class MainActivity extends AppCompatActivity implements
             DocumentReference restRef = mFirestore.collection("restaurants").document();
 
             // Create random restaurant / ratings
-            Restaurant randomRestaurant = RestaurantUtil.getRandom(this);
-            List<Rating> randomRatings = RatingUtil.getRandomList(randomRestaurant.getNumRatings());
-            randomRestaurant.setAvgRating(RatingUtil.getAverageRating(randomRatings));
+            Chore randomChore = ChoreUtil.getRandom(this);
+            List<Flurr> randomFlurrs = FlurrUtil.getRandomList(randomChore.getNumRatings());
+            randomChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
 
             // Add restaurant
-            batch.set(restRef, randomRestaurant);
+            batch.set(restRef, randomChore);
 
             // Add ratings to subcollection
-            for (Rating rating : randomRatings) {
-                batch.set(restRef.collection("ratings").document(), rating);
+            for (Flurr flurr : randomFlurrs) {
+                batch.set(restRef.collection("ratings").document(), flurr);
             }
         }
 

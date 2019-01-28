@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Rating;
-import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.model.Flurr;
 
 import android.util.Log;
 import android.view.View;
@@ -31,15 +31,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import butterknife.OnClick;
-import me.tseng.studios.tchores.java.util.RatingUtil;
+import me.tseng.studios.tchores.java.util.FlurrUtil;
 
-import static me.tseng.studios.tchores.java.util.RestaurantUtil.getLocalDateTime;
+import static me.tseng.studios.tchores.java.util.ChoreUtil.getLocalDateTime;
 
 
-public class RestaurantAddActivity extends AppCompatActivity {
+public class ChoreAddActivity extends AppCompatActivity {
 
     private FirebaseFirestore mFirestore;
-    private static final String TAG = "TChores.RestaurantAddActivity";
+    private static final String TAG = "TChores.ChoreAddActivity";
 
     RatingBar mRatingBar;
     CalendarView mCalendarView;
@@ -50,7 +50,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_restaurant);
+        setContentView(R.layout.activity_add_chore);
 
         //Firestore
         mFirestore = FirebaseFirestore.getInstance();
@@ -78,7 +78,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 int hour = LocalDateTime.now().getHour();
                 int minute = LocalDateTime.now().getMinute();
                 TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(RestaurantAddActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                mTimePicker = new TimePickerDialog(ChoreAddActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         mEditTextTime.setText(String.format("%1$02d:%2$02d", selectedHour,selectedMinute));
@@ -90,7 +90,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
         });
 
         // Init PriorityChannel spinner
-        ArrayAdapter pcAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Restaurant.PriorityChannel.values());
+        ArrayAdapter pcAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Chore.PriorityChannel.values());
         priorityChannelSpinner = (Spinner) findViewById(R.id.spinnerPriorityChannel);
         priorityChannelSpinner .setAdapter(pcAdapter);
 
@@ -112,7 +112,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
         //getting priortiyChannel
         final Spinner priorityChannelSpinner = (Spinner) findViewById(R.id.spinnerPriorityChannel);
         String sPriorityChannel = priorityChannelSpinner.getSelectedItem().toString();
-        Restaurant.PriorityChannel priorityChannel = Restaurant.PriorityChannel.valueOf(sPriorityChannel);
+        Chore.PriorityChannel priorityChannel = Chore.PriorityChannel.valueOf(sPriorityChannel);
 
 
         //username
@@ -121,7 +121,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
 
         LocalDateTime ldt = getLocalDateTime(mLocalDateCalendarView, mEditTextTime.getText().toString());
 
-        Restaurant newChore = new Restaurant(
+        Chore newChore = new Chore(
                 name,
                 uid,
                 feedbackType,
@@ -130,7 +130,7 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 0,
                 0,
                 ldt.toString(),
-                Restaurant.RecuranceInterval.DAILY,
+                Chore.RecuranceInterval.DAILY,
                 ldt.toString(),
                 10,
                 25*60,
@@ -138,13 +138,13 @@ public class RestaurantAddActivity extends AppCompatActivity {
                 priorityChannel);
 
 
-        List<Rating> randomRatings = RatingUtil.getRandomList(newChore.getNumRatings());
-        newChore.setAvgRating(RatingUtil.getAverageRating(randomRatings));
+        List<Flurr> randomFlurrs = FlurrUtil.getRandomList(newChore.getNumRatings());
+        newChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
 
         batch.set(restRef, newChore);
 
-        for (Rating rating : randomRatings) {
-            batch.set(restRef.collection("ratings").document(), rating);
+        for (Flurr flurr : randomFlurrs) {
+            batch.set(restRef.collection("ratings").document(), flurr);
         }
 
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {

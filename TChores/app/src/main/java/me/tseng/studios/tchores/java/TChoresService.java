@@ -22,7 +22,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
 
@@ -54,7 +54,7 @@ public class TChoresService extends JobIntentService {
         }
         toast("Executing: " + label);
 
-        String sChoreId = intent.getStringExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID);
+        String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_RESTAURANT_ID);
         setAlarms(sChoreId);
 
 
@@ -101,8 +101,8 @@ public class TChoresService extends JobIntentService {
 
                     Query q = (sChoreId == null) ?
                             mFirestore.collection("restaurants")
-                                    .orderBy(Restaurant.FIELD_ADTIME, Query.Direction.DESCENDING)
-                                    .whereEqualTo(Restaurant.FIELD_CATEGORY, mCurrentUserName)
+                                    .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
+                                    .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
                             :
                             mFirestore.collection("restaurants").whereEqualTo(FieldPath.documentId(), sChoreId);
 
@@ -135,19 +135,19 @@ public class TChoresService extends JobIntentService {
         Map<String, Object> d = document.getData();
 
         String id = document.getId();
-        String name = d.get(Restaurant.FIELD_NAME).toString();
+        String name = d.get(Chore.FIELD_NAME).toString();
         LocalDateTime ldt;
         try {
-            ldt = LocalDateTime.parse(d.get(Restaurant.FIELD_ADTIME).toString());
+            ldt = LocalDateTime.parse(d.get(Chore.FIELD_ADTIME).toString());
         } catch (Exception e) {
             Log.e(TAG, "Date stored on Firebase database is badly formated.");
             ldt = LocalDateTime.MIN;
         }
 
-        String photo = d.get(Restaurant.FIELD_PHOTO).toString();
-        String priorityChannel = d.get(Restaurant.FIELD_PRIORITYCHANNEL).toString();
+        String photo = d.get(Chore.FIELD_PHOTO).toString();
+        String priorityChannel = d.get(Chore.FIELD_PRIORITYCHANNEL).toString();
 
-        Log.d(TAG, "Got Restaurant: " + id +
+        Log.d(TAG, "Got Chore: " + id +
                 " = " + name +
                 " at " + ldt.toString() +
                 " => " + d);

@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import me.tseng.studios.tchores.R
 import me.tseng.studios.tchores.kotlin.model.Rating
-import kotlinx.android.synthetic.main.dialog_rating.restaurantFormRating
-import kotlinx.android.synthetic.main.dialog_rating.restaurantFormText
-import kotlinx.android.synthetic.main.dialog_rating.view.restaurantFormButton
-import kotlinx.android.synthetic.main.dialog_rating.view.restaurantFormCancel
+import kotlinx.android.synthetic.main.dialog_flurr.restaurantFormRating
+import kotlinx.android.synthetic.main.dialog_flurr.restaurantFormText
+import kotlinx.android.synthetic.main.dialog_flurr.view.restaurantFormButton
+import kotlinx.android.synthetic.main.dialog_flurr.view.restaurantFormCancel
 
 /**
  * Dialog Fragment containing rating form.
@@ -31,7 +31,7 @@ class RatingDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val v = inflater.inflate(R.layout.dialog_rating, container, false)
+        val v = inflater.inflate(R.layout.dialog_flurr, container, false)
 
         v.restaurantFormButton.setOnClickListener { onSubmitClicked() }
         v.restaurantFormCancel.setOnClickListener { onCancelClicked() }

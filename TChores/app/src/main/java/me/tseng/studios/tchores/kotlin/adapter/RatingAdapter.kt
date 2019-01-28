@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import me.tseng.studios.tchores.R
 import me.tseng.studios.tchores.kotlin.model.Rating
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.item_rating.view.ratingItemDate
-import kotlinx.android.synthetic.main.item_rating.view.ratingItemName
-import kotlinx.android.synthetic.main.item_rating.view.ratingItemRating
-import kotlinx.android.synthetic.main.item_rating.view.ratingItemText
+import kotlinx.android.synthetic.main.item_flurr.view.ratingItemDate
+import kotlinx.android.synthetic.main.item_flurr.view.ratingItemName
+import kotlinx.android.synthetic.main.item_flurr.view.ratingItemRating
+import kotlinx.android.synthetic.main.item_flurr.view.ratingItemText
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -21,7 +21,7 @@ open class RatingAdapter(query: Query) : FirestoreAdapter<RatingAdapter.ViewHold
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_rating, parent, false))
+                .inflate(R.layout.item_flurr, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

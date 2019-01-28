@@ -22,17 +22,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.activity_restaurant_detail.fabShowRatingDialog
-import kotlinx.android.synthetic.main.activity_restaurant_detail.recyclerRatings
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantButtonBack
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantCategory
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantCity
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantImage
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantName
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantNumRatings
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantPrice
-import kotlinx.android.synthetic.main.activity_restaurant_detail.restaurantRating
-import kotlinx.android.synthetic.main.activity_restaurant_detail.viewEmptyRatings
+import kotlinx.android.synthetic.main.activity_chore_detail.fabShowRatingDialog
+import kotlinx.android.synthetic.main.activity_chore_detail.recyclerRatings
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantButtonBack
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantCategory
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantCity
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantImage
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantName
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantNumRatings
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantPrice
+import kotlinx.android.synthetic.main.activity_chore_detail.restaurantRating
+import kotlinx.android.synthetic.main.activity_chore_detail.viewEmptyRatings
 
 class RestaurantDetailActivity : AppCompatActivity(),
         EventListener<DocumentSnapshot>,
@@ -48,7 +48,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_restaurant_detail)
+        setContentView(R.layout.activity_chore_detail)
 
         // Get restaurant ID from extras
         val restaurantId = intent.extras?.getString(KEY_RESTAURANT_ID)
@@ -109,7 +109,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
     }
 
     /**
-     * Listener for the Restaurant document ([.restaurantRef]).
+     * Listener for the Chore document ([.restaurantRef]).
      */
     override fun onEvent(snapshot: DocumentSnapshot?, e: FirebaseFirestoreException?) {
         if (e != null) {
@@ -151,7 +151,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
         // In a transaction, add the new rating and update the aggregate totals
         addRating(restaurantRef, rating)
                 .addOnSuccessListener(this) {
-                    Log.d(TAG, "Rating added")
+                    Log.d(TAG, "Flurr added")
 
                     // Hide keyboard and scroll to top
                     hideKeyboard()
@@ -162,7 +162,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
                     // Show failure message and hide keyboard
                     hideKeyboard()
-                    Snackbar.make(findViewById(android.R.id.content), "Failed to add rating",
+                    Snackbar.make(findViewById(android.R.id.content), "Failed to add flurr",
                             Snackbar.LENGTH_SHORT).show()
                 }
     }

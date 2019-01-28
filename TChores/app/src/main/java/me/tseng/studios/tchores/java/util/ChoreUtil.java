@@ -5,7 +5,7 @@ import android.util.Log;
 
 import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Restaurant;
+import me.tseng.studios.tchores.java.model.Chore;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,9 +18,9 @@ import java.util.Random;
 /**
  * Utilities for Restaurants.
  */
-public class RestaurantUtil {
+public class ChoreUtil {
 
-    private static final String TAG = "TChores.RestaurantUtil";
+    private static final String TAG = "TChores.ChoreUtil";
 
     private static final String RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
     private static final String RESTAURANT_DRAWABLE_RESOURCE_FMT = "chore_png_%d";
@@ -49,10 +49,10 @@ public class RestaurantUtil {
     };
 
     /**
-     * Create a random Restaurant POJO.
+     * Create a random Chore POJO.
      */
-    public static Restaurant getRandom(Context context) {
-        Restaurant restaurant = new Restaurant();
+    public static Chore getRandom(Context context) {
+        Chore chore = new Chore();
         Random random = new Random();
 
         // Cities (first elemnt is 'Any')
@@ -65,25 +65,25 @@ public class RestaurantUtil {
 
         int[] prices = new int[]{1, 2, 3};
 
-        restaurant.setName(getRandomName(random));
-        restaurant.setCity(getRandomString(cities, random));
-        restaurant.setCategory(getRandomString(categories, random));
-        restaurant.setPhoto(getRandomImageUrl(random, context));
-        restaurant.setPrice(getRandomInt(prices, random));
-        restaurant.setNumRatings(random.nextInt(20));
+        chore.setName(getRandomName(random));
+        chore.setCity(getRandomString(cities, random));
+        chore.setCategory(getRandomString(categories, random));
+        chore.setPhoto(getRandomImageUrl(random, context));
+        chore.setPrice(getRandomInt(prices, random));
+        chore.setNumRatings(random.nextInt(20));
 
         // Note: average rating intentionally not set
 
-        restaurant.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        restaurant.setRecuranceInterval(randomEnum(Restaurant.RecuranceInterval.class, random).name());
+        chore.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        chore.setRecuranceInterval(randomEnum(Chore.RecuranceInterval.class, random).name());
 
-        restaurant.setBDTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        restaurant.setSnoozeMinutes(10);
-        restaurant.setMustWithin(25*60);
-        restaurant.setNotifyWorldAfter(25*60);
-        restaurant.setPriorityChannel(randomEnum(Restaurant.PriorityChannel.class, random).name());
+        chore.setBDTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        chore.setSnoozeMinutes(10);
+        chore.setMustWithin(25*60);
+        chore.setNotifyWorldAfter(25*60);
+        chore.setPriorityChannel(randomEnum(Chore.PriorityChannel.class, random).name());
 
-        return restaurant;
+        return chore;
     }
 
     public static <T extends Enum<?>> T randomEnum(Class<T> clazz, Random random){
@@ -106,8 +106,8 @@ public class RestaurantUtil {
     /**
      * Get price represented as dollar signs.
      */
-    public static String getPriceString(Restaurant restaurant) {
-        return getPriceString(restaurant.getPrice());
+    public static String getPriceString(Chore chore) {
+        return getPriceString(chore.getPrice());
     }
 
     /**

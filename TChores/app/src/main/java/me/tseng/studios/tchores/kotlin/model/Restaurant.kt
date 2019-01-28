@@ -3,7 +3,7 @@ package me.tseng.studios.tchores.kotlin.model
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 /**
- * Restaurant POJO.
+ * Chore POJO.
  */
 @IgnoreExtraProperties
 data class Restaurant(

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Fire Eats is a restaurant recommendation app built on Cloud Firestore.
+Fire Eats is a chore recommendation app built on Cloud Firestore.
 For more information about Firestore visit [the docs][firestore-docs].
 
 ## Getting Started
@@ -22,16 +22,16 @@ Add the following security rules to your project in the:
 ```
 service cloud.firestore {  
   match /databases/{database}/documents {
-    // Anyone can read a restaurant, only authorized
+    // Anyone can read a chore, only authorized
     // users can create or update. Deletes are not allowed.
   	 match /restaurants/{restaurantId} {
     	 allow read: if true;
     	 allow create, update: if request.auth.uid != null;
     }
     
-    // Anyone can read a rating. Only the user who made the rating
+    // Anyone can read a flurr. Only the user who made the flurr
     // can delete it. Ratings can never be updated.
-    match /restaurants/{restaurantId}/ratings/{ratingId} {
+    match /restaurants/{restaurantId}/flurrs/{ratingId} {
     	 allow read: if true;
       allow create: if request.auth.uid != null;
     	 allow delete: if request.resource.data.userId == request.auth.uid;

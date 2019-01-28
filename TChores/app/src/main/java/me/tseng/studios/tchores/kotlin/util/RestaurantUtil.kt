@@ -19,10 +19,10 @@ object RestaurantUtil {
             "Foo", "Bar", "Baz", "Qux", "Fire", "Sam's", "World Famous", "Google", "The Best")
 
     private val NAME_SECOND_WORDS = arrayOf(
-            "Restaurant", "Cafe", "Spot", "Eatin' Place", "Eatery", "Drive Thru", "Diner")
+            "Chore", "Cafe", "Spot", "Eatin' Place", "Eatery", "Drive Thru", "Diner")
 
     /**
-     * Create a random Restaurant POJO.
+     * Create a random Chore POJO.
      */
     fun getRandom(context: Context): Restaurant {
         val restaurant = Restaurant()

@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import static me.tseng.studios.tchores.java.model.Restaurant.RESTAURANT_URI_PREFIX;
+import static me.tseng.studios.tchores.java.model.Chore.RESTAURANT_URI_PREFIX;
 
 
 public class AfterAlarmBR extends BroadcastReceiver {
@@ -23,13 +23,13 @@ public class AfterAlarmBR extends BroadcastReceiver {
         NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Notification notification = intent.getParcelableExtra(NOTIFICATION);
-        String id = intent.getStringExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID);
+        String id = intent.getStringExtra(ChoreDetailActivity.KEY_RESTAURANT_ID);
         notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
         Log.i(TAG, "Fire notification id = " + id.hashCode());
 
         Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
         startHoverIntent.setData(Uri.parse(RESTAURANT_URI_PREFIX + id));  // faked just to differentiate alarms on different restaurants
-        startHoverIntent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, id);
+        startHoverIntent.putExtra(ChoreDetailActivity.KEY_RESTAURANT_ID, id);
         startHoverIntent.putExtra(NOTIFICATION, notification);
         context.startService(startHoverIntent);
     }

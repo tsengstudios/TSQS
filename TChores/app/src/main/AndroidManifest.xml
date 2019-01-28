@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".java.RestaurantDetailActivity"
+            android:name=".java.ChoreDetailActivity"
             android:theme="@style/AppTheme.Activity" />
         <activity
             android:name=".kotlin.MainActivity"
@@ -39,8 +39,8 @@
         <activity
             android:name=".kotlin.RestaurantDetailActivity"
             android:theme="@style/AppTheme.Activity" />
-        <activity android:name=".java.RestaurantAddActivity" />
-        <activity android:name=".java.RestaurantEditActivity" />
+        <activity android:name=".java.ChoreAddActivity" />
+        <activity android:name=".java.ChoreEditActivity" />
 
         <receiver
             android:name=".java.AfterAlarmBR"

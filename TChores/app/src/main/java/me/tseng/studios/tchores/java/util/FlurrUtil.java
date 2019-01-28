@@ -1,6 +1,6 @@
 package me.tseng.studios.tchores.java.util;
 
-import me.tseng.studios.tchores.java.model.Rating;
+import me.tseng.studios.tchores.java.model.Flurr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Utilities for Ratings.
  */
-public class RatingUtil {
+public class FlurrUtil {
 
     private static final String[] NAME_FIRST_WORDS = {
             "Bill",
@@ -52,10 +52,10 @@ public class RatingUtil {
     };
 
     /**
-     * Get a list of random Rating POJOs.
+     * Get a list of random Flurr POJOs.
      */
-    public static List<Rating> getRandomList(int length) {
-        List<Rating> result = new ArrayList<>();
+    public static List<Flurr> getRandomList(int length) {
+        List<Flurr> result = new ArrayList<>();
 
         for (int i = 0; i < length; i++) {
             result.add(getRandom());
@@ -67,34 +67,34 @@ public class RatingUtil {
     /**
      * Get the average rating of a List.
      */
-    public static double getAverageRating(List<Rating> ratings) {
+    public static double getAverageRating(List<Flurr> flurrs) {
         double sum = 0.0;
 
-        for (Rating rating : ratings) {
-            sum += rating.getRating();
+        for (Flurr flurr : flurrs) {
+            sum += flurr.getFlurr();
         }
 
-        return sum / ratings.size();
+        return sum / flurrs.size();
     }
 
     /**
-     * Create a random Rating POJO.
+     * Create a random Flurr POJO.
      */
-    public static Rating getRandom() {
-        Rating rating = new Rating();
+    public static Flurr getRandom() {
+        Flurr flurr = new Flurr();
 
         Random random = new Random();
 
         double score = random.nextDouble() * 5.0;
         String text = REVIEW_CONTENTS[(int) Math.floor(score)];
 
-        rating.setUserId(UUID.randomUUID().toString());
-        rating.setUserName(getRandomString(NAME_FIRST_WORDS, random) + " "
+        flurr.setUserId(UUID.randomUUID().toString());
+        flurr.setUserName(getRandomString(NAME_FIRST_WORDS, random) + " "
                 + getRandomString(NAME_SECOND_WORDS, random));
-        rating.setRating(score);
-        rating.setText(text);
+        flurr.setFlurr(score);
+        flurr.setText(text);
 
-        return rating;
+        return flurr;
     }
 
     private static String getRandomString(String[] array, Random random) {

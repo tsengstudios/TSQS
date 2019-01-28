@@ -53,7 +53,7 @@
         <item>Jenna</item>
     </string-array>
 
-    <!--add restaurant fields -->
+    <!--add chore fields -->
     <string name="jobTitle"> JobTitle</string>
     <string name="addtype1">assign to who</string>
     <string name="addtype2">diffuculty</string>

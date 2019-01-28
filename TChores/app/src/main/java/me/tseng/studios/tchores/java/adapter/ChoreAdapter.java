@@ -10,8 +10,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Restaurant;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
@@ -22,7 +23,7 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 /**
  * RecyclerView adapter for a list of Restaurants.
  */
-public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHolder> {
+public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
 
     public interface OnRestaurantSelectedListener {
 
@@ -32,7 +33,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
 
     private OnRestaurantSelectedListener mListener;
 
-    public RestaurantAdapter(Query query, OnRestaurantSelectedListener listener) {
+    public ChoreAdapter(Query query, OnRestaurantSelectedListener listener) {
         super(query);
         mListener = listener;
     }
@@ -40,7 +41,7 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return new ViewHolder(inflater.inflate(R.layout.item_restaurant, parent, false));
+        return new ViewHolder(inflater.inflate(R.layout.item_chore, parent, false));
     }
 
     @Override
@@ -85,12 +86,12 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
         public void bind(final DocumentSnapshot snapshot,
                          final OnRestaurantSelectedListener listener) {
 
-            Restaurant restaurant = snapshot.toObject(Restaurant.class);
+            Chore chore = snapshot.toObject(Chore.class);
             Resources resources = itemView.getResources();
 
             // Load image
-            String tempPhoto = restaurant.getPhoto();
-            if (RestaurantUtil.isURL(tempPhoto)) {
+            String tempPhoto = chore.getPhoto();
+            if (ChoreUtil.isURL(tempPhoto)) {
                 Glide.with(imageView.getContext())
                         .load(tempPhoto)
                         .into(imageView);
@@ -102,15 +103,15 @@ public class RestaurantAdapter extends FirestoreAdapter<RestaurantAdapter.ViewHo
                     // not an int or not a resource number; use default image
                 }
             }
-            nameView.setText(restaurant.getName());
-            ratingBar.setRating((float) restaurant.getAvgRating());
-            cityView.setText(restaurant.getCity());
-            categoryView.setText(restaurant.getCategory());
+            nameView.setText(chore.getName());
+            ratingBar.setRating((float) chore.getAvgRating());
+            cityView.setText(chore.getCity());
+            categoryView.setText(chore.getCategory());
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
-                    restaurant.getNumRatings()));
-            priceView.setText(RestaurantUtil.getPriceString(restaurant));
-            aDTimeView.setText(restaurant.getADTime());
-            recurringIntervalView.setText(restaurant.getRecuranceInterval());
+                    chore.getNumRatings()));
+            priceView.setText(ChoreUtil.getPriceString(chore));
+            aDTimeView.setText(chore.getADTime());
+            recurringIntervalView.setText(chore.getRecuranceInterval());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

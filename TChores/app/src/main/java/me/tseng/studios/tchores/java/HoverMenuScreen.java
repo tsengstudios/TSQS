@@ -70,9 +70,9 @@ public class HoverMenuScreen extends FrameLayout implements Content {
         mButtonComplete = (Button) findViewById(R.id.ca_button_complete);
         mButtonSnooze = (Button) findViewById(R.id.ca_button_snooze);
 
-        hookupButtonWithPendingIntent(mButtonRefuse, RestaurantDetailActivity.ACTION_REFUSED_LOCALIZED);
-        hookupButtonWithPendingIntent(mButtonComplete, RestaurantDetailActivity.ACTION_COMPLETED_LOCALIZED);
-        hookupButtonWithPendingIntent(mButtonSnooze, RestaurantDetailActivity.ACTION_SNOOZED_LOCALIZED);
+        hookupButtonWithPendingIntent(mButtonRefuse, ChoreDetailActivity.ACTION_REFUSED_LOCALIZED);
+        hookupButtonWithPendingIntent(mButtonComplete, ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED);
+        hookupButtonWithPendingIntent(mButtonSnooze, ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED);
         mTextViewName.setText(mPageTitle);
         mImageViewPhoto.setImageIcon(mIcon);  // TODO stuff a better bitmap through all the Intent s  just to get a higher res image here.
 

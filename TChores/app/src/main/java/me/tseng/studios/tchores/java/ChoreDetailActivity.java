@@ -1,34 +1,24 @@
 package me.tseng.studios.tchores.java;
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import me.tseng.studios.tchores.BuildConfig;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.adapter.RatingAdapter;
-import me.tseng.studios.tchores.java.model.Rating;
-import me.tseng.studios.tchores.java.model.Restaurant;
-import me.tseng.studios.tchores.java.util.RestaurantUtil;
+import me.tseng.studios.tchores.java.adapter.FlurrAdapter;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -36,17 +26,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.Transaction;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
-public class RestaurantDetailActivity extends AppCompatActivity
+public class ChoreDetailActivity extends AppCompatActivity
         implements EventListener<DocumentSnapshot> {
 
-    private static final String TAG = "TChores.RestaurantDetailActivity";
+    private static final String TAG = "TChores.ChoreDetailActivity";
 
     public static final String KEY_RESTAURANT_ID = BuildConfig.APPLICATION_ID + ".key_restaurant_id";   // Prefix for Intent Extra Keys
     public static final String KEY_ACTION = BuildConfig.APPLICATION_ID + ".key_action";
@@ -93,12 +82,12 @@ public class RestaurantDetailActivity extends AppCompatActivity
     private ListenerRegistration mRestaurantRegistration;
     private String mRestaurantId;
 
-    private RatingAdapter mRatingAdapter;
+    private FlurrAdapter mFlurrAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_restaurant_detail);
+        setContentView(R.layout.activity_chore_detail);
         ButterKnife.bind(this);
 
         // Get restaurant ID from extras
@@ -111,7 +100,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
             throw new IllegalArgumentException("Must pass extra " + KEY_ACTION);
         }
 
-        Log.i(TAG, "Restaurant Detail Activity  restaurant_id=" + mRestaurantId);
+        Log.i(TAG, "Chore Detail Activity  restaurant_id=" + mRestaurantId);
 
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
@@ -126,7 +115,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
                 .limit(50);
 
         // RecyclerView
-        mRatingAdapter = new RatingAdapter(ratingsQuery) {
+        mFlurrAdapter = new FlurrAdapter(ratingsQuery) {
             @Override
             protected void onDataChanged() {
                 if (getItemCount() == 0) {
@@ -139,7 +128,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
             }
         };
         mRatingsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRatingsRecycler.setAdapter(mRatingAdapter);
+        mRatingsRecycler.setAdapter(mFlurrAdapter);
 
     }
 
@@ -147,7 +136,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
-        mRatingAdapter.startListening();
+        mFlurrAdapter.startListening();
         mRestaurantRegistration = mRestaurantRef.addSnapshotListener(this);
     }
 
@@ -155,7 +144,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
     public void onStop() {
         super.onStop();
 
-        mRatingAdapter.stopListening();
+        mFlurrAdapter.stopListening();
 
         if (mRestaurantRegistration != null) {
             mRestaurantRegistration.remove();
@@ -170,7 +159,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
     }
 
     /**
-     * Listener for the Restaurant document ({@link #mRestaurantRef}).
+     * Listener for the Chore document ({@link #mRestaurantRef}).
      */
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
@@ -179,20 +168,20 @@ public class RestaurantDetailActivity extends AppCompatActivity
             return;
         }
 
-        onRestaurantLoaded(snapshot.toObject(Restaurant.class));
+        onRestaurantLoaded(snapshot.toObject(Chore.class));
     }
 
-    private void onRestaurantLoaded(Restaurant restaurant) {
-        mNameView.setText(restaurant.getName());
-        mRatingIndicator.setRating((float) restaurant.getAvgRating());
-        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, restaurant.getNumRatings()));
-        mCityView.setText(restaurant.getCity());
-        mCategoryView.setText(restaurant.getCategory());
-        mPriceView.setText(RestaurantUtil.getPriceString(restaurant));
+    private void onRestaurantLoaded(Chore chore) {
+        mNameView.setText(chore.getName());
+        mRatingIndicator.setRating((float) chore.getAvgRating());
+        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
+        mCityView.setText(chore.getCity());
+        mCategoryView.setText(chore.getCategory());
+        mPriceView.setText(ChoreUtil.getPriceString(chore));
 
         // Background image
-        String tempPhoto = restaurant.getPhoto();
-        if (RestaurantUtil.isURL(tempPhoto)) {
+        String tempPhoto = chore.getPhoto();
+        if (ChoreUtil.isURL(tempPhoto)) {
             Glide.with(mImageView.getContext())
                     .load(tempPhoto)
                     .into(mImageView);
@@ -205,7 +194,7 @@ public class RestaurantDetailActivity extends AppCompatActivity
             }
         }
 
-        Log.i(TAG, "Restaurant Loaded  name=" + restaurant.getName());
+        Log.i(TAG, "Chore Loaded  name=" + chore.getName());
     }
 
     @OnClick(R.id.restaurantButtonBack)
@@ -216,8 +205,8 @@ public class RestaurantDetailActivity extends AppCompatActivity
 
     @OnClick(R.id.fabShowEditDialog)
     public void onEditChoreClicked(View view) {
-        Intent intent = new Intent(this, RestaurantEditActivity.class);
-        intent.putExtra(RestaurantEditActivity.KEY_RESTAURANT_ID, mRestaurantRef.getId());
+        Intent intent = new Intent(this, ChoreEditActivity.class);
+        intent.putExtra(ChoreEditActivity.KEY_RESTAURANT_ID, mRestaurantRef.getId());
 
         startActivity(intent);
     }

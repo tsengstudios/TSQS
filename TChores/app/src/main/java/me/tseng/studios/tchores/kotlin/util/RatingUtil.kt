@@ -27,7 +27,7 @@ object RatingUtil {
             "This was fantastic!  Best ever!")
 
     /**
-     * Create a random Rating POJO.
+     * Create a random Flurr POJO.
      */
     private val random: Rating
         get() {
@@ -47,7 +47,7 @@ object RatingUtil {
         }
 
     /**
-     * Get a list of random Rating POJOs.
+     * Get a list of random Flurr POJOs.
      */
     fun getRandomList(length: Int): List<Rating> {
         val result = ArrayList<Rating>()

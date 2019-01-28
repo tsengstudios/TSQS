@@ -139,7 +139,7 @@
         android:visibility="gone"
         tools:listitem="@layout/item_rating" />
 
-    <!-- View for empty ratings -->
+    <!-- View for empty flurrs -->
     <LinearLayout
         android:id="@+id/viewEmptyRatings"
         android:layout_width="wrap_content"
