@@ -6,7 +6,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
  * Chore POJO.
  */
 @IgnoreExtraProperties
-data class Restaurant(
+data class chore(
     var name: String? = null,
     var city: String? = null,
     var category: String? = null,

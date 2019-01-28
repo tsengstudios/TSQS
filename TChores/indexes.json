@@ -1,56 +1,56 @@
 {
   "indexes": [
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "city", "mode": "ASCENDING" },
         { "fieldPath": "avgRating", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "category", "mode": "ASCENDING" },
         { "fieldPath": "avgRating", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "price", "mode": "ASCENDING" },
         { "fieldPath": "avgRating", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "city", "mode": "ASCENDING" },
         { "fieldPath": "numRatings", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "category", "mode": "ASCENDING" },
         { "fieldPath": "numRatings", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "price", "mode": "ASCENDING" },
         { "fieldPath": "numRatings", "mode": "DESCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "city", "mode": "ASCENDING" },
         { "fieldPath": "price", "mode": "ASCENDING" }
       ]
     },
     {
-      "collectionId": "restaurants",
+      "collectionId": "chores",
       "fields": [
         { "fieldPath": "category", "mode": "ASCENDING" },
         { "fieldPath": "price", "mode": "ASCENDING" }

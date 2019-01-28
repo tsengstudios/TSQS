@@ -66,7 +66,7 @@
                         style="@style/AppTheme.Body1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/all_restaurants"
+                        android:text="@string/all_chores"
                         android:textColor="@color/greySecondary"
                         tools:text="Filter" />
 
@@ -104,10 +104,10 @@
         android:background="@drawable/bg_shadow" />
 
 
-    <!-- Main Restaurants recycler -->
+    <!-- Main chores recycler -->
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerRestaurants"
+        android:id="@+id/recyclerchores"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/filterBarContainer"
@@ -120,7 +120,7 @@
 
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabShowRestaurantAddDialog"
+        android:id="@+id/fabShowchoreAddDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -163,8 +163,8 @@
         android:id="@+id/progressLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/recyclerRestaurants"
-        android:layout_alignTop="@+id/recyclerRestaurants"
+        android:layout_alignBottom="@+id/recyclerchores"
+        android:layout_alignTop="@+id/recyclerchores"
         android:layout_centerHorizontal="true"
         android:visibility="gone" />
 

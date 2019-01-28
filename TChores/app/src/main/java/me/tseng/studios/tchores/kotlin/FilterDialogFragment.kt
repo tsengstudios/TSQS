@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import me.tseng.studios.tchores.R
-import me.tseng.studios.tchores.kotlin.model.Restaurant
+import me.tseng.studios.tchores.kotlin.model.chore
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.dialog_filters.spinnerCategory
 import kotlinx.android.synthetic.main.dialog_filters.spinnerCity
@@ -60,13 +60,13 @@ class FilterDialogFragment : DialogFragment() {
         get() {
             val selected = spinnerSort.selectedItem as String
             if (getString(R.string.sort_by_rating) == selected) {
-                return Restaurant.FIELD_AVG_RATING
+                return chore.FIELD_AVG_RATING
             }
             if (getString(R.string.sort_by_price) == selected) {
-                return Restaurant.FIELD_PRICE
+                return chore.FIELD_PRICE
             }
             return if (getString(R.string.sort_by_popularity) == selected) {
-                Restaurant.FIELD_POPULARITY
+                chore.FIELD_POPULARITY
             } else {
                 null
             }

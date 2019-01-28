@@ -45,26 +45,26 @@ public class ChoreEditActivity extends AppCompatActivity
         implements EventListener<DocumentSnapshot> {
 
     private FirebaseFirestore mFirestore;
-    private DocumentReference mRestaurantRef;
-    private ListenerRegistration mRestaurantRegistration;
+    private DocumentReference mchoreRef;
+    private ListenerRegistration mchoreRegistration;
 
     private static final String TAG = "TChores.ChoreEditActivity";
 
-    public static final String KEY_RESTAURANT_ID = "key_restaurant_id";
+    public static final String KEY_chore_ID = "key_chore_id";
 
- //   @BindView(R.id.restaurantImage)
+ //   @BindView(R.id.choreImage)
  //   ImageView mImageView;
 
     @BindView(R.id.EReditTextName)
     EditText mNameView;
 
-//    @BindView(R.id.restaurantRating)
+//    @BindView(R.id.choreRating)
 //    MaterialRatingBar mRatingIndicator;
 
-//    @BindView(R.id.restaurantNumRatings)
+//    @BindView(R.id.choreNumRatings)
 //    TextView mNumRatingsView;
 
-//    @BindView(R.id.restaurantCity)
+//    @BindView(R.id.choreCity)
 //    TextView mCityView;
 
     @BindView(R.id.ERspnrAssignee)
@@ -82,7 +82,7 @@ public class ChoreEditActivity extends AppCompatActivity
     EditText mEditTextTime;
 
     DocumentSnapshot document;
-    String mRestaurantId;
+    String mchoreId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,19 +90,19 @@ public class ChoreEditActivity extends AppCompatActivity
         setContentView(R.layout.activity_edit_chore);
         ButterKnife.bind(this);
 
-        mRestaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
-        if (mRestaurantId == null) {
-            throw new IllegalArgumentException("Must pass extra " + KEY_RESTAURANT_ID);
+        mchoreId = getIntent().getExtras().getString(KEY_chore_ID);
+        if (mchoreId == null) {
+            throw new IllegalArgumentException("Must pass extra " + KEY_chore_ID);
         }
 
         //Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        // Get reference to the restaurant
-        mRestaurantRef = mFirestore.collection("restaurants").document(mRestaurantId);
+        // Get reference to the chore
+        mchoreRef = mFirestore.collection("chores").document(mchoreId);
 
 
-        mRestaurantRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mchoreRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                @Override
                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                    if (task.isSuccessful()) {
@@ -185,15 +185,15 @@ public class ChoreEditActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
-        mRestaurantRegistration = mRestaurantRef.addSnapshotListener(this);
+        mchoreRegistration = mchoreRef.addSnapshotListener(this);
     }
     @Override
     public void onStop() {
         super.onStop();
 
-        if (mRestaurantRegistration != null) {
-            mRestaurantRegistration.remove();
-            mRestaurantRegistration = null;
+        if (mchoreRegistration != null) {
+            mchoreRegistration.remove();
+            mchoreRegistration = null;
         }
     }
     @Override
@@ -203,28 +203,28 @@ public class ChoreEditActivity extends AppCompatActivity
     }
 
     /**
-     * Listener for the Chore document ({@link #mRestaurantRef}).
+     * Listener for the Chore document ({@link #mchoreRef}).
      */
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
         if (e != null) {
-            Log.w(TAG, "restaurant:onEvent", e);
+            Log.w(TAG, "chore:onEvent", e);
             return;
         }
 
-//        onRestaurantLoaded(snapshot.toObject(Chore.class));
+//        onchoreLoaded(snapshot.toObject(Chore.class));
     }
 //
-//    private void onRestaurantLoaded(Chore restaurant) {
-//        mNameView.setText(restaurant.getName());
-//        mRatingIndicator.setFlurr((float) restaurant.getAvgRating());
-//        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, restaurant.getNumRatings()));
-//        mCityView.setText(restaurant.getCity());
-//        mSpinnerAssignee.setText(restaurant.getCategory());
-//        mPriceView.setText(ChoreUtil.getPriceString(restaurant));
+//    private void onchoreLoaded(Chore chore) {
+//        mNameView.setText(chore.getName());
+//        mRatingIndicator.setFlurr((float) chore.getAvgRating());
+//        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
+//        mCityView.setText(chore.getCity());
+//        mSpinnerAssignee.setText(chore.getCategory());
+//        mPriceView.setText(ChoreUtil.getPriceString(chore));
 //
 //        // Background image
-//        String tempPhoto = restaurant.getPhoto();
+//        String tempPhoto = chore.getPhoto();
 //        if (ChoreUtil.isURL(tempPhoto)) {
 //            Glide.with(mImageView.getContext())
 //                    .load(tempPhoto)
@@ -239,13 +239,13 @@ public class ChoreEditActivity extends AppCompatActivity
 //        }
 //    }
 
-    @OnClick(R.id.ERrestaurantButtonBack)
+    @OnClick(R.id.ERchoreButtonBack)
     public void onBackArrowClicked(View view) {
         onBackPressed();
     }
 
     @OnClick(R.id.EReditRbutton)
-    public void submitRestaurant(View button) {
+    public void submitchore(View button) {
 
         //getting text input
         LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());
@@ -262,18 +262,18 @@ public class ChoreEditActivity extends AppCompatActivity
 
         final Context context = this;
 
-        mRestaurantRef.update(Chore.FIELD_NAME, mNameView.getText().toString());
-        mRestaurantRef.update(Chore.FIELD_ADTIME, ldt.toString());
-        mRestaurantRef.update(Chore.FIELD_BDTIME, ldt.toString());
-        mRestaurantRef.update(Chore.FIELD_PHOTO, sPhoto);
-        mRestaurantRef.update(Chore.FIELD_CATEGORY, sAssignee)
+        mchoreRef.update(Chore.FIELD_NAME, mNameView.getText().toString());
+        mchoreRef.update(Chore.FIELD_ADTIME, ldt.toString());
+        mchoreRef.update(Chore.FIELD_BDTIME, ldt.toString());
+        mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
+        mchoreRef.update(Chore.FIELD_CATEGORY, sAssignee)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG,"YAY!");
 
                         Intent intent = new Intent();
-                        intent.putExtra(ChoreDetailActivity.KEY_RESTAURANT_ID, mRestaurantId);
+                        intent.putExtra(ChoreDetailActivity.KEY_chore_ID, mchoreId);
                         TChoresService.enqueueWork(context, intent);
 
                     }

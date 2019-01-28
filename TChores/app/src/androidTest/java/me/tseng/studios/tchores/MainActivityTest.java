@@ -53,19 +53,19 @@ import static android.support.test.espresso.Espresso.openActionBarOverflowOrOpti
     getActionBarItem(new UiSelector().textContains("Add Random Items"), TIMEOUT).click();
     device.waitForIdle(TIMEOUT);
 
-    // Click on the first restaurant
-    getById("recycler_restaurants").getChild(new UiSelector().index(0))
+    // Click on the first chore
+    getById("recycler_chores").getChild(new UiSelector().index(0))
         .clickAndWaitForNewWindow(TIMEOUT);
 
     // Click add review
     getById("fabShowRatingDialog").click();
 
     //Write a review
-    getById("restaurant_form_text").setText("\uD83D\uDE0E\uD83D\uDE00");
+    getById("chore_form_text").setText("\uD83D\uDE0E\uD83D\uDE00");
     closeKeyboard();
 
     //Submit the review
-    getById("restaurant_form_button").clickAndWaitForNewWindow(TIMEOUT);
+    getById("chore_form_button").clickAndWaitForNewWindow(TIMEOUT);
 
     // Assert that the review exists
     UiScrollable ratingsList = new UiScrollable(getIdSelector("recyclerRatings"));

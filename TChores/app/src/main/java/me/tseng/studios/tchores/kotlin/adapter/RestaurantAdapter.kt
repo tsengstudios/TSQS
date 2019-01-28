@@ -6,27 +6,27 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import me.tseng.studios.tchores.R
-import me.tseng.studios.tchores.kotlin.model.Restaurant
-import me.tseng.studios.tchores.kotlin.util.RestaurantUtil
+import me.tseng.studios.tchores.kotlin.model.chore
+import me.tseng.studios.tchores.kotlin.util.choreUtil
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemCategory
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemCity
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemImage
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemName
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemNumRatings
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemPrice
-import kotlinx.android.synthetic.main.item_chore.view.restaurantItemRating
+import kotlinx.android.synthetic.main.item_chore.view.choreItemCategory
+import kotlinx.android.synthetic.main.item_chore.view.choreItemCity
+import kotlinx.android.synthetic.main.item_chore.view.choreItemImage
+import kotlinx.android.synthetic.main.item_chore.view.choreItemName
+import kotlinx.android.synthetic.main.item_chore.view.choreItemNumRatings
+import kotlinx.android.synthetic.main.item_chore.view.choreItemPrice
+import kotlinx.android.synthetic.main.item_chore.view.choreItemRating
 
 /**
- * RecyclerView adapter for a list of Restaurants.
+ * RecyclerView adapter for a list of chores.
  */
-open class RestaurantAdapter(query: Query, private val listener: OnRestaurantSelectedListener) :
-        FirestoreAdapter<RestaurantAdapter.ViewHolder>(query) {
+open class choreAdapter(query: Query, private val listener: OnchoreSelectedListener) :
+        FirestoreAdapter<choreAdapter.ViewHolder>(query) {
 
-    interface OnRestaurantSelectedListener {
+    interface OnchoreSelectedListener {
 
-        fun onRestaurantSelected(restaurant: DocumentSnapshot)
+        fun onchoreSelected(chore: DocumentSnapshot)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -42,35 +42,35 @@ open class RestaurantAdapter(query: Query, private val listener: OnRestaurantSel
 
         fun bind(
             snapshot: DocumentSnapshot,
-            listener: OnRestaurantSelectedListener?
+            listener: OnchoreSelectedListener?
         ) {
 
-            val restaurant = snapshot.toObject(Restaurant::class.java)
-            if (restaurant == null) {
+            val chore = snapshot.toObject(chore::class.java)
+            if (chore == null) {
                 return
             }
 
             val resources = itemView.resources
 
             // Load image
-            Glide.with(itemView.restaurantItemImage.context)
-                    .load(restaurant.photo)
-                    .into(itemView.restaurantItemImage)
+            Glide.with(itemView.choreItemImage.context)
+                    .load(chore.photo)
+                    .into(itemView.choreItemImage)
 
-            val numRatings: Int = restaurant.numRatings
+            val numRatings: Int = chore.numRatings
 
-            itemView.restaurantItemName.text = restaurant.name
-            itemView.restaurantItemRating.rating = restaurant.avgRating.toFloat()
-            itemView.restaurantItemCity.text = restaurant.city
-            itemView.restaurantItemCategory.text = restaurant.category
-            itemView.restaurantItemNumRatings.text = resources.getString(
+            itemView.choreItemName.text = chore.name
+            itemView.choreItemRating.rating = chore.avgRating.toFloat()
+            itemView.choreItemCity.text = chore.city
+            itemView.choreItemCategory.text = chore.category
+            itemView.choreItemNumRatings.text = resources.getString(
                     R.string.fmt_num_ratings,
                     numRatings)
-            itemView.restaurantItemPrice.text = RestaurantUtil.getPriceString(restaurant)
+            itemView.choreItemPrice.text = choreUtil.getPriceString(chore)
 
             // Click listener
             itemView.setOnClickListener {
-                listener?.onRestaurantSelected(snapshot)
+                listener?.onchoreSelected(snapshot)
             }
         }
     }

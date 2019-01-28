@@ -54,7 +54,7 @@ public class TChoresService extends JobIntentService {
         }
         toast("Executing: " + label);
 
-        String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_RESTAURANT_ID);
+        String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_chore_ID);
         setAlarms(sChoreId);
 
 
@@ -100,11 +100,11 @@ public class TChoresService extends JobIntentService {
 
 
                     Query q = (sChoreId == null) ?
-                            mFirestore.collection("restaurants")
+                            mFirestore.collection("chores")
                                     .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
                                     .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
                             :
-                            mFirestore.collection("restaurants").whereEqualTo(FieldPath.documentId(), sChoreId);
+                            mFirestore.collection("chores").whereEqualTo(FieldPath.documentId(), sChoreId);
 
                     q.get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

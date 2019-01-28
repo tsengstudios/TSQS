@@ -19,10 +19,10 @@ import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
 import me.tseng.studios.tchores.R
-import me.tseng.studios.tchores.kotlin.adapter.RestaurantAdapter
-import me.tseng.studios.tchores.kotlin.model.Restaurant
+import me.tseng.studios.tchores.kotlin.adapter.choreAdapter
+import me.tseng.studios.tchores.kotlin.model.chore
 import me.tseng.studios.tchores.kotlin.util.RatingUtil
-import me.tseng.studios.tchores.kotlin.util.RestaurantUtil
+import me.tseng.studios.tchores.kotlin.util.choreUtil
 import me.tseng.studios.tchores.kotlin.viewmodel.MainActivityViewModel
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,7 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_main.buttonClearFilter
 import kotlinx.android.synthetic.main.activity_main.filterBar
-import kotlinx.android.synthetic.main.activity_main.recyclerRestaurants
+import kotlinx.android.synthetic.main.activity_main.recyclerchores
 import kotlinx.android.synthetic.main.activity_main.textCurrentSearch
 import kotlinx.android.synthetic.main.activity_main.textCurrentSortBy
 import kotlinx.android.synthetic.main.activity_main.toolbar
@@ -38,13 +38,13 @@ import kotlinx.android.synthetic.main.activity_main.viewEmpty
 
 class MainActivity : AppCompatActivity(),
         FilterDialogFragment.FilterListener,
-        RestaurantAdapter.OnRestaurantSelectedListener {
+        choreAdapter.OnchoreSelectedListener {
 
     lateinit var firestore: FirebaseFirestore
     lateinit var query: Query
 
     private lateinit var filterDialog: FilterDialogFragment
-    lateinit var adapter: RestaurantAdapter
+    lateinit var adapter: choreAdapter
 
     private lateinit var viewModel: MainActivityViewModel
 
@@ -62,20 +62,20 @@ class MainActivity : AppCompatActivity(),
         // Firestore
         firestore = FirebaseFirestore.getInstance()
 
-        // Get ${LIMIT} restaurants
-        query = firestore.collection("restaurants")
+        // Get ${LIMIT} chores
+        query = firestore.collection("chores")
                 .orderBy("avgRating", Query.Direction.DESCENDING)
                 .limit(LIMIT.toLong())
 
         // RecyclerView
-        adapter = object : RestaurantAdapter(query, this@MainActivity) {
+        adapter = object : choreAdapter(query, this@MainActivity) {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount == 0) {
-                    recyclerRestaurants.visibility = View.GONE
+                    recyclerchores.visibility = View.GONE
                     viewEmpty.visibility = View.VISIBLE
                 } else {
-                    recyclerRestaurants.visibility = View.VISIBLE
+                    recyclerchores.visibility = View.VISIBLE
                     viewEmpty.visibility = View.GONE
                 }
             }
@@ -87,8 +87,8 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        recyclerRestaurants.layoutManager = LinearLayoutManager(this)
-        recyclerRestaurants.adapter = adapter
+        recyclerchores.layoutManager = LinearLayoutManager(this)
+        recyclerchores.adapter = adapter
 
         // Filter Dialog
         filterDialog = FilterDialogFragment()
@@ -164,10 +164,10 @@ class MainActivity : AppCompatActivity(),
         onFilter(Filters.default)
     }
 
-    override fun onRestaurantSelected(restaurant: DocumentSnapshot) {
-        // Go to the details page for the selected restaurant
-        val intent = Intent(this, RestaurantDetailActivity::class.java)
-        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.id)
+    override fun onchoreSelected(chore: DocumentSnapshot) {
+        // Go to the details page for the selected chore
+        val intent = Intent(this, choreDetailActivity::class.java)
+        intent.putExtra(choreDetailActivity.KEY_chore_ID, chore.id)
 
         startActivity(intent)
         overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left)
@@ -175,21 +175,21 @@ class MainActivity : AppCompatActivity(),
 
     override fun onFilter(filters: Filters) {
         // Construct query basic query
-        var query: Query = firestore.collection("restaurants")
+        var query: Query = firestore.collection("chores")
 
         // Category (equality filter)
         if (filters.hasCategory()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CATEGORY, filters.category)
+            query = query.whereEqualTo(chore.FIELD_CATEGORY, filters.category)
         }
 
         // City (equality filter)
         if (filters.hasCity()) {
-            query = query.whereEqualTo(Restaurant.FIELD_CITY, filters.city)
+            query = query.whereEqualTo(chore.FIELD_CITY, filters.city)
         }
 
         // Price (equality filter)
         if (filters.hasPrice()) {
-            query = query.whereEqualTo(Restaurant.FIELD_PRICE, filters.price)
+            query = query.whereEqualTo(chore.FIELD_PRICE, filters.price)
         }
 
         // Sort by (orderBy with direction)
@@ -227,22 +227,22 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun onAddItemsClicked() {
-        // Add a bunch of random restaurants
+        // Add a bunch of random chores
         val batch = firestore.batch()
         for (i in 0..9) {
-            val restRef = firestore.collection("restaurants").document()
+            val restRef = firestore.collection("chores").document()
 
-            // Create random restaurant / ratings
-            val randomRestaurant = RestaurantUtil.getRandom(this)
-            val randomRatings = RatingUtil.getRandomList(randomRestaurant.numRatings)
-            randomRestaurant.avgRating = RatingUtil.getAverageRating(randomRatings)
+            // Create random chore / ratings
+            val randomchore = choreUtil.getRandom(this)
+            val randomRatings = RatingUtil.getRandomList(randomchore.numRatings)
+            randomchore.avgRating = RatingUtil.getAverageRating(randomRatings)
 
-            // Add restaurant
-            batch.set(restRef, randomRestaurant)
+            // Add chore
+            batch.set(restRef, randomchore)
 
             // Add ratings to subcollection
             for (rating in randomRatings) {
-                batch.set(restRef.collection("ratings").document(), rating)
+                batch.set(restRef.collection("flurrs").document(), rating)
             }
         }
 

@@ -2,17 +2,17 @@ package me.tseng.studios.tchores.kotlin.util
 
 import android.content.Context
 import me.tseng.studios.tchores.R
-import me.tseng.studios.tchores.kotlin.model.Restaurant
+import me.tseng.studios.tchores.kotlin.model.chore
 import java.util.Arrays
 import java.util.Locale
 import java.util.Random
 
 /**
- * Utilities for Restaurants.
+ * Utilities for chores.
  */
-object RestaurantUtil {
+object choreUtil {
 
-    private const val RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png"
+    private const val chore_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png"
     private const val MAX_IMAGE_NUM = 22
 
     private val NAME_FIRST_WORDS = arrayOf(
@@ -24,8 +24,8 @@ object RestaurantUtil {
     /**
      * Create a random Chore POJO.
      */
-    fun getRandom(context: Context): Restaurant {
-        val restaurant = Restaurant()
+    fun getRandom(context: Context): chore {
+        val chore = chore()
         val random = Random()
 
         // Cities (first elemnt is 'Any')
@@ -38,16 +38,16 @@ object RestaurantUtil {
 
         val prices = intArrayOf(1, 2, 3)
 
-        restaurant.name = getRandomName(random)
-        restaurant.city = getRandomString(cities, random)
-        restaurant.category = getRandomString(categories, random)
-        restaurant.photo = getRandomImageUrl(random)
-        restaurant.price = getRandomInt(prices, random)
-        restaurant.numRatings = random.nextInt(20)
+        chore.name = getRandomName(random)
+        chore.city = getRandomString(cities, random)
+        chore.category = getRandomString(categories, random)
+        chore.photo = getRandomImageUrl(random)
+        chore.price = getRandomInt(prices, random)
+        chore.numRatings = random.nextInt(20)
 
         // Note: average rating intentionally not set
 
-        return restaurant
+        return chore
     }
 
     /**
@@ -57,14 +57,14 @@ object RestaurantUtil {
         // Integer between 1 and MAX_IMAGE_NUM (inclusive)
         val id = random.nextInt(MAX_IMAGE_NUM) + 1
 
-        return String.format(Locale.getDefault(), RESTAURANT_URL_FMT, id)
+        return String.format(Locale.getDefault(), chore_URL_FMT, id)
     }
 
     /**
      * Get price represented as dollar signs.
      */
-    fun getPriceString(restaurant: Restaurant): String {
-        return getPriceString(restaurant.price)
+    fun getPriceString(chore: chore): String {
+        return getPriceString(chore.price)
     }
 
     /**

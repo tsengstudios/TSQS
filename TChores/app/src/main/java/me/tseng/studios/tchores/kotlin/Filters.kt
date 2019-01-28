@@ -3,8 +3,8 @@ package me.tseng.studios.tchores.kotlin
 import android.content.Context
 import android.text.TextUtils
 import me.tseng.studios.tchores.R
-import me.tseng.studios.tchores.kotlin.model.Restaurant
-import me.tseng.studios.tchores.kotlin.util.RestaurantUtil
+import me.tseng.studios.tchores.kotlin.model.chore
+import me.tseng.studios.tchores.kotlin.util.choreUtil
 import com.google.firebase.firestore.Query
 
 /**
@@ -39,7 +39,7 @@ class Filters {
 
         if (category == null && city == null) {
             desc.append("<b>")
-            desc.append(context.getString(R.string.all_restaurants))
+            desc.append(context.getString(R.string.all_chores))
             desc.append("</b>")
         }
 
@@ -62,7 +62,7 @@ class Filters {
         if (price > 0) {
             desc.append(" for ")
             desc.append("<b>")
-            desc.append(RestaurantUtil.getPriceString(price))
+            desc.append(choreUtil.getPriceString(price))
             desc.append("</b>")
         }
 
@@ -71,8 +71,8 @@ class Filters {
 
     fun getOrderDescription(context: Context): String {
         return when (sortBy) {
-            Restaurant.FIELD_PRICE -> context.getString(R.string.sorted_by_price)
-            Restaurant.FIELD_POPULARITY -> context.getString(R.string.sorted_by_popularity)
+            chore.FIELD_PRICE -> context.getString(R.string.sorted_by_price)
+            chore.FIELD_POPULARITY -> context.getString(R.string.sorted_by_popularity)
             else -> context.getString(R.string.sorted_by_rating)
         }
     }
@@ -82,7 +82,7 @@ class Filters {
         val default: Filters
             get() {
                 val filters = Filters()
-                filters.sortBy = Restaurant.FIELD_AVG_RATING
+                filters.sortBy = chore.FIELD_AVG_RATING
                 filters.sortDirection = Query.Direction.DESCENDING
 
                 return filters

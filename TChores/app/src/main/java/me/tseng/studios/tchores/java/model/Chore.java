@@ -29,7 +29,7 @@ public class Chore {
     public static final String FIELD_PRIORITYCHANNEL = "priorityChannel";       // the type of chore completion necessity
 
 
-    public static final String RESTAURANT_URI_PREFIX = "restaurant:";
+    public static final String chore_URI_PREFIX = "chore:";
 
     private String name;
     private String city;

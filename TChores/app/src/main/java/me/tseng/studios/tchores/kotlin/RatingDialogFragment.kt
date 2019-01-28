@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import me.tseng.studios.tchores.R
 import me.tseng.studios.tchores.kotlin.model.Rating
-import kotlinx.android.synthetic.main.dialog_flurr.restaurantFormRating
-import kotlinx.android.synthetic.main.dialog_flurr.restaurantFormText
-import kotlinx.android.synthetic.main.dialog_flurr.view.restaurantFormButton
-import kotlinx.android.synthetic.main.dialog_flurr.view.restaurantFormCancel
+import kotlinx.android.synthetic.main.dialog_flurr.choreFormRating
+import kotlinx.android.synthetic.main.dialog_flurr.choreFormText
+import kotlinx.android.synthetic.main.dialog_flurr.view.choreFormButton
+import kotlinx.android.synthetic.main.dialog_flurr.view.choreFormCancel
 
 /**
  * Dialog Fragment containing rating form.
@@ -33,8 +33,8 @@ class RatingDialogFragment : DialogFragment() {
     ): View? {
         val v = inflater.inflate(R.layout.dialog_flurr, container, false)
 
-        v.restaurantFormButton.setOnClickListener { onSubmitClicked() }
-        v.restaurantFormCancel.setOnClickListener { onCancelClicked() }
+        v.choreFormButton.setOnClickListener { onSubmitClicked() }
+        v.choreFormCancel.setOnClickListener { onCancelClicked() }
 
         return v
     }
@@ -59,8 +59,8 @@ class RatingDialogFragment : DialogFragment() {
         user?.let {
             val rating = Rating(
                     user,
-                    restaurantFormRating.rating.toDouble(),
-                    restaurantFormText.text.toString())
+                    choreFormRating.rating.toDouble(),
+                    choreFormText.text.toString())
 
             ratingListener?.onRating(rating)
         }

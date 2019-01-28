@@ -97,9 +97,9 @@ public class ChoreAddActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.addRbutton)
-    public void submitRestaurant(View button) {
+    public void submitchore(View button) {
         WriteBatch batch = mFirestore.batch();
-        DocumentReference restRef = mFirestore.collection("restaurants").document();
+        DocumentReference restRef = mFirestore.collection("chores").document();
 
         //getting text input
         final EditText nameField = (EditText) findViewById(R.id.editTextName);
@@ -144,7 +144,7 @@ public class ChoreAddActivity extends AppCompatActivity {
         batch.set(restRef, newChore);
 
         for (Flurr flurr : randomFlurrs) {
-            batch.set(restRef.collection("ratings").document(), flurr);
+            batch.set(restRef.collection("flurrs").document(), flurr);
         }
 
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {

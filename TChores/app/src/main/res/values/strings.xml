@@ -14,7 +14,7 @@
     <string name="label_sort_by">Sort By</string>
 
     <string name="fmt_num_ratings" translatable="false">(%d)</string>
-    <string name="all_restaurants">All Chores</string>
+    <string name="all_chores">All Chores</string>
     <string name="header_filters">Filter</string>
     <string name="search">Search</string>
 
@@ -90,7 +90,7 @@
         <item>@string/price_3</item>
     </string-array>
 
-    <!-- Ways you can sort restaurants -->
+    <!-- Ways you can sort chores -->
     <string-array name="sort_by">
         <item>@string/sort_by_rating</item>
         <item>@string/sort_by_popularity</item>

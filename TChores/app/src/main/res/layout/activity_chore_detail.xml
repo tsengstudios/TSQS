@@ -7,13 +7,13 @@
     android:background="#E0E0E0">
 
     <RelativeLayout
-        android:id="@+id/restaurant_top_card"
+        android:id="@+id/chore_top_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="4dp">
 
         <ImageView
-            android:id="@+id/restaurantImage"
+            android:id="@+id/choreImage"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:alpha="1.0"
@@ -27,20 +27,20 @@
 
         <!-- Back button -->
         <ImageView
-            android:id="@+id/restaurantButtonBack"
+            android:id="@+id/choreButtonBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
-            android:layout_alignLeft="@+id/restaurantName"
+            android:layout_alignLeft="@+id/choreName"
             android:layout_marginTop="16dp"
             app:srcCompat="@drawable/ic_close_white_24px" />
 
         <TextView
-            android:id="@+id/restaurantName"
+            android:id="@+id/choreName"
             style="@style/AppTheme.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/restaurantRating"
+            android:layout_above="@+id/choreRating"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
@@ -48,66 +48,66 @@
             tools:text="Some Chore" />
 
         <me.zhanghai.android.materialratingbar.MaterialRatingBar
-            android:id="@+id/restaurantRating"
+            android:id="@+id/choreRating"
             style="@style/Widget.MaterialRatingBar.RatingBar.Indicator"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_above="@+id/restaurantCategory"
-            android:layout_alignLeft="@+id/restaurantName"
+            android:layout_above="@+id/choreCategory"
+            android:layout_alignLeft="@+id/choreName"
             app:mrb_progressTint="@android:color/white"
             app:mrb_secondaryProgressTint="@android:color/white" />
 
         <TextView
-            android:id="@+id/restaurantNumRatings"
+            android:id="@+id/choreNumRatings"
             style="@style/AppTheme.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/restaurantRating"
-            android:layout_alignTop="@+id/restaurantRating"
+            android:layout_alignBottom="@+id/choreRating"
+            android:layout_alignTop="@+id/choreRating"
             android:layout_marginLeft="4dp"
-            android:layout_toRightOf="@+id/restaurantRating"
+            android:layout_toRightOf="@+id/choreRating"
             android:gravity="center"
             android:textColor="@android:color/white"
             tools:text="(10)" />
 
         <TextView
-            android:id="@+id/restaurantCategory"
+            android:id="@+id/choreCategory"
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/restaurantImage"
-            android:layout_alignLeft="@id/restaurantName"
+            android:layout_alignBottom="@id/choreImage"
+            android:layout_alignLeft="@id/choreName"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
             tools:text="worker" />
 
         <TextView
-            android:id="@+id/restaurantCity_divider"
+            android:id="@+id/choreCity_divider"
             style="@style/AppTheme.TextDivider"
-            android:layout_alignTop="@+id/restaurantCategory"
-            android:layout_toRightOf="@+id/restaurantCategory"
+            android:layout_alignTop="@+id/choreCategory"
+            android:layout_toRightOf="@+id/choreCategory"
             android:text="@string/divider_bullet"
             android:textColor="@android:color/white" />
 
         <TextView
-            android:id="@+id/restaurantCity"
+            android:id="@+id/choreCity"
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/restaurantCategory"
-            android:layout_below="@+id/restaurantCategory"
-            android:layout_toRightOf="@+id/restaurantCity_divider"
+            android:layout_alignTop="@+id/choreCategory"
+            android:layout_below="@+id/choreCategory"
+            android:layout_toRightOf="@+id/choreCity_divider"
             android:textColor="@android:color/white"
             tools:text="boss" />
 
         <TextView
-            android:id="@+id/restaurantPrice"
+            android:id="@+id/chorePrice"
             style="@style/AppTheme.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/restaurantName"
+            android:layout_alignTop="@+id/choreName"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
@@ -128,7 +128,7 @@
         android:id="@+id/fabCompleteChore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/restaurant_top_card"
+        android:layout_alignBottom="@+id/chore_top_card"
         android:layout_alignParentRight="true"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="-28dp"
@@ -140,7 +140,7 @@
         android:id="@+id/fabShowEditDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/restaurant_top_card"
+        android:layout_alignTop="@+id/chore_top_card"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="8dp"
@@ -153,7 +153,7 @@
         android:id="@+id/recyclerRatings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/restaurant_top_card"
+        android:layout_below="@+id/chore_top_card"
         android:background="@android:color/transparent"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
@@ -167,7 +167,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/restaurant_top_card"
+        android:layout_below="@+id/chore_top_card"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:orientation="vertical"

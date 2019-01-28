@@ -51,7 +51,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements
         FilterDialogFragment.FilterListener,
-        ChoreAdapter.OnRestaurantSelectedListener {
+        ChoreAdapter.OnchoreSelectedListener {
 
     private static final String TAG = "TChores.MainActivity";
 
@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.textCurrentSortBy)
     TextView mCurrentSortByView;
 
-    @BindView(R.id.recyclerRestaurants)
-    RecyclerView mRestaurantsRecycler;
+    @BindView(R.id.recyclerchores)
+    RecyclerView mchoresRecycler;
 
     @BindView(R.id.viewEmpty)
     ViewGroup mEmptyView;
@@ -107,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements
         mCurrentUserName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         mViewModel.getFilters().setCategory(mCurrentUserName);
 
-        // Get ${LIMIT} restaurants
-        mQuery = mFirestore.collection("restaurants")
+        // Get ${LIMIT} chores
+        mQuery = mFirestore.collection("chores")
                 .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
                 .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
                 .limit(LIMIT);
@@ -119,10 +119,10 @@ public class MainActivity extends AppCompatActivity implements
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (getItemCount() == 0) {
-                    mRestaurantsRecycler.setVisibility(View.GONE);
+                    mchoresRecycler.setVisibility(View.GONE);
                     mEmptyView.setVisibility(View.VISIBLE);
                 } else {
-                    mRestaurantsRecycler.setVisibility(View.VISIBLE);
+                    mchoresRecycler.setVisibility(View.VISIBLE);
                     mEmptyView.setVisibility(View.GONE);
                 }
             }
@@ -135,8 +135,8 @@ public class MainActivity extends AppCompatActivity implements
             }
         };
 
-        mRestaurantsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRestaurantsRecycler.setAdapter(mAdapter);
+        mchoresRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mchoresRecycler.setAdapter(mAdapter);
 
         // Filter Dialog
         mFilterDialog = new FilterDialogFragment();
@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
         onFilter(Filters.getDefault(""));
     }
 
-    @OnClick(R.id.fabShowRestaurantAddDialog)
+    @OnClick(R.id.fabShowchoreAddDialog)
     public void onAddRatingClicked(View view) {
         //new code
         Intent intent = new Intent(this, ChoreAddActivity.class);
@@ -261,10 +261,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRestaurantSelected(DocumentSnapshot restaurant) {
-        // Go to the details page for the selected restaurant
+    public void onchoreSelected(DocumentSnapshot chore) {
+        // Go to the details page for the selected chore
         Intent intent = new Intent(this, ChoreDetailActivity.class);
-        intent.putExtra(ChoreDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
+        intent.putExtra(ChoreDetailActivity.KEY_chore_ID, chore.getId());
         intent.putExtra(ChoreDetailActivity.KEY_ACTION, ChoreDetailActivity.ACTION_VIEW);
 
         startActivity(intent);
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onFilter(Filters filters) {
         // Construct query basic query
-        Query query = mFirestore.collection("restaurants");
+        Query query = mFirestore.collection("chores");
 
         // Category (equality filter)
         if (filters.hasCategory()) {
@@ -329,22 +329,22 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onAddItemsClicked() {
-        // Add a bunch of random restaurants
+        // Add a bunch of random chores
         WriteBatch batch = mFirestore.batch();
         for (int i = 0; i < 10; i++) {
-            DocumentReference restRef = mFirestore.collection("restaurants").document();
+            DocumentReference restRef = mFirestore.collection("chores").document();
 
-            // Create random restaurant / ratings
+            // Create random chore / ratings
             Chore randomChore = ChoreUtil.getRandom(this);
             List<Flurr> randomFlurrs = FlurrUtil.getRandomList(randomChore.getNumRatings());
             randomChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
 
-            // Add restaurant
+            // Add chore
             batch.set(restRef, randomChore);
 
             // Add ratings to subcollection
             for (Flurr flurr : randomFlurrs) {
-                batch.set(restRef.collection("ratings").document(), flurr);
+                batch.set(restRef.collection("flurrs").document(), flurr);
             }
         }
 

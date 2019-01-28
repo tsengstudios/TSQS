@@ -36,9 +36,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        final String restaurantId = intent.getExtras().getString(ChoreDetailActivity.KEY_RESTAURANT_ID);
-        if (restaurantId == null) {
-            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_RESTAURANT_ID);
+        final String choreId = intent.getExtras().getString(ChoreDetailActivity.KEY_chore_ID);
+        if (choreId == null) {
+            throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_chore_ID);
         }
         String actionId = intent.getExtras().getString(ChoreDetailActivity.KEY_ACTION);
         if (actionId== null) {
@@ -66,18 +66,18 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         }
         final Boolean setNormalRecurance = tempSetNormalRecurance;
 
-        Log.d(TAG, "got into Compelete Broadcast Receiver. restaurantId= " + restaurantId + "  and action id= " + actionId);
+        Log.d(TAG, "got into Compelete Broadcast Receiver. choreId= " + choreId + "  and action id= " + actionId);
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         mFirestore = FirebaseFirestore.getInstance();
-        final DocumentReference choreRef = mFirestore.collection("restaurants").document(restaurantId);
+        final DocumentReference choreRef = mFirestore.collection("chores").document(choreId);
 
         // mark chore action
         final Flurr flurr = new Flurr(
                 FirebaseAuth.getInstance().getCurrentUser(),
                 1,
                 recordedActionLocal);
-        final DocumentReference ratingRef = choreRef.collection("ratings").document();  // Create reference for new flurr, for use inside the transaction
+        final DocumentReference ratingRef = choreRef.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
 
 //        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
@@ -113,7 +113,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     ldt = LocalDateTime.MIN;
                 }
 
-                Log.d(TAG, "Got Chore: " + restaurantId +
+                Log.d(TAG, "Got Chore: " + choreId +
                         " -  Alarm was at " + ldt.toString() +
                         " Name=" + name);
 
@@ -171,12 +171,12 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
             // cancel the notification
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(restaurantId.hashCode());
+            notificationManager.cancel(choreId.hashCode());
 
             // TODO cancel the chat head
 
             // set the new alarm
-            AlarmManagerUtil.setAlarm(context, restaurantId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
+            AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
 
             // TODO compute awards here?
 

@@ -21,19 +21,19 @@ import butterknife.ButterKnife;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 /**
- * RecyclerView adapter for a list of Restaurants.
+ * RecyclerView adapter for a list of chores.
  */
 public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
 
-    public interface OnRestaurantSelectedListener {
+    public interface OnchoreSelectedListener {
 
-        void onRestaurantSelected(DocumentSnapshot restaurant);
+        void onchoreSelected(DocumentSnapshot chore);
 
     }
 
-    private OnRestaurantSelectedListener mListener;
+    private OnchoreSelectedListener mListener;
 
-    public ChoreAdapter(Query query, OnRestaurantSelectedListener listener) {
+    public ChoreAdapter(Query query, OnchoreSelectedListener listener) {
         super(query);
         mListener = listener;
     }
@@ -51,31 +51,31 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.restaurantItemImage)
+        @BindView(R.id.choreItemImage)
         ImageView imageView;
 
-        @BindView(R.id.restaurantItemName)
+        @BindView(R.id.choreItemName)
         TextView nameView;
 
-        @BindView(R.id.restaurantItemRating)
+        @BindView(R.id.choreItemRating)
         MaterialRatingBar ratingBar;
 
-        @BindView(R.id.restaurantItemNumRatings)
+        @BindView(R.id.choreItemNumRatings)
         TextView numRatingsView;
 
-        @BindView(R.id.restaurantItemPrice)
+        @BindView(R.id.choreItemPrice)
         TextView priceView;
 
-        @BindView(R.id.restaurantItemCategory)
+        @BindView(R.id.choreItemCategory)
         TextView categoryView;
 
-        @BindView(R.id.restaurantItemCity)
+        @BindView(R.id.choreItemCity)
         TextView cityView;
 
-        @BindView(R.id.restaurantItemADTime)
+        @BindView(R.id.choreItemADTime)
         TextView aDTimeView;
 
-        @BindView(R.id.restaurantItemRecurringInterval)
+        @BindView(R.id.choreItemRecurringInterval)
         TextView recurringIntervalView;
 
         public ViewHolder(View itemView) {
@@ -84,7 +84,7 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
         }
 
         public void bind(final DocumentSnapshot snapshot,
-                         final OnRestaurantSelectedListener listener) {
+                         final OnchoreSelectedListener listener) {
 
             Chore chore = snapshot.toObject(Chore.class);
             Resources resources = itemView.getResources();
@@ -118,7 +118,7 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
                 @Override
                 public void onClick(View view) {
                     if (listener != null) {
-                        listener.onRestaurantSelected(snapshot);
+                        listener.onchoreSelected(snapshot);
                     }
                 }
             });

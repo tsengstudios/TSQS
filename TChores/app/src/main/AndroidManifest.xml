@@ -37,7 +37,7 @@
             android:name=".kotlin.MainActivity"
             android:theme="@style/AppTheme.Activity" />
         <activity
-            android:name=".kotlin.RestaurantDetailActivity"
+            android:name=".kotlin.choreDetailActivity"
             android:theme="@style/AppTheme.Activity" />
         <activity android:name=".java.ChoreAddActivity" />
         <activity android:name=".java.ChoreEditActivity" />

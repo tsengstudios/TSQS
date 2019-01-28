@@ -2,9 +2,9 @@
 set -o nounset
 set -e
 
-#delete the restaurants collection
-echo "Deleting the restaurants collection under project"
-firebase firestore:delete "restaurants" -r -y --project="$PROJECT_ID"
+#delete the chores collection
+echo "Deleting the chores collection under project"
+firebase firestore:delete "chores" -r -y --project="$PROJECT_ID"
 
 #create a test account test@mailinator.com
 echo "Creating test accounts"

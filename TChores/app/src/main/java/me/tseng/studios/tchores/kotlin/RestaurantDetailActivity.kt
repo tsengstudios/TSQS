@@ -13,8 +13,8 @@ import com.google.android.gms.tasks.Task
 import me.tseng.studios.tchores.R
 import me.tseng.studios.tchores.kotlin.adapter.RatingAdapter
 import me.tseng.studios.tchores.kotlin.model.Rating
-import me.tseng.studios.tchores.kotlin.model.Restaurant
-import me.tseng.studios.tchores.kotlin.util.RestaurantUtil
+import me.tseng.studios.tchores.kotlin.model.chore
+import me.tseng.studios.tchores.kotlin.util.choreUtil
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
@@ -24,45 +24,45 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_chore_detail.fabShowRatingDialog
 import kotlinx.android.synthetic.main.activity_chore_detail.recyclerRatings
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantButtonBack
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantCategory
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantCity
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantImage
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantName
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantNumRatings
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantPrice
-import kotlinx.android.synthetic.main.activity_chore_detail.restaurantRating
+import kotlinx.android.synthetic.main.activity_chore_detail.choreButtonBack
+import kotlinx.android.synthetic.main.activity_chore_detail.choreCategory
+import kotlinx.android.synthetic.main.activity_chore_detail.choreCity
+import kotlinx.android.synthetic.main.activity_chore_detail.choreImage
+import kotlinx.android.synthetic.main.activity_chore_detail.choreName
+import kotlinx.android.synthetic.main.activity_chore_detail.choreNumRatings
+import kotlinx.android.synthetic.main.activity_chore_detail.chorePrice
+import kotlinx.android.synthetic.main.activity_chore_detail.choreRating
 import kotlinx.android.synthetic.main.activity_chore_detail.viewEmptyRatings
 
-class RestaurantDetailActivity : AppCompatActivity(),
+class choreDetailActivity : AppCompatActivity(),
         EventListener<DocumentSnapshot>,
         RatingDialogFragment.RatingListener {
 
     private var ratingDialog: RatingDialogFragment? = null
 
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var restaurantRef: DocumentReference
+    private lateinit var choreRef: DocumentReference
     private lateinit var ratingAdapter: RatingAdapter
 
-    private var restaurantRegistration: ListenerRegistration? = null
+    private var choreRegistration: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chore_detail)
 
-        // Get restaurant ID from extras
-        val restaurantId = intent.extras?.getString(KEY_RESTAURANT_ID)
-                ?: throw IllegalArgumentException("Must pass extra $KEY_RESTAURANT_ID")
+        // Get chore ID from extras
+        val choreId = intent.extras?.getString(KEY_chore_ID)
+                ?: throw IllegalArgumentException("Must pass extra $KEY_chore_ID")
 
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance()
 
-        // Get reference to the restaurant
-        restaurantRef = firestore.collection("restaurants").document(restaurantId)
+        // Get reference to the chore
+        choreRef = firestore.collection("chores").document(choreId)
 
         // Get ratings
-        val ratingsQuery = restaurantRef
-                .collection("ratings")
+        val ratingsQuery = choreRef
+                .collection("flurrs")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(50)
 
@@ -83,7 +83,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
         ratingDialog = RatingDialogFragment()
 
-        restaurantButtonBack.setOnClickListener { onBackArrowClicked() }
+        choreButtonBack.setOnClickListener { onBackArrowClicked() }
         fabShowRatingDialog.setOnClickListener { onAddRatingClicked() }
     }
 
@@ -91,7 +91,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
         super.onStart()
 
         ratingAdapter.startListening()
-        restaurantRegistration = restaurantRef.addSnapshotListener(this)
+        choreRegistration = choreRef.addSnapshotListener(this)
     }
 
     public override fun onStop() {
@@ -99,8 +99,8 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
         ratingAdapter.stopListening()
 
-        restaurantRegistration?.remove()
-        restaurantRegistration = null
+        choreRegistration?.remove()
+        choreRegistration = null
     }
 
     override fun finish() {
@@ -109,34 +109,34 @@ class RestaurantDetailActivity : AppCompatActivity(),
     }
 
     /**
-     * Listener for the Chore document ([.restaurantRef]).
+     * Listener for the Chore document ([.choreRef]).
      */
     override fun onEvent(snapshot: DocumentSnapshot?, e: FirebaseFirestoreException?) {
         if (e != null) {
-            Log.w(TAG, "restaurant:onEvent", e)
+            Log.w(TAG, "chore:onEvent", e)
             return
         }
 
         snapshot?.let {
-            val restaurant = snapshot.toObject(Restaurant::class.java)
-            if (restaurant != null) {
-                onRestaurantLoaded(restaurant)
+            val chore = snapshot.toObject(chore::class.java)
+            if (chore != null) {
+                onchoreLoaded(chore)
             }
         }
     }
 
-    private fun onRestaurantLoaded(restaurant: Restaurant) {
-        restaurantName.text = restaurant.name
-        restaurantRating.rating = restaurant.avgRating.toFloat()
-        restaurantNumRatings.text = getString(R.string.fmt_num_ratings, restaurant.numRatings)
-        restaurantCity.text = restaurant.city
-        restaurantCategory.text = restaurant.category
-        restaurantPrice.text = RestaurantUtil.getPriceString(restaurant)
+    private fun onchoreLoaded(chore: chore) {
+        choreName.text = chore.name
+        choreRating.rating = chore.avgRating.toFloat()
+        choreNumRatings.text = getString(R.string.fmt_num_ratings, chore.numRatings)
+        choreCity.text = chore.city
+        choreCategory.text = chore.category
+        chorePrice.text = choreUtil.getPriceString(chore)
 
         // Background image
-        Glide.with(restaurantImage.context)
-                .load(restaurant.photo)
-                .into(restaurantImage)
+        Glide.with(choreImage.context)
+                .load(chore.photo)
+                .into(choreImage)
     }
 
     private fun onBackArrowClicked() {
@@ -149,7 +149,7 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
     override fun onRating(rating: Rating) {
         // In a transaction, add the new rating and update the aggregate totals
-        addRating(restaurantRef, rating)
+        addRating(choreRef, rating)
                 .addOnSuccessListener(this) {
                     Log.d(TAG, "Flurr added")
 
@@ -167,30 +167,30 @@ class RestaurantDetailActivity : AppCompatActivity(),
                 }
     }
 
-    private fun addRating(restaurantRef: DocumentReference, rating: Rating): Task<Void> {
+    private fun addRating(choreRef: DocumentReference, rating: Rating): Task<Void> {
         // Create reference for new rating, for use inside the transaction
-        val ratingRef = restaurantRef.collection("ratings").document()
+        val ratingRef = choreRef.collection("flurrs").document()
 
         // In a transaction, add the new rating and update the aggregate totals
         return firestore.runTransaction { transaction ->
-            val restaurant = transaction.get(restaurantRef).toObject(Restaurant::class.java)
-            if (restaurant == null) {
-                throw Exception("Resraurant not found at ${restaurantRef.path}")
+            val chore = transaction.get(choreRef).toObject(chore::class.java)
+            if (chore == null) {
+                throw Exception("Resraurant not found at ${choreRef.path}")
             }
 
             // Compute new number of ratings
-            val newNumRatings = restaurant.numRatings + 1
+            val newNumRatings = chore.numRatings + 1
 
             // Compute new average rating
-            val oldRatingTotal = restaurant.avgRating * restaurant.numRatings
+            val oldRatingTotal = chore.avgRating * chore.numRatings
             val newAvgRating = (oldRatingTotal + rating.rating) / newNumRatings
 
-            // Set new restaurant info
-            restaurant.numRatings = newNumRatings
-            restaurant.avgRating = newAvgRating
+            // Set new chore info
+            chore.numRatings = newNumRatings
+            chore.avgRating = newAvgRating
 
             // Commit to Firestore
-            transaction.set(restaurantRef, restaurant)
+            transaction.set(choreRef, chore)
             transaction.set(ratingRef, rating)
 
             null
@@ -207,8 +207,8 @@ class RestaurantDetailActivity : AppCompatActivity(),
 
     companion object {
 
-        private const val TAG = "RestaurantDetail"
+        private const val TAG = "choreDetail"
 
-        const val KEY_RESTAURANT_ID = "key_restaurant_id"
+        const val KEY_chore_ID = "key_chore_id"
     }
 }

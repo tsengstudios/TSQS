@@ -37,7 +37,7 @@ public class ChoreDetailActivity extends AppCompatActivity
 
     private static final String TAG = "TChores.ChoreDetailActivity";
 
-    public static final String KEY_RESTAURANT_ID = BuildConfig.APPLICATION_ID + ".key_restaurant_id";   // Prefix for Intent Extra Keys
+    public static final String KEY_chore_ID = BuildConfig.APPLICATION_ID + ".key_chore_id";   // Prefix for Intent Extra Keys
     public static final String KEY_ACTION = BuildConfig.APPLICATION_ID + ".key_action";
 
     public static final String ACTION_VIEW = BuildConfig.APPLICATION_ID + ".VIEW";                      // Prefix for Intent Action
@@ -49,25 +49,25 @@ public class ChoreDetailActivity extends AppCompatActivity
     public static final String ACTION_REFUSED_LOCALIZED = "Refuse";
 
 
-    @BindView(R.id.restaurantImage)
+    @BindView(R.id.choreImage)
     ImageView mImageView;
 
-    @BindView(R.id.restaurantName)
+    @BindView(R.id.choreName)
     TextView mNameView;
 
-    @BindView(R.id.restaurantRating)
+    @BindView(R.id.choreRating)
     MaterialRatingBar mRatingIndicator;
 
-    @BindView(R.id.restaurantNumRatings)
+    @BindView(R.id.choreNumRatings)
     TextView mNumRatingsView;
 
-    @BindView(R.id.restaurantCity)
+    @BindView(R.id.choreCity)
     TextView mCityView;
 
-    @BindView(R.id.restaurantCategory)
+    @BindView(R.id.choreCategory)
     TextView mCategoryView;
 
-    @BindView(R.id.restaurantPrice)
+    @BindView(R.id.chorePrice)
     TextView mPriceView;
 
     @BindView(R.id.viewEmptyRatings)
@@ -78,9 +78,9 @@ public class ChoreDetailActivity extends AppCompatActivity
 
 
     private FirebaseFirestore mFirestore;
-    private DocumentReference mRestaurantRef;
-    private ListenerRegistration mRestaurantRegistration;
-    private String mRestaurantId;
+    private DocumentReference mchoreRef;
+    private ListenerRegistration mchoreRegistration;
+    private String mchoreId;
 
     private FlurrAdapter mFlurrAdapter;
 
@@ -90,27 +90,27 @@ public class ChoreDetailActivity extends AppCompatActivity
         setContentView(R.layout.activity_chore_detail);
         ButterKnife.bind(this);
 
-        // Get restaurant ID from extras
-        mRestaurantId = getIntent().getExtras().getString(KEY_RESTAURANT_ID);
-        if (mRestaurantId == null) {
-            throw new IllegalArgumentException("Must pass extra " + KEY_RESTAURANT_ID);
+        // Get chore ID from extras
+        mchoreId = getIntent().getExtras().getString(KEY_chore_ID);
+        if (mchoreId == null) {
+            throw new IllegalArgumentException("Must pass extra " + KEY_chore_ID);
         }
         String actionId = getIntent().getExtras().getString(KEY_ACTION);
         if (actionId== null) {
             throw new IllegalArgumentException("Must pass extra " + KEY_ACTION);
         }
 
-        Log.i(TAG, "Chore Detail Activity  restaurant_id=" + mRestaurantId);
+        Log.i(TAG, "Chore Detail Activity  chore_id=" + mchoreId);
 
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        // Get reference to the restaurant
-        mRestaurantRef = mFirestore.collection("restaurants").document(mRestaurantId);
+        // Get reference to the chore
+        mchoreRef = mFirestore.collection("chores").document(mchoreId);
 
         // Get ratings
-        Query ratingsQuery = mRestaurantRef
-                .collection("ratings")
+        Query ratingsQuery = mchoreRef
+                .collection("flurrs")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(50);
 
@@ -137,7 +137,7 @@ public class ChoreDetailActivity extends AppCompatActivity
         super.onStart();
 
         mFlurrAdapter.startListening();
-        mRestaurantRegistration = mRestaurantRef.addSnapshotListener(this);
+        mchoreRegistration = mchoreRef.addSnapshotListener(this);
     }
 
     @Override
@@ -146,9 +146,9 @@ public class ChoreDetailActivity extends AppCompatActivity
 
         mFlurrAdapter.stopListening();
 
-        if (mRestaurantRegistration != null) {
-            mRestaurantRegistration.remove();
-            mRestaurantRegistration = null;
+        if (mchoreRegistration != null) {
+            mchoreRegistration.remove();
+            mchoreRegistration = null;
         }
     }
 
@@ -159,19 +159,19 @@ public class ChoreDetailActivity extends AppCompatActivity
     }
 
     /**
-     * Listener for the Chore document ({@link #mRestaurantRef}).
+     * Listener for the Chore document ({@link #mchoreRef}).
      */
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
         if (e != null) {
-            Log.w(TAG, "restaurant:onEvent", e);
+            Log.w(TAG, "chore:onEvent", e);
             return;
         }
 
-        onRestaurantLoaded(snapshot.toObject(Chore.class));
+        onchoreLoaded(snapshot.toObject(Chore.class));
     }
 
-    private void onRestaurantLoaded(Chore chore) {
+    private void onchoreLoaded(Chore chore) {
         mNameView.setText(chore.getName());
         mRatingIndicator.setRating((float) chore.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
@@ -197,7 +197,7 @@ public class ChoreDetailActivity extends AppCompatActivity
         Log.i(TAG, "Chore Loaded  name=" + chore.getName());
     }
 
-    @OnClick(R.id.restaurantButtonBack)
+    @OnClick(R.id.choreButtonBack)
     public void onBackArrowClicked(View view) {
         onBackPressed();
     }
@@ -206,7 +206,7 @@ public class ChoreDetailActivity extends AppCompatActivity
     @OnClick(R.id.fabShowEditDialog)
     public void onEditChoreClicked(View view) {
         Intent intent = new Intent(this, ChoreEditActivity.class);
-        intent.putExtra(ChoreEditActivity.KEY_RESTAURANT_ID, mRestaurantRef.getId());
+        intent.putExtra(ChoreEditActivity.KEY_chore_ID, mchoreRef.getId());
 
         startActivity(intent);
     }

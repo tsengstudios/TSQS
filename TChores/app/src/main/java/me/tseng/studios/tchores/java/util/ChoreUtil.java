@@ -16,14 +16,14 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * Utilities for Restaurants.
+ * Utilities for chores.
  */
 public class ChoreUtil {
 
     private static final String TAG = "TChores.ChoreUtil";
 
-    private static final String RESTAURANT_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
-    private static final String RESTAURANT_DRAWABLE_RESOURCE_FMT = "chore_png_%d";
+    private static final String chore_URL_FMT = "https://storage.googleapis.com/firestorequickstarts.appspot.com/food_%d.png";
+    private static final String chore_DRAWABLE_RESOURCE_FMT = "chore_png_%d";
     private static final int MAX_IMAGE_NUM = 12;
 
     private static final String[] NAME_FIRST_WORDS = {
@@ -98,7 +98,7 @@ public class ChoreUtil {
         // Integer between 1 and MAX_IMAGE_NUM (inclusive)
         int id = random.nextInt(MAX_IMAGE_NUM) + 1;
 
-        String resName = String.format(Locale.getDefault(), RESTAURANT_DRAWABLE_RESOURCE_FMT, id);
+        String resName = String.format(Locale.getDefault(), chore_DRAWABLE_RESOURCE_FMT, id);
         int ied = context.getResources().getIdentifier(resName, "drawable", BuildConfig.APPLICATION_ID);
         return Integer.toString(ied);   // BuildConfig causes   import me.tseng.studios.tchores.BuildConfig
     }
