@@ -95,6 +95,13 @@ public class MainActivity extends AppCompatActivity implements
         // View model
         mViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
+        // Start sign in if necessary  (need this to prevent crash getting current username for mQuery) (and we need this in onStart to catch logouts after onCreate())
+        if (shouldStartSignIn()) {
+            startSignIn();
+            finish();
+            return;
+        }
+
         // Enable Firestore logging
         FirebaseFirestore.setLoggingEnabled(true);
 
