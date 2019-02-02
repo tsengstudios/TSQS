@@ -18,17 +18,19 @@ public class Flurr {
     public static final String FIELD_FLURR = "flurr";
     public static final String FIELD_TEXT = "text";
     public static final String FIELD_CHOREID = "choreId";
+    public static final String FIELD_CHOREBDTIME = "choreBDTime";
 
     private String userId;
     private String userName;
-    private double flurr;
+    private double flurr;       // was rating  TODO delete this field
     private String text;
     private @ServerTimestamp Timestamp timestamp;
     private String choreId;
+    private String choreBDTime;
 
     public Flurr() {}
 
-    public Flurr(FirebaseUser user, double flurr, String text, String choreId) {
+    public Flurr(FirebaseUser user, double flurr, String text, String choreId, String choreBDTime) {
         this.userId = user.getUid();
         this.userName = user.getDisplayName();
         if (TextUtils.isEmpty(this.userName)) {
@@ -38,6 +40,7 @@ public class Flurr {
         this.flurr = flurr;
         this.text = text;
         this.choreId = choreId;
+        this.choreBDTime = choreBDTime;
     }
 
     public String getUserId() {
@@ -82,6 +85,10 @@ public class Flurr {
 
     public String getChoreId() { return choreId; }
 
-    public void setChoreId(String rC) { this.choreId = rC; }
+    public void setChoreId(String choreId) { this.choreId = choreId; }
+
+    public String getChoreBDTime() { return choreBDTime; }
+
+    public void setChoreBDTime(String choreBDTime) { this.choreBDTime = choreBDTime; }
 
 }

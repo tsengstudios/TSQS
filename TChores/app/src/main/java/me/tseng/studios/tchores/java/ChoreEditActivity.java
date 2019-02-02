@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.CalendarView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Spinner;
@@ -75,6 +77,9 @@ public class ChoreEditActivity extends AppCompatActivity
 
     @BindView(R.id.ERdiffucultyBar)
     RatingBar mPriceView;
+
+    @BindView(R.id.checkboxDebugTime)
+    CheckBox mCheckboxDebugTime;
 
     RatingBar mRatingBar;
     CalendarView mCalendarView;
@@ -250,6 +255,16 @@ public class ChoreEditActivity extends AppCompatActivity
         //getting text input
         LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());
 
+        if (mCheckboxDebugTime.isChecked()) {
+            ldt = LocalDateTime.now().plusSeconds(10);
+        }
+
+        if (ldt.isBefore(LocalDateTime.now())) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "You may not set time to the past.", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+
         //getting assigned to whom data
         String sAssignee = mSpinnerAssignee.getSelectedItem().toString();
 
@@ -265,6 +280,7 @@ public class ChoreEditActivity extends AppCompatActivity
         mchoreRef.update(Chore.FIELD_NAME, mNameView.getText().toString());
         mchoreRef.update(Chore.FIELD_ADTIME, ldt.toString());
         mchoreRef.update(Chore.FIELD_BDTIME, ldt.toString());
+        mchoreRef.update(Chore.FIELD_DATEUSERLASTSET, ldt.toString());
         mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
         mchoreRef.update(Chore.FIELD_CATEGORY, sAssignee)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -282,6 +298,7 @@ public class ChoreEditActivity extends AppCompatActivity
 
         finish();   //return to main activity
     }
+
     private int getIndex(Spinner spinner, String myString){
         for (int i=0;i<spinner.getCount();i++){
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){

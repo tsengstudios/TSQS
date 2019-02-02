@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.EnumMap;
 
 /**
@@ -23,6 +25,7 @@ public class Chore {
     public static final String FIELD_ADTIME = "adtime";                         // careful.  For some reason Firebase wants to decapitalize aDTime to adtime as a field name in the database.  So, leave this decapitalized....
     public static final String FIELD_RECURANCEINTERVAL = "recuranceInterval";
     public static final String FIELD_BDTIME = "bdtime";                         // Daily targeted time to fire. careful on capitalization....
+    public static final String FIELD_DATEUSERLASTSET = "dateUserLastSet";       // datetime the user last edited this chore
     public static final String FIELD_SNOOZEMINUTES = "snoozeMinutes";           // minutes to add for snooze
     public static final String FIELD_MUSTWITHIN = "mustWithin";                 // time the chore must be completed within
     public static final String FIELD_NOTIFYWORLDAFTER = "notifyWorldAfter";     // time after which lack of completion will trigger notifying others
@@ -31,6 +34,7 @@ public class Chore {
 
     public static final String chore_URI_PREFIX = "chore:";
 
+    @Exclude private String id;
     private String name;
     private String city;
     private String category;
@@ -41,6 +45,7 @@ public class Chore {
     private String aDTime;
     private RecuranceInterval recuranceInterval;
     private String bDTime;
+    private String dateUserLastSet;
     private int snoozeMinutes;
     private int mustWithin;
     private int notifyWorldAfter;
@@ -103,7 +108,7 @@ public class Chore {
     public Chore() {}
 
     public Chore(String name, String city, String category, String photo,
-                 int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
+                 int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
         this.name = name;
         this.city = city;
         this.category = category;
@@ -114,11 +119,16 @@ public class Chore {
         this.aDTime = aDTime;
         this.recuranceInterval = recuranceInterval;
         this.bDTime = bDTime;
+        this.dateUserLastSet = dateUserLastSet;
         this.snoozeMinutes = snoozeMinutes;
         this.mustWithin = mustWithin;
         this.notifyWorldAfter = notifyWorldAfter;
         this.priorityChannel = priorityChannel;
     }
+
+    public String getid() {return id; }             // @Excluded  private  id
+
+    public void setid(String id) { this.id = id; }  // @Excluded  private  id
 
     public String getName() {
         return name;
@@ -214,6 +224,12 @@ public class Chore {
         this.bDTime = bDTime;
     }
 
+    public String getDateUserLastSet() {
+        return dateUserLastSet;
+    }
+
+    public void setDateUserLastSet(String dateUserLastSet) { this.dateUserLastSet = dateUserLastSet; }
+
     public int getSnoozeMinutes() {
         return snoozeMinutes;
     }
@@ -256,6 +272,34 @@ public class Chore {
         } else {
             this.priorityChannel = PriorityChannel.valueOf(priorityTypeString);
         }
+    }
+
+    public static LocalDate LocalDateFromString(String s) {
+        return LocalDateTime.parse(s).toLocalDate();
+    }
+
+    public boolean isScheduledOnDate(LocalDate ld) {
+        LocalDate ldThis = LocalDateFromString(bDTime);
+
+        if (ld.isBefore(LocalDateFromString(dateUserLastSet))) {
+            // assume chore did not exist before this chore was last edited. (creation date is too ambiguous given ability to edit a chore name)
+            return false;
+        }
+
+        switch (recuranceInterval) {
+            case HOURLY:
+                return true;
+
+            case DAILY:
+                return true;
+
+            case WEEKLY:
+                return (ldThis.getDayOfWeek() == ld.getDayOfWeek());
+
+            default:
+                throw new UnsupportedOperationException("not finished isScheduledOnDate() support for" +  recuranceInterval.toString());
+        }
+
     }
 
 }

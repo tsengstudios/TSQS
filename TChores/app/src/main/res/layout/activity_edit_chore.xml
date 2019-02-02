@@ -117,7 +117,7 @@
             android:layout_width="57dp"
             android:layout_height="42dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="148dp"
             android:background="#d4d4d4"
             android:focusableInTouchMode="false"
@@ -149,6 +149,16 @@
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/ERspnrAssignee"
             tools:layout_editor_absoluteX="129dp" />
+
+        <CheckBox
+            android:id="@+id/checkboxDebugTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:checked="true"
+            android:text="debugTime"
+            app:layout_constraintStart_toStartOf="@+id/EReditTextTime"
+            app:layout_constraintTop_toBottomOf="@+id/EReditTextTime" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

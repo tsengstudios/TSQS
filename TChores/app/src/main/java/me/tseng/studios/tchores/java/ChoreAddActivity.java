@@ -2,6 +2,7 @@ package me.tseng.studios.tchores.java;
 
 import android.app.TimePickerDialog;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -120,6 +121,11 @@ public class ChoreAddActivity extends AppCompatActivity {
         String uid = user.getDisplayName();
 
         LocalDateTime ldt = getLocalDateTime(mLocalDateCalendarView, mEditTextTime.getText().toString());
+        if (ldt.isBefore(LocalDateTime.now())) {
+            Snackbar.make(findViewById(android.R.id.content),
+                    "You may not set time to the past.", Snackbar.LENGTH_LONG).show();
+            return;
+        }
 
         Chore newChore = new Chore(
                 name,
@@ -131,6 +137,7 @@ public class ChoreAddActivity extends AppCompatActivity {
                 0,
                 ldt.toString(),
                 Chore.RecuranceInterval.DAILY,
+                ldt.toString(),
                 ldt.toString(),
                 10,
                 25*60,

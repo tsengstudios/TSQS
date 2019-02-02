@@ -5,21 +5,34 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Flurr;
+import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
 
@@ -30,13 +43,23 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     public static String NOTIFICATION_ID = "notification-id";
     public static String NOTIFICATION = "notification";
 
+    public class Tuple2<T1,T2> {
+        private T1 f1;
+        private T2 f2;
+        Tuple2(T1 f1, T2 f2) {
+            this.f1 = f1; this.f2 = f2;
+        }
+        public T1 getF1() {return f1;}
+        public T2 getF2() {return f2;}
+    }
+
     private FirebaseFirestore mFirestore;
 
 
     @Override
     public void onReceive(final Context context, Intent intent) {
 
-        final String choreId = intent.getExtras().getString(ChoreDetailActivity.KEY_CHORE_ID);
+        final String choreId = Objects.requireNonNull(intent.getExtras()).getString(ChoreDetailActivity.KEY_CHORE_ID);
         if (choreId == null) {
             throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_CHORE_ID);
         }
@@ -70,15 +93,19 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         mFirestore = FirebaseFirestore.getInstance();
-        final DocumentReference choreRef = mFirestore.collection("chores").document(choreId);
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String sUserId = firebaseUser.getUid();
 
         // mark chore action
         final Flurr flurr = new Flurr(
-                FirebaseAuth.getInstance().getCurrentUser(),
+                firebaseUser,
                 1,
                 recordedActionLocal,
-                choreId);
+                choreId,
+                "TEMP Needs Replacing");
         final DocumentReference flurrRef = mFirestore.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
+
+        final DocumentReference choreRef = mFirestore.collection("chores").document(choreId);
 
 //        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
@@ -86,11 +113,12 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 //        ratingRef.update(updates);
 
         // In a transaction, add the new flurr and update the aggregate totals and Reset chore target time
-        mFirestore.runTransaction(new Transaction.Function<Chore>() {
+        mFirestore.runTransaction(new Transaction.Function<Tuple2<Chore,Flurr>>() {
             @Override
-            public Chore apply(Transaction transaction) throws FirebaseFirestoreException {
+            public Tuple2<Chore,Flurr> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot choreSnapshot = transaction.get(choreRef);
                 Chore chore = choreSnapshot.toObject(Chore.class);
+                chore.setid(choreId);   // for recordSunshine()
 
                         // Compute new number of ratings
                         int newNumRatings = chore.getNumRatings() + 1;
@@ -105,6 +133,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 String name = chore.getName();
                 Chore.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
+
+                // Before changing BDTime, record the chore BDTime upon which the user just acted
+                flurr.setChoreBDTime(chore.getBDTime());
 
                 LocalDateTime ldt;
                 try {
@@ -143,43 +174,47 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                     // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
 
+                    chore.setADTime(ldt.toString());
                     chore.setBDTime(ldt.toString());
-                    choreRef.update(Chore.FIELD_BDTIME, ldt.toString());
+                    // of course this is exactly where we do NOT update Chore.FIELD_DATEUSERLASTSET
 
                 } else {
                     ldt = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                    chore.setADTime(ldt.toString());
                     // DO NOT set or update BDTime on !setNormalRecurance / snooze action
                     // chore.setBDTime(ldt.toString());
-                    // choreRef.update(Chore.FIELD_BDTIME, ldt.toString());
                 }
 
-                chore.setADTime(ldt.toString());
 
                 // Commit to Firestore
                 transaction.set(choreRef, chore);
                 transaction.set(flurrRef, flurr);
 
-                return chore;
+                return new Tuple2(chore,flurr);
             }
 
-        }).addOnSuccessListener(new OnSuccessListener<Chore>() {
+        }).addOnSuccessListener(new OnSuccessListener<Tuple2<Chore,Flurr>>() {
             @Override
-            public void onSuccess(Chore chore) {
-            Log.i(TAG, "Chore action now marked");
+            public void onSuccess(Tuple2<Chore,Flurr> tupleCF) {
+                Chore chore = tupleCF.getF1();
+                Flurr flurr = tupleCF.getF2();
 
-            // TODO toast success
+                Log.i(TAG, "Chore action now marked");
+
+                recordSunshine(chore, flurr, sUserId);
 
 
-            // cancel the notification
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(choreId.hashCode());
 
-            // TODO cancel the chat head
+                // cancel the notification
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(choreId.hashCode());
 
-            // set the new alarm
-            AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
+                // TODO cancel the chat head --  OR give feedback it was accomplished first then go away.
 
-            // TODO compute awards here?
+                // set the new alarm
+                AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
+
+                // TODO compute awards here?
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -189,6 +224,169 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             }
         });
 
+    }
+
+    private final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
+
+
+    private void recordSunshine(final Chore chore, final Flurr flurr, final String userId) {
+        LocalDate sunshineDay = Chore.LocalDateFromString(flurr.getChoreBDTime());
+        final String sSunshineDay = sunshineDay.toString();
+
+        // get the right sunshine
+        // try to get the current sunshine  (is the docref proof of existance?)
+        mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+            .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
+            .whereEqualTo(Sunshine.FIELD_USERID, userId)
+            .limit(SUNSHINE_LIMIT)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    boolean isProperSunshineFound = false;
+
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.getString(Sunshine.FIELD_DAY).equals(sSunshineDay)) {
+                                isProperSunshineFound = promisingSunshineFound(isProperSunshineFound, document, flurr);
+                            }
+
+                        }
+                        if (!isProperSunshineFound) {
+                            // never found the right Sunshine.  Create one now
+                            Sunshine sunshine = new Sunshine(userId, sSunshineDay);
+                            sunshine.initChoreList();
+                            sunshine.addChore(chore);
+                            flurr.setTimestamp(Timestamp.now());
+                            sunshine.addFirstAndOnlyFlurr(flurr);
+
+                            mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+                                .add(sunshine)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.i(TAG, "Success on updating Sunshine");
+
+                                        // TODO  trigger reviewSunshine(userId, );
+                                    };
+                                });
+
+                        }
+                    } else {
+                        throw new RuntimeException("Failed Sunshine query.");
+                    }
+
+                }
+            });
+
+    }
+
+    private boolean promisingSunshineFound(boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
+        Sunshine sunshine = document.toObject(Sunshine.class);
+        if (isProperSunshineFound) {
+            // we already found a proper sunshine this must indicate a duplicate
+            // TODO handle consolidating sunshines
+            return isProperSunshineFound;
+        }
+
+        // add this flurr
+        int indexFlurr = sunshine.getChoreIds().indexOf(flurr.getChoreId());
+        if (indexFlurr >= 0) {
+            DocumentReference sunshineRef = mFirestore.collection(Sunshine.COLLECTION_PATHNAME).document(document.getId());
+
+            if (flurr.getText() == ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED) {
+                sunshine.getChoreFlSnoozeCount().set(indexFlurr, 1 + sunshine.getChoreFlSnoozeCount().get(indexFlurr));
+                sunshineRef.update(Sunshine.FIELD_CHOREFLSNOOZECOUNT, sunshine.getChoreFlSnoozeCount());
+            }
+
+            sunshine.getChoreFlState().set(indexFlurr, flurr.getText());
+            sunshineRef.update(Sunshine.FIELD_CHOREFLSTATE, sunshine.getChoreFlState());
+
+            // TODO Check FIELD_AWARDPERFECTDAY
+            if (!sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_REFUSED_LOCALIZED) &&
+                !sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
+                sunshine.setAwardPerfectDay(true);  // just for completeness
+                sunshineRef.update(Sunshine.FIELD_AWARDPERFECTDAY, true);
+            }
+
+            sunshine.getChoreFlTimestamp().set(indexFlurr, Timestamp.now());
+            sunshineRef.update(Sunshine.FIELD_CHOREFLTIME, sunshine.getChoreFlTimestamp())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "Success on updating Sunshine");
+                    };
+                });
+
+            isProperSunshineFound = true;
+
+        } else {
+            Log.e(TAG, "choreId not found means this wasn't precalc-ed properly?");
+            // perhaps this means we needed to consolidate Sunshines?
+
+        }
+        return isProperSunshineFound;
+    }
+
+    public void reviewSunshine(final String userId, final QuerySnapshot qsChores) {
+        // Make sure there is an appropriate Sunshine for this chore
+        // It will not be determined until OnCompleteListener() fires
+
+        // try to get the current sunshine  (is the docref proof of existance?)
+        mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+            .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
+            .whereEqualTo(Sunshine.FIELD_USERID, userId)
+            .limit(SUNSHINE_LIMIT)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+
+                            Sunshine sunshine = document.toObject(Sunshine.class);
+                            LocalDate ldSunshine = Chore.LocalDateFromString(sunshine.getDay());
+
+                            // generate sunshine for every day from this recorded one to the current day
+                            for (LocalDate ld = LocalDate.now();
+                                 ld.isAfter(ldSunshine);
+                                 ld = ld.minusDays(1)) {
+                                // sunshine is earlier than sToday
+                                // we need to make a set of sunshines up to today
+
+                                preCalcSunshine(userId, ld, qsChores);
+                            }
+
+                            // we could review this sunshine to see if there were chores added since the last review which were due on that sunshine day
+
+
+                        }
+                    }
+
+                }
+            });
+
+    }
+
+    public Sunshine preCalcSunshine(String userId, LocalDate ld, @NonNull QuerySnapshot qsChores) {
+        // qsChores    - all Chores for user
+
+        List<Chore> chores = new ArrayList<Chore>() {};
+
+        // is chore x on this date?
+        for (QueryDocumentSnapshot cS : qsChores) {
+            Chore c = cS.toObject(Chore.class);
+            if (c.isScheduledOnDate(ld)) {
+                c.setid(cS.getId());    // use @Exclude  private id
+                chores.add(c);
+            }
+        }
+
+        Sunshine sunshine = new Sunshine(userId, ld.toString());
+        sunshine.setBPreCalced(true);
+        sunshine.addChores(chores);
+
+        return sunshine;
     }
 
 }

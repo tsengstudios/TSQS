@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final int RC_SIGN_IN = 9001;
     private static final int REQUEST_CODE_HOVER_PERMISSION = 1800;  // To manage Permission to show chat head above all other apps. Note: Can only use lower 16 bits for requestCode -- Keep number low enough.
 
-    private static final int LIMIT = 50;
+    private static final int CHORE_LIMIT = 50;
 
     String mCurrentUserName;
 
@@ -111,11 +111,11 @@ public class MainActivity extends AppCompatActivity implements
         mCurrentUserName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         mViewModel.getFilters().setCategory(mCurrentUserName);
 
-        // Get ${LIMIT} chores
+        // Get ${CHORE_LIMIT} chores
         mQuery = mFirestore.collection("chores")
                 .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
                 .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
-                .limit(LIMIT);
+                .limit(CHORE_LIMIT);
 
         // RecyclerView
         mAdapter = new ChoreAdapter(mQuery, this) {
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         // Limit items
-        query = query.limit(LIMIT);
+        query = query.limit(CHORE_LIMIT);
 
         // Update the query
         mAdapter.setQuery(query);

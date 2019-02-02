@@ -78,6 +78,7 @@ public class ChoreUtil {
         chore.setRecuranceInterval(randomEnum(Chore.RecuranceInterval.class, random).name());
 
         chore.setBDTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        chore.setDateUserLastSet(chore.getBDTime());
         chore.setSnoozeMinutes(10);
         chore.setMustWithin(25*60);
         chore.setNotifyWorldAfter(25*60);
