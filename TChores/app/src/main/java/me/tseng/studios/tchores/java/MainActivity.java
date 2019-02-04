@@ -47,7 +47,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements
-        FilterDialogFragment.FilterListener,
         ChoreAdapter.OnchoreSelectedListener {
 
     private static final String TAG = "TChores.MainActivity";
@@ -62,12 +61,6 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
-    @BindView(R.id.textCurrentSearch)
-    TextView mCurrentSearchView;
-
-    @BindView(R.id.textCurrentSortBy)
-    TextView mCurrentSortByView;
-
     @BindView(R.id.recyclerchores)
     RecyclerView mchoresRecycler;
 
@@ -80,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements
     private FirebaseFirestore mFirestore;
     private Query mQuery;
 
-    private FilterDialogFragment mFilterDialog;
     private ChoreAdapter mAdapter;
 
     private MainActivityViewModel mViewModel;
@@ -142,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements
         mchoresRecycler.setLayoutManager(new LinearLayoutManager(this));
         mchoresRecycler.setAdapter(mAdapter);
 
-        // Filter Dialog
-        mFilterDialog = new FilterDialogFragment();
 
         TChoresService.enqueueWork(this, new Intent());
 
@@ -158,9 +148,6 @@ public class MainActivity extends AppCompatActivity implements
             startSignIn();
             return;
         }
-
-        // Apply filters
-        onFilter(mViewModel.getFilters());
 
         // Start listening for Firestore updates
         if (mAdapter != null) {
@@ -244,18 +231,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @OnClick(R.id.filterBar)
-    public void onFilterClicked() {
-        // Show the dialog containing filter options
-        mFilterDialog.show(getSupportFragmentManager(), FilterDialogFragment.TAG);
-    }
-
-    @OnClick(R.id.buttonClearFilter)
-    public void onClearFilterClicked() {
-        mFilterDialog.resetFilters();
-
-        onFilter(Filters.getDefault(""));
-    }
 
     @OnClick(R.id.fabShowchoreAddDialog)
     public void onAddRatingClicked(View view) {
@@ -277,8 +252,8 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void onFilter(Filters filters) {
+
+    public void DELETEMEonFilter(Filters filters) {
         // Construct query basic query
         Query query = mFirestore.collection("chores");
 
@@ -309,8 +284,8 @@ public class MainActivity extends AppCompatActivity implements
         mAdapter.setQuery(query);
 
         // Set header
-        mCurrentSearchView.setText(Html.fromHtml(filters.getSearchDescription(this)));
-        mCurrentSortByView.setText(filters.getOrderDescription(this));
+  //      mCurrentSearchView.setText(Html.fromHtml(filters.getSearchDescription(this)));
+//        mCurrentSortByView.setText(filters.getOrderDescription(this));
 
         // Save filters
         mViewModel.setFilters(filters);

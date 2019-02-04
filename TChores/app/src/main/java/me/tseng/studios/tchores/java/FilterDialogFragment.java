@@ -2,6 +2,7 @@ package me.tseng.studios.tchores.java;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -14,12 +15,18 @@ import me.tseng.studios.tchores.java.model.Chore;
 
 import com.google.firebase.firestore.Query;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
  * Dialog Fragment containing filter form.
+ *
+ *
+ *
+ * TODO DELETE ME  -  File Never used anymore
  */
 public class FilterDialogFragment extends DialogFragment {
 
@@ -49,7 +56,7 @@ public class FilterDialogFragment extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater,
+    public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.dialog_filters, container, false);
@@ -70,7 +77,7 @@ public class FilterDialogFragment extends DialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        getDialog().getWindow().setLayout(
+        Objects.requireNonNull(getDialog().getWindow()).setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }

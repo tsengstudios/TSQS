@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/bottombaritem_calls"
+        android:icon="@drawable/ic_fastfood_white_24dp"
+        android:title="@string/chores_bottom_nav_view"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/bottombaritem_recents"
+        android:icon="@drawable/ic_history_white_24dp"
+        android:title="@string/history_bottom_nav_view"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/bottombaritem_trips"
+        android:icon="@drawable/ic_monetization_on_white_24px"
+        android:title="@string/awards_bottom_nav_view"
+        app:showAsAction="ifRoom"/>
+
+</menu>

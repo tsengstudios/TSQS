@@ -98,4 +98,8 @@
         <item>@string/sort_by_aDTime</item>
     </string-array>
     <string name="price_1">.1</string>
+    <string name="chores_bottom_nav_view">Chores</string>
+    <string name="history_bottom_nav_view">History</string>
+    <string name="awards_bottom_nav_view">Awards</string>
+    <string name="no_results_found_image_guy">No results found image guy</string>
 </resources>

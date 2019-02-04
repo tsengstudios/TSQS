@@ -28,11 +28,11 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.activity_main.buttonClearFilter
-import kotlinx.android.synthetic.main.activity_main.filterBar
+//import kotlinx.android.synthetic.main.activity_main.buttonClearFilter
+//import kotlinx.android.synthetic.main.activity_main.filterBar
 import kotlinx.android.synthetic.main.activity_main.recyclerchores
-import kotlinx.android.synthetic.main.activity_main.textCurrentSearch
-import kotlinx.android.synthetic.main.activity_main.textCurrentSortBy
+//import kotlinx.android.synthetic.main.activity_main.textCurrentSearch
+//import kotlinx.android.synthetic.main.activity_main.textCurrentSortBy
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.activity_main.viewEmpty
 
@@ -93,8 +93,8 @@ class MainActivity : AppCompatActivity(),
         // Filter Dialog
         filterDialog = FilterDialogFragment()
 
-        filterBar.setOnClickListener { onFilterClicked() }
-        buttonClearFilter.setOnClickListener { onClearFilterClicked() }
+        //filterBar.setOnClickListener { onFilterClicked() }
+//        buttonClearFilter.setOnClickListener { onClearFilterClicked() }
     }
 
     public override fun onStart() {
@@ -204,8 +204,8 @@ class MainActivity : AppCompatActivity(),
         adapter.setQuery(query)
 
         // Set header
-        textCurrentSearch.text = Html.fromHtml(filters.getSearchDescription(this))
-        textCurrentSortBy.text = filters.getOrderDescription(this)
+//        textCurrentSearch.text = Html.fromHtml(filters.getSearchDescription(this))
+  //      textCurrentSortBy.text = filters.getOrderDescription(this)
 
         // Save filters
         viewModel.filters = filters
