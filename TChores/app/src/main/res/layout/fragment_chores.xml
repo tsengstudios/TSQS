@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".java.ChoresFragment"
+    android:background="#E0E0E0">
+
+
+    <!-- Main chores recycler -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerchores"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        tools:listitem="@layout/item_chore" />
+
+
+    <!-- Empty list (pizza guy) view -->
+
+    <LinearLayout
+        android:id="@+id/viewEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <ImageView
+            style="@style/AppTheme.PizzaGuy"
+            android:src="@drawable/pizza_monster"
+            android:contentDescription="@string/no_results_found_image_guy" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/message_no_results"
+            android:textColor="@color/greyDisabled" />
+
+    </LinearLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabShowchoreAddDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="10dp"
+        app:layout_anchor="@id/recyclerchores"
+        app:layout_anchorGravity="bottom|right|end"
+        app:layout_behavior="me.tseng.studios.tchores.java.ScrollAwareFABBehavior"
+        app:srcCompat="@drawable/ic_add_white_24px" />
+
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/choresFragment">
+
+    <fragment
+        android:id="@id/choresFragment"
+        android:name="me.tseng.studios.tchores.java.ChoresFragment"
+        android:label="Chores Fragment"
+        tools:layout="@layout/fragment_chores">
+        <action
+            android:id="@+id/action_choresFragment_to_choreDetailActivity"
+            app:destination="@id/choreDetailActivity" />
+    </fragment>
+    <fragment
+        android:id="@id/historyFragment"
+        android:name="me.tseng.studios.tchores.java.HistoryFragment"
+        android:label="History Fragment"
+        tools:layout="@layout/fragment_history">
+    </fragment>
+    <fragment
+        android:id="@id/awardsFragment"
+        android:name="me.tseng.studios.tchores.java.AwardsFragment"
+        android:label="Awards Fragment"
+        tools:layout="@layout/fragment_awards">
+    </fragment>
+    <activity
+        android:id="@+id/choreDetailActivity"
+        android:name="me.tseng.studios.tchores.java.ChoreDetailActivity"
+        android:label="choreDetailActivity" />
+</navigation>

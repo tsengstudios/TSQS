@@ -3,22 +3,17 @@ package me.tseng.studios.tchores.java;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
@@ -26,56 +21,48 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-
-import io.mattcarroll.hover.overlay.OverlayPermission;
-import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.adapter.ChoreAdapter;
-import me.tseng.studios.tchores.java.model.Chore;
-import me.tseng.studios.tchores.java.util.ChoreUtil;
-import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Collections;
 
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import io.mattcarroll.hover.overlay.OverlayPermission;
+import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
+import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
 
 public class MainActivity extends AppCompatActivity implements
-        ChoreAdapter.OnchoreSelectedListener {
+        ChoresFragment.OnFragmentInteractionListener,
+        HistoryFragment.OnFragmentInteractionListener,
+        AwardsFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TChores.MainActivity";
 
     private static final int RC_SIGN_IN = 9001;
     private static final int REQUEST_CODE_HOVER_PERMISSION = 1800;  // To manage Permission to show chat head above all other apps. Note: Can only use lower 16 bits for requestCode -- Keep number low enough.
 
-    private static final int CHORE_LIMIT = 50;
-
-    String mCurrentUserName;
+    private MainActivityViewModel mViewModel;
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
-    @BindView(R.id.recyclerchores)
-    RecyclerView mchoresRecycler;
+    @BindView(R.id.bottom_navigation_view)
+    BottomNavigationView mBottomNavigationView;
 
-    @BindView(R.id.viewEmpty)
-    ViewGroup mEmptyView;
+    NavController navController;
 
+    private FirebaseFirestore mFirestore;
 
     private boolean mPermissionsRequested = false;                  // To manage Permission to show chat head above all other apps
 
-    private FirebaseFirestore mFirestore;
-    private Query mQuery;
 
-    private ChoreAdapter mAdapter;
-
-    private MainActivityViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,40 +87,8 @@ public class MainActivity extends AppCompatActivity implements
         // Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        mCurrentUserName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        mViewModel.getFilters().setCategory(mCurrentUserName);
-
-        // Get ${CHORE_LIMIT} chores
-        mQuery = mFirestore.collection("chores")
-                .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
-                .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
-                .limit(CHORE_LIMIT);
-
-        // RecyclerView
-        mAdapter = new ChoreAdapter(mQuery, this) {
-            @Override
-            protected void onDataChanged() {
-                // Show/hide content if the query returns empty.
-                if (getItemCount() == 0) {
-                    mchoresRecycler.setVisibility(View.GONE);
-                    mEmptyView.setVisibility(View.VISIBLE);
-                } else {
-                    mchoresRecycler.setVisibility(View.VISIBLE);
-                    mEmptyView.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            protected void onError(FirebaseFirestoreException e) {
-                // Show a snackbar on errors
-                Snackbar.make(findViewById(android.R.id.content),
-                        "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
-            }
-        };
-
-        mchoresRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mchoresRecycler.setAdapter(mAdapter);
-
+        navController = Navigation.findNavController(this, R.id.nav_host);
+        NavigationUI.setupWithNavController(mBottomNavigationView, navController);
 
         TChoresService.enqueueWork(this, new Intent());
 
@@ -149,20 +104,11 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
 
-        // Start listening for Firestore updates
-        if (mAdapter != null) {
-            mAdapter.startListening();
-        }
-
-
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mAdapter != null) {
-            mAdapter.stopListening();
-        }
     }
 
     @Override
@@ -232,64 +178,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    @OnClick(R.id.fabShowchoreAddDialog)
-    public void onAddRatingClicked(View view) {
-        //new code
-        Intent intent = new Intent(this, ChoreAddActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onchoreSelected(DocumentSnapshot chore) {
-        // Go to the details page for the selected chore
-        Intent intent = new Intent(this, ChoreDetailActivity.class);
-        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, chore.getId());
-        intent.putExtra(ChoreDetailActivity.KEY_ACTION, ChoreDetailActivity.ACTION_VIEW);
-
-        startActivity(intent);
-        overridePendingTransition(R.anim.slide_in_from_right, R.anim.slide_out_to_left);
 
 
-    }
-
-
-    public void DELETEMEonFilter(Filters filters) {
-        // Construct query basic query
-        Query query = mFirestore.collection("chores");
-
-        // Category (equality filter)
-        if (filters.hasCategory()) {
-            query = query.whereEqualTo(Chore.FIELD_CATEGORY, filters.getCategory());
-        }
-
-        // City (equality filter)
-        if (filters.hasCity()) {
-            query = query.whereEqualTo(Chore.FIELD_CITY, filters.getCity());
-        }
-
-        // Price (equality filter)
-        if (filters.hasPrice()) {
-            query = query.whereEqualTo(Chore.FIELD_PRICE, filters.getPrice());
-        }
-
-        // Sort by (orderBy with direction)
-        if (filters.hasSortBy()) {
-            query = query.orderBy(filters.getSortBy(), filters.getSortDirection());
-        }
-
-        // Limit items
-        query = query.limit(CHORE_LIMIT);
-
-        // Update the query
-        mAdapter.setQuery(query);
-
-        // Set header
-  //      mCurrentSearchView.setText(Html.fromHtml(filters.getSearchDescription(this)));
-//        mCurrentSortByView.setText(filters.getOrderDescription(this));
-
-        // Save filters
-        mViewModel.setFilters(filters);
-    }
 
     private boolean shouldStartSignIn() {
         return (!mViewModel.getIsSigningIn() && FirebaseAuth.getInstance().getCurrentUser() == null);
@@ -358,5 +248,10 @@ public class MainActivity extends AppCompatActivity implements
                 }).create();
 
         dialog.show();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
