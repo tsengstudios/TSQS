@@ -25,15 +25,15 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
  */
 public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
 
-    public interface OnchoreSelectedListener {
+    public interface OnChoreSelectedListener {
 
         void onchoreSelected(DocumentSnapshot chore);
 
     }
 
-    private OnchoreSelectedListener mListener;
+    private OnChoreSelectedListener mListener;
 
-    public ChoreAdapter(Query query, OnchoreSelectedListener listener) {
+    public ChoreAdapter(Query query, OnChoreSelectedListener listener) {
         super(query);
         mListener = listener;
     }
@@ -84,7 +84,7 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
         }
 
         public void bind(final DocumentSnapshot snapshot,
-                         final OnchoreSelectedListener listener) {
+                         final OnChoreSelectedListener listener) {
 
             Chore chore = snapshot.toObject(Chore.class);
             Resources resources = itemView.getResources();

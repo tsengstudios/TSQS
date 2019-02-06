@@ -88,6 +88,10 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">12sp</item>
     </style>
+    <style name="AppTheme.SunshineCaption2">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">8sp</item>
+    </style>
 
     <style name="AppTheme.TextDivider">
         <item name="android:layout_width">wrap_content</item>

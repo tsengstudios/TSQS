@@ -32,15 +32,10 @@ import me.tseng.studios.tchores.java.viewmodel.ChoresFragmentViewModel;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ChoresFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ChoresFragment#newInstance} factory method to
- * create an instance of this fragment.
+ *
  */
 public class ChoresFragment extends Fragment implements
-        ChoreAdapter.OnchoreSelectedListener {
+        ChoreAdapter.OnChoreSelectedListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    tools:orientation="horizontal">
+
+
+    <TextView
+        android:id="@+id/sunshineChoreNameView"
+        style="@style/AppTheme.Subheader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="Brush Teeth, get in PJ's and get ready for bed" />
+
+    <TextView
+        android:id="@+id/sunshineChoreTimestamp"
+        style="@style/AppTheme.SunshineCaption2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/sunshineDayTextView"
+        android:layout_marginTop="3dp"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/greySecondary"
+        tools:text="2019/01/05T12:00" />
+
+
+</RelativeLayout>

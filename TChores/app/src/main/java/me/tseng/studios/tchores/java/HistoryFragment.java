@@ -1,25 +1,40 @@
 package me.tseng.studios.tchores.java;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+
+import javax.annotation.Nullable;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.adapter.SunshineAdapter;
+import me.tseng.studios.tchores.java.adapter.SunshineDetailAdapter;
+import me.tseng.studios.tchores.java.model.Sunshine;
+import me.tseng.studios.tchores.java.viewmodel.HistoryFragmentViewModel;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HistoryFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HistoryFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends Fragment implements
+        SunshineAdapter.OnSunshineSelectedListener,
+        SunshineDetailAdapter.OnSunshineDetailSelectedListener {
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,6 +45,23 @@ public class HistoryFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    @BindView(R.id.recyclersunshines)
+    RecyclerView mSunshineRecycler;
+
+    @BindView(R.id.recyclersunshinedetail)
+    RecyclerView mSunshineDetailRecycler;
+
+    private FirebaseFirestore mFirestore;
+    private Query mQuery;
+
+    private static final int SUNSHINE_LIMIT = 21;
+
+    String mCurrentUserId;
+    private HistoryFragmentViewModel mViewModel;
+
+    private SunshineAdapter mAdapter;
+    private SunshineDetailAdapter mDetailAdapter;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -60,19 +92,92 @@ public class HistoryFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
+        // View model
+        mViewModel = ViewModelProviders.of(this).get(HistoryFragmentViewModel.class);
+
+        // Enable Firestore logging
+        FirebaseFirestore.setLoggingEnabled(true);
+
+        // Firestore
+        mFirestore = FirebaseFirestore.getInstance();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+            return;
+        mCurrentUserId = user.getUid();
+
+        // Get ${CHORE_LIMIT} chores
+        mQuery = mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+                .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
+                .whereEqualTo(Sunshine.FIELD_USERID, mCurrentUserId)
+                .limit(SUNSHINE_LIMIT);
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_history, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_history, container, false);
+        ButterKnife.bind(this, rootView);
+        //need to specify sources of view
+        return rootView;
+
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedBundle) {
+
+        // RecyclerView
+        mAdapter = new SunshineAdapter(mQuery,this) {
+            @Override
+            protected void onDataChanged() {
+                // Show/hide content if the query returns empty.
+                if (getItemCount() == 0) {
+                    mSunshineRecycler.setVisibility(View.GONE);
+                } else {
+                    mSunshineRecycler.setVisibility(View.VISIBLE);
+                    //  TODO this should never happen, or at least it should trigger creation of some sunshines
+                }
+            }
+
+            @Override
+            protected void onError(FirebaseFirestoreException e) {
+                // Show a snackbar on errors
+                Snackbar.make(getView().findViewById(android.R.id.content),
+                        "SunshineAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+            }
+        };
+
+        // Detail RecyclerView
+        mDetailAdapter = new SunshineDetailAdapter(this) {        };
+
+
+        mSunshineRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, true));
+        mSunshineRecycler.setAdapter(mAdapter);
+        mSunshineDetailRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mSunshineDetailRecycler.setAdapter(mDetailAdapter);
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Start listening for Firestore updates
+        if (mAdapter != null) {
+            mAdapter.startListening();
+        }
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.stopListening();
         }
     }
 
@@ -107,4 +212,24 @@ public class HistoryFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
+
+    // onSunshine*Selected() interfaces implemented below for the 2 RecyclerViews in this fragment
+    // for mSunshineRecyclerView
+    @Override
+    public void onSunshineSelected(Sunshine sunshine) {
+        // selected sunshine
+        // TODO feed sunshine into mSunshineDetailRecycler
+        mDetailAdapter.updateSunshine(sunshine);
+    }
+
+    // for mSunshineDetailRecyclerView
+    @Override
+    public void onSunshineDetailSelected(int position) {
+        // selected sunshine detail
+
+        // nothing to do here
+    }
+
 }
