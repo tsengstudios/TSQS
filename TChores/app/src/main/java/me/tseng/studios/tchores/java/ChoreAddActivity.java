@@ -1,6 +1,7 @@
 package me.tseng.studios.tchores.java;
 
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -99,8 +100,10 @@ public class ChoreAddActivity extends AppCompatActivity {
 
     @OnClick(R.id.addRbutton)
     public void submitchore(View button) {
+        final Context context = this;
         WriteBatch batch = mFirestore.batch();
         DocumentReference restRef = mFirestore.collection("chores").document();
+        final String futureChoreId = restRef.getId();
 
         //getting text input
         final EditText nameField = (EditText) findViewById(R.id.editTextName);
@@ -151,6 +154,8 @@ public class ChoreAddActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Write batch succeeded.");
+
+                    TChoresService.enqueueSetChoreAlarm(context, futureChoreId);
                 } else {
                     Log.w(TAG, "write batch failed.", task.getException());
                 }

@@ -14,7 +14,7 @@ public class TChoresBootReceiver extends BroadcastReceiver {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             // Start the service that will manage the alarms
 
-            TChoresService.enqueueWork(context, new Intent());;
+            TChoresService.enqueueSetAllChoreAlarms(context);;
 
         }
     }

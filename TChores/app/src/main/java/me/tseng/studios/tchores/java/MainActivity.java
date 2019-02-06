@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements
         navController = Navigation.findNavController(this, R.id.nav_host);
         NavigationUI.setupWithNavController(mBottomNavigationView, navController);
 
-        TChoresService.enqueueWork(this, new Intent());
+        TChoresService.enqueueSetAllChoreAlarms(this);
 
     }
 

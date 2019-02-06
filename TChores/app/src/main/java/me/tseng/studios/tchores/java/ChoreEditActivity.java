@@ -2,7 +2,6 @@ package me.tseng.studios.tchores.java;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -288,9 +287,7 @@ public class ChoreEditActivity extends AppCompatActivity
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG,"YAY!");
 
-                        Intent intent = new Intent();
-                        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, mchoreId);
-                        TChoresService.enqueueWork(context, intent);
+                        TChoresService.enqueueSetChoreAlarm(context, mchoreId);
 
                     }
                 });

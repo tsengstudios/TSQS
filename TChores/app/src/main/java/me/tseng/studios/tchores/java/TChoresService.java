@@ -43,6 +43,16 @@ public class TChoresService extends JobIntentService {
         enqueueWork(context, TChoresService.class, JOB_ID, work);
     }
 
+    static void enqueueSetAllChoreAlarms(Context context) {
+        TChoresService.enqueueWork(context, new Intent());
+    }
+
+    static void enqueueSetChoreAlarm(Context context, String choreId) {
+        Intent intent = new Intent();
+        intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, choreId);
+        enqueueWork(context, intent);
+    }
+
     @Override
     protected void onHandleWork(Intent intent) {
         // We have received work to do.  The system or framework is already
@@ -154,6 +164,11 @@ public class TChoresService extends JobIntentService {
 
         AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel);
     }
+
+
+
+
+
 
 
     final Handler mHandler = new Handler();
