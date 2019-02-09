@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import me.tseng.studios.tchores.java.ChoreDetailActivity;
@@ -24,7 +25,7 @@ public class Sunshine {
     public static final String FIELD_CHOREFLSTATE = "choreFlState";
     public static final String FIELD_CHOREFLTIME = "choreFlTimestamp";
     public static final String FIELD_CHOREFLSNOOZECOUNT = "choreFlSnoozeCount";
-    public static final String FIELD_BPRECALCED = "bPreCalced";
+    public static final String FIELD_BPRECALCED = "bpreCalced";     // careful firestore did not want to cap the 'p' fieldname
     public static final String FIELD_SUMMARYSTATUS = "summaryStatus";
     public static final String FIELD_AWARDPERFECTDAY = "awardPerfectDay";
 
@@ -36,7 +37,7 @@ public class Sunshine {
     private List<String> choreFlState;
     private List<Timestamp> choreFlTimestamp;
     private List<Integer> choreFlSnoozeCount;
-    private boolean bPreCalced = false;
+    private boolean bpreCalced = false;
     private String summaryStatus = "";
     private boolean awardPerfectDay = false;
 
@@ -106,10 +107,10 @@ public class Sunshine {
     public void setChoreFlSnoozeCount(List<Integer> choreFlSnoozeCount) { this.choreFlSnoozeCount = choreFlSnoozeCount; }
 
     public boolean getBPreCalced() {
-        return bPreCalced;
+        return bpreCalced;
     }
 
-    public void setBPreCalced(boolean bPreCalced) { this.bPreCalced = bPreCalced; }
+    public void setBPreCalced(boolean bPreCalced) { this.bpreCalced = bPreCalced; }
 
     public String getSummaryStatus() {
         return summaryStatus;
@@ -142,8 +143,9 @@ public class Sunshine {
     public void addChore(Chore c) {
         choreIds.add(c.getid());
         choreNames.add(c.getName());
-        choreFlState.add("incomplete");     //TODO
+        choreFlState.add("");     //TODO
         choreFlTimestamp.add(new Timestamp(0,0));
+        choreFlSnoozeCount.add(0);
     }
 
     public void addChores(List<Chore> chores) {
@@ -154,11 +156,9 @@ public class Sunshine {
     }
 
     public void addFirstAndOnlyFlurr(Flurr flurr) {
-
+        // called after addChore()
         if (flurr.getText().equals(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
-            choreFlSnoozeCount.add(1);
-        } else {
-            choreFlSnoozeCount.add(0);
+            choreFlSnoozeCount.set(0, 1);
         }
 
         choreFlState.set(0, flurr.getText());
@@ -166,4 +166,50 @@ public class Sunshine {
         // FIELD_AWARDPERFECTDAY  cannot be awarded on first flurr.  TODO check on recalcSunshine()
 
     }
+
+    public void setSCFList(Collection<SCF> collection) {
+        choreIds = new ArrayList<String>();
+        choreNames = new ArrayList<String>();
+        choreFlState = new ArrayList<String>();
+        choreFlTimestamp = new ArrayList<Timestamp>();
+        choreFlSnoozeCount = new ArrayList<Integer>();
+
+        for (SCF scf : collection) {
+            choreIds.add(scf.id);
+            choreNames.add(scf.name);
+            choreFlState.add(scf.flstate);
+            choreFlTimestamp.add(scf.fltimestamp);
+            choreFlSnoozeCount.add(scf.snoozecount);
+        }
+    }
+
+    // Excluded automatically in stream to Firestore.  Or rather, no Firestore document will use this child helper class
+    public static class SCF {
+
+        public String id;
+        public String name;
+        public String flstate;
+        public Timestamp fltimestamp;
+        public Integer snoozecount;
+
+        public SCF(String id, String name, String flstate, Timestamp fltimestamp, Integer snoozecount) {
+            this.id = id;
+            this.name = name;
+            this.flstate = flstate;
+            this.fltimestamp = fltimestamp;
+            this.snoozecount = snoozecount;
+        }
+
+        public SCF newSCF(Sunshine sunshine, int i) {
+            return new SCF(
+                    sunshine.getChoreIds().get(i),
+                    sunshine.getChoreNames().get(i),
+                    sunshine.getChoreFlState().get(i),
+                    sunshine.getChoreFlTimestamp().get(i),
+                    sunshine.getChoreFlSnoozeCount().get(i)
+            );
+        }
+
+    }
+
 }

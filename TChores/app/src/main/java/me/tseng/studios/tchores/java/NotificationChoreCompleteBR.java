@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,8 +25,6 @@ import com.google.firebase.firestore.Transaction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import me.tseng.studios.tchores.java.model.Chore;
@@ -118,7 +115,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             public Tuple2<Chore,Flurr> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot choreSnapshot = transaction.get(choreRef);
                 Chore chore = choreSnapshot.toObject(Chore.class);
-                chore.setid(choreId);   // for recordSunshine()
+                chore.setid(choreId);   // for recordChoreIntoSunshine()
 
                         // Compute new number of ratings
                         int newNumRatings = chore.getNumRatings() + 1;
@@ -201,8 +198,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 Log.i(TAG, "Chore action now marked");
 
-                recordSunshine(chore, flurr, sUserId);
-
+                recordChoreIntoSunshine(chore, flurr, sUserId);
 
 
                 // cancel the notification
@@ -226,10 +222,10 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
     }
 
-    private final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
+    private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
 
 
-    private void recordSunshine(final Chore chore, final Flurr flurr, final String userId) {
+    private void recordChoreIntoSunshine(final Chore chore, final Flurr flurr, final String userId) {
         LocalDate sunshineDay = Chore.LocalDateFromString(flurr.getChoreBDTime());
         final String sSunshineDay = sunshineDay.toString();
 
@@ -248,7 +244,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             if (document.getString(Sunshine.FIELD_DAY).equals(sSunshineDay)) {
-                                isProperSunshineFound = promisingSunshineFound(isProperSunshineFound, document, flurr);
+                                isProperSunshineFound = recordChoreIntoPromisingSunshine(isProperSunshineFound, document, flurr);
+                                if (isProperSunshineFound)
+                                    break;
                             }
 
                         }
@@ -267,7 +265,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                                     public void onSuccess(DocumentReference documentReference) {
                                         Log.i(TAG, "Success on updating Sunshine");
 
-                                        // TODO  trigger reviewSunshine(userId, );
+                                        // TODO  trigger reviewSunshineWithChores(userId, );
                                     };
                                 });
 
@@ -281,7 +279,11 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
     }
 
-    private boolean promisingSunshineFound(boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
+    /*  Continue the search for the right sunshine, and record the flurr if it is the right sunshine
+     *  return true if sunshine already contains the flurr's chore
+     */
+    private boolean recordChoreIntoPromisingSunshine(boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
+
         Sunshine sunshine = document.toObject(Sunshine.class);
         if (isProperSunshineFound) {
             // we already found a proper sunshine this must indicate a duplicate
@@ -328,66 +330,6 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         return isProperSunshineFound;
     }
 
-    public void reviewSunshine(final String userId, final QuerySnapshot qsChores) {
-        // Make sure there is an appropriate Sunshine for this chore
-        // It will not be determined until OnCompleteListener() fires
-
-        // try to get the current sunshine  (is the docref proof of existance?)
-        mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
-            .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
-            .whereEqualTo(Sunshine.FIELD_USERID, userId)
-            .limit(SUNSHINE_LIMIT)
-            .get()
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-
-                            Sunshine sunshine = document.toObject(Sunshine.class);
-                            LocalDate ldSunshine = Chore.LocalDateFromString(sunshine.getDay());
-
-                            // generate sunshine for every day from this recorded one to the current day
-                            for (LocalDate ld = LocalDate.now();
-                                 ld.isAfter(ldSunshine);
-                                 ld = ld.minusDays(1)) {
-                                // sunshine is earlier than sToday
-                                // we need to make a set of sunshines up to today
-
-                                preCalcSunshine(userId, ld, qsChores);
-                            }
-
-                            // we could review this sunshine to see if there were chores added since the last review which were due on that sunshine day
-
-
-                        }
-                    }
-
-                }
-            });
-
-    }
-
-    public Sunshine preCalcSunshine(String userId, LocalDate ld, @NonNull QuerySnapshot qsChores) {
-        // qsChores    - all Chores for user
-
-        List<Chore> chores = new ArrayList<Chore>() {};
-
-        // is chore x on this date?
-        for (QueryDocumentSnapshot cS : qsChores) {
-            Chore c = cS.toObject(Chore.class);
-            if (c.isScheduledOnDate(ld)) {
-                c.setid(cS.getId());    // use @Exclude  private id
-                chores.add(c);
-            }
-        }
-
-        Sunshine sunshine = new Sunshine(userId, ld.toString());
-        sunshine.setBPreCalced(true);
-        sunshine.addChores(chores);
-
-        return sunshine;
-    }
 
 }
 

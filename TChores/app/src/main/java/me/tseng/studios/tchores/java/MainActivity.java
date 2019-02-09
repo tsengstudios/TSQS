@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements
         NavigationUI.setupWithNavController(mBottomNavigationView, navController);
 
         TChoresService.enqueueSetAllChoreAlarms(this);
+        TChoresService.enqueueReviewSunshines(this);
 
     }
 
@@ -130,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.menu_open_chat_head:
                 Intent startHoverIntent = new Intent(MainActivity.this, TChoreHoverMenuService.class);
                 startService(startHoverIntent);
+                break;
+            case R.id.menu_review_sunshines:
+                TChoresService.enqueueReviewSunshines(this);
                 break;
         }
         return super.onOptionsItemSelected(item);

@@ -14,4 +14,8 @@
         android:id="@+id/menu_open_chat_head"
         android:title="@string/open_chat_head" />
 
+    <item
+        android:id="@+id/menu_review_sunshines"
+        android:title="@string/review_sunshines" />
+
 </menu>
