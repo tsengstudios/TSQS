@@ -28,6 +28,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -76,6 +79,10 @@ public class ChoreDetailActivity extends AppCompatActivity
 
     @BindView(R.id.recyclerRatings)
     RecyclerView mRatingsRecycler;
+
+    @BindView(R.id.choreDetailBDTime)
+    TextView mChoreDetailBDTime;
+
 
 
     private FirebaseFirestore mFirestore;
@@ -180,6 +187,18 @@ public class ChoreDetailActivity extends AppCompatActivity
         mCityView.setText(chore.getCity());
         mCategoryView.setText(chore.getCategory());
         mPriceView.setText(ChoreUtil.getPriceString(chore));
+
+        LocalDateTime ldt = LocalDateTime.parse(chore.getBDTime());
+        String textTimeView = "";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy  h:mm a");
+        textTimeView = dtf.format(ldt);
+        if (LocalDateTime.now().isBefore(ldt)) {
+            mChoreDetailBDTime.setTextColor(getColor(R.color.chore_detail_text_color));
+
+        }else {
+            mChoreDetailBDTime.setTextColor(getColor(R.color.chore_past_text_color));
+        }
+        mChoreDetailBDTime.setText(textTimeView);
 
         // Background image
         String tempPhoto = chore.getPhoto();

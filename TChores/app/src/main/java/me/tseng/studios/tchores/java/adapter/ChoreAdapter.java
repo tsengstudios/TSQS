@@ -1,6 +1,7 @@
 package me.tseng.studios.tchores.java.adapter;
 
 import android.content.res.Resources;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,10 @@ import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -110,7 +115,18 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
                     chore.getNumRatings()));
             priceView.setText(ChoreUtil.getPriceString(chore));
-            aDTimeView.setText(chore.getADTime());
+
+            LocalDateTime ldt = LocalDateTime.parse(chore.getADTime());
+            String textTimeView = "";
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE,  h:mm a");
+            textTimeView = dtf.format(ldt);
+            if (LocalDateTime.now().isBefore(ldt)) {
+                aDTimeView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.chore_future_text_color));
+
+            }else {
+                aDTimeView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.chore_past_text_color));
+            }
+            aDTimeView.setText(textTimeView);
             recurringIntervalView.setText(chore.getRecuranceInterval());
 
             // Click listener

@@ -35,7 +35,7 @@ import me.tseng.studios.tchores.R;
 /**
  * A screen that is displayed in our Hello World Hover Menu.
  */
-public class HoverMenuScreen extends FrameLayout implements Content {
+public class TChoreHoverMenuScreen extends FrameLayout implements Content {
 
     private static final String TAG = "TChores.HoverMenuScreen";
 
@@ -50,7 +50,7 @@ public class HoverMenuScreen extends FrameLayout implements Content {
     private Button mButtonComplete;
     private Button mButtonSnooze;
 
-    public HoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon, Map<String, PendingIntent> mapPendingIntents) {
+    public TChoreHoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon, Map<String, PendingIntent> mapPendingIntents) {
         super(context);
         mContext = context.getApplicationContext();
         mPageTitle = pageTitle;

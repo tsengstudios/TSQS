@@ -354,7 +354,7 @@ public class TChoresService extends JobIntentService {
 
             // merge this SCF
             map.merge(sunshineB.getChoreIds().get(i), scfB,
-                    new BiFunction<Sunshine.SCF, Sunshine.SCF, Sunshine.SCF>() {
+                    new BiFunction<Sunshine.SCF, Sunshine.SCF, Sunshine.SCF>() {  // could be simplified to BinaryOperator<Sunshine.SCF> since we don't need to extend SCF in a returned object
                         @Override
                         public Sunshine.SCF apply(Sunshine.SCF scfA, Sunshine.SCF scfB) {
                             if (scfA.flstate.isEmpty()) { // then b is better
@@ -398,6 +398,12 @@ public class TChoresService extends JobIntentService {
         return LocalDate.now().plusDays(DayOfWeek.SUNDAY_VALUE - LocalDate.now().getDayOfWeek().getValue());
     }
 
+    /*
+     * Each Sunshine will eventually be precalced = a calculation for all chores "scheduled" on that day.
+     *   "scheduled" means a chore was scheduled to be done that day).
+     * Note: the date that chores are finished, refused or snoozed don't matter.  That chore was
+     * supposed to be done on a certain day.
+     */
     private Sunshine preCalcSunshine(String userId, LocalDate ld, @NonNull QuerySnapshot qsChores) {
         // qsChores    - all Chores for user
 

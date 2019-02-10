@@ -114,38 +114,29 @@
             android:textStyle="bold"
             tools:text="hard" />
 
+        <TextView
+            android:id="@+id/choreDetailBDTime"
+            style="@style/AppTheme.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/white"
+            tools:text="Saturday, Jul 14, 2018 12:31:06 PM" />
+
     </RelativeLayout>
-
-    <!-- FAKE CONTROL JUST TO AVOID FIXING KOTLIN-->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabShowRatingDialog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabCompleteChore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/chore_top_card"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="-28dp"
-        android:visibility="invisible"
-        app:srcCompat="@drawable/fui_ic_check_circle_black_128dp" />
 
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabShowEditDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/chore_top_card"
-        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/chore_top_card"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="7dp"
-        android:layout_marginRight="7dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="-28dp"
         app:srcCompat="@drawable/ic_edit_pencil" />
 
     <!-- Ratings -->

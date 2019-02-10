@@ -8,5 +8,8 @@
     <color name="greySecondary">#8B000000</color>
     <color name="greyDisabled">#61000000</color>
     <color name="background_deselected">#54000000</color>
+    <color name="chore_future_text_color">#000000</color>
+    <color name="chore_past_text_color">#F44336</color>
+    <color name="chore_detail_text_color">#FFFFFF</color>
     <color name="chore_completed">#A18BC34A</color>
 </resources>

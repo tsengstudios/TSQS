@@ -46,45 +46,46 @@ public class TChoreHoverMenuService extends HoverMenuService {
     @Override
     protected void onHoverMenuLaunched(@NonNull Intent intent, @NonNull HoverView hoverView) {
         Notification notification = intent.getParcelableExtra(AfterAlarmBR.NOTIFICATION);
+        String choreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
 
-        hoverView.setMenu(createHoverMenu(notification));
+        hoverView.setMenu(createHoverMenu(notification, choreId));
         hoverView.collapse();
     }
 
     @NonNull
-    private HoverMenu createHoverMenu(Notification notification) {
-        return new MultiSectionHoverMenu(getApplicationContext(), notification);
+    private HoverMenu createHoverMenu(Notification notification, String choreId) {
+        return new MultiSectionHoverMenu(getApplicationContext(), notification, choreId);
     }
 
     private static class MultiSectionHoverMenu extends HoverMenu {
 
         private final Context mContext;
-        private final List<Section> mSections;
+        private List<Section> mSections = new ArrayList<>();
 
-        public MultiSectionHoverMenu(@NonNull Context context, Notification notification) {
+        public MultiSectionHoverMenu(@NonNull Context context, Notification notification, String choreId) {
             mContext = context.getApplicationContext();
             String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
             Icon icon = notification.getLargeIcon();
 
             Map<String, PendingIntent> mapPendingIntents = getMapPendingIntents(notification.actions);
 
-            mSections = Arrays.asList(
-                    new Section(
-                            new SectionId("1"),
-                            createTabView(icon),
-                            new HoverMenuScreen(mContext, sContentTitle, icon, mapPendingIntents)
-                    ),
-                    new Section(
-                            new SectionId("2"),
-                            createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 2", icon, mapPendingIntents)
-                    ),
-                    new Section(
-                            new SectionId("3"),
-                            createTabView(),
-                            new HoverMenuScreen(mContext, "Screen 3", icon, mapPendingIntents)
-                    )
-            );
+            Section sectionFound = findSection(choreId);
+            if (sectionFound == null) {
+                mSections.add(new Section(          // TODO what happens when max sections hit?
+                                new SectionId(choreId),
+                                createTabView(icon),
+                                new TChoreHoverMenuScreen(mContext, sContentTitle, icon, mapPendingIntents))
+                );
+            } else {
+                //hoverView.sectionFound
+            }
+        }
+
+        private Section findSection(String choreId) {
+            for(Section s: mSections) {
+                if (s.getId().equals(choreId)) return s;
+            }
+            return null;
         }
 
 
