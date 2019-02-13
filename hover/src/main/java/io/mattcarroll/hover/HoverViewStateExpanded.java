@@ -475,7 +475,8 @@ class HoverViewStateExpanded extends BaseHoverViewState {
         tabChain.unchain(new Runnable() {
             @Override
             public void run() {
-                mHoverView.mScreen.destroyChainedTab(chainedTab);
+                if (mHoverView != null)
+                    mHoverView.mScreen.destroyChainedTab(chainedTab);
             }
         });
 
@@ -483,7 +484,9 @@ class HoverViewStateExpanded extends BaseHoverViewState {
         HoverMenu.Section removedSection = mSections.get(chainedTab);
         if (removedSection.getId().equals(mHoverView.mSelectedSectionId)) {
             int newSelectionIndex = 0;
-            if (sectionIndex - 1 < mHoverView.mMenu.getSectionCount() - 1) {
+            if (sectionIndex - 1 < 0) {
+                newSelectionIndex = 0;
+            } else if (sectionIndex - 1 < mHoverView.mMenu.getSectionCount() - 1) {
                 newSelectionIndex = sectionIndex - 1;
             } else {
                 newSelectionIndex = mHoverView.mMenu.getSectionCount() - 1;

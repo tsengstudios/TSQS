@@ -86,6 +86,8 @@ public abstract class HoverMenuService extends Service {
             Log.d(TAG, "onStartCommand() - showing Hover menu.");
             mIsRunning = true;
             initHoverMenu(intent);
+        } else {
+            onHoverMenuLaunched(intent, mHoverView);
         }
 
         return START_STICKY;
