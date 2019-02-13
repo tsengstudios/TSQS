@@ -43,49 +43,98 @@ public class TChoreHoverMenuService extends HoverMenuService {
 
     private static final String TAG = "TChores.TChoreHoverMenuService";
 
+    public static final String KEY_CHORE_RESOLVED = "chore.resolved";
+
+    MultiSectionHoverMenu mMultiSectionHoverMenu;
+
+
     @Override
     protected void onHoverMenuLaunched(@NonNull Intent intent, @NonNull HoverView hoverView) {
         Notification notification = intent.getParcelableExtra(AfterAlarmBR.NOTIFICATION);
         String choreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
+        boolean bRemoveChore = intent.getBooleanExtra(KEY_CHORE_RESOLVED, false);
 
-        hoverView.setMenu(createHoverMenu(notification, choreId));
-        hoverView.collapse();
+        if (mMultiSectionHoverMenu == null) {
+            mMultiSectionHoverMenu = createHoverMenu(notification, choreId, hoverView);
+            hoverView.setMenu(mMultiSectionHoverMenu);
+            hoverView.collapse();
+        } else {
+            if (bRemoveChore) {
+
+                // remove this section choreId
+                mMultiSectionHoverMenu.tryRemove(choreId, hoverView);
+                if (mMultiSectionHoverMenu.mSections.size() == 0) {
+
+                    // close the chathead
+                    mMultiSectionHoverMenu = null;
+                    hoverView.close();
+                } else {
+                    hoverView.collapse();
+                }
+            } else {
+                // reentry with new choreId?
+                mMultiSectionHoverMenu.tryAdd(notification, choreId, hoverView);
+            }
+        }
     }
 
     @NonNull
-    private HoverMenu createHoverMenu(Notification notification, String choreId) {
-        return new MultiSectionHoverMenu(getApplicationContext(), notification, choreId);
+    private MultiSectionHoverMenu createHoverMenu(Notification notification, String choreId, HoverView hoverView) {
+        return new MultiSectionHoverMenu(getApplicationContext(), notification, choreId, hoverView);
     }
 
     private static class MultiSectionHoverMenu extends HoverMenu {
 
         private final Context mContext;
-        private List<Section> mSections = new ArrayList<>();
+        List<Section> mSections = new ArrayList<>();
 
-        public MultiSectionHoverMenu(@NonNull Context context, Notification notification, String choreId) {
+        public MultiSectionHoverMenu(@NonNull Context context, Notification notification, String choreId, HoverView hoverView) {
             mContext = context.getApplicationContext();
-            String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
-            Icon icon = notification.getLargeIcon();
 
-            Map<String, PendingIntent> mapPendingIntents = getMapPendingIntents(notification.actions);
+            tryAdd(notification, choreId, hoverView);
+        }
 
+        public void tryAdd(Notification notification, String choreId, HoverView hoverView) {
             Section sectionFound = findSection(choreId);
             if (sectionFound == null) {
-                mSections.add(new Section(          // TODO what happens when max sections hit?
-                                new SectionId(choreId),
-                                createTabView(icon),
-                                new TChoreHoverMenuScreen(mContext, sContentTitle, icon, mapPendingIntents))
-                );
+                String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
+                Icon icon = notification.getLargeIcon();
+
+                Map<String, PendingIntent> mapPendingIntents = getMapPendingIntents(notification.actions);
+
+                sectionFound = new Section(          // TODO what happens when max sections hit?
+                        new SectionId(choreId),
+                        createTabView(icon),
+                        new TChoreHoverMenuScreen(mContext, sContentTitle, icon, mapPendingIntents));
+                mSections.add(0, sectionFound);
             } else {
-                //hoverView.sectionFound
+                mSections.remove(sectionFound);
+                mSections.add(0, sectionFound);
+            }
+
+            // select sectionFound if not already
+            //  dangerous cause of crashes    hoverView.mSelectedSectionId = null;
+            //  OTHER FAILURES    ((HoverViewStateCollapsed) hoverView.mCollapsed).takeControl(hoverView);
+            //  OTHER FAILURES    (HoverViewStateExpanded) hoverView.mCollapsed).expand();
+
+            this.notifyMenuChanged();
+        }
+
+        public void tryRemove(String choreId, HoverView hoverView) {
+            Section sectionFound = findSection(choreId);
+            if (sectionFound == null) {
+                return;
+            }
+
+            mSections.remove(sectionFound);
+            if (mSections.size() != 0) {
+                this.notifyMenuChanged();   // Hover can't handle zero sections.  need to exit and close up
             }
         }
 
         private Section findSection(String choreId) {
-            for(Section s: mSections) {
-                if (s.getId().equals(choreId)) return s;
-            }
-            return null;
+            SectionId sId = new SectionId(choreId);
+            return getSection(sId);
         }
 
 
@@ -126,6 +175,8 @@ public class TChoreHoverMenuService extends HoverMenuService {
         @Nullable
         @Override
         public Section getSection(int index) {
+            if (index < 0)
+                index = 0;
             return mSections.get(index);
         }
 

@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import static me.tseng.studios.tchores.java.model.Chore.chore_URI_PREFIX;
+import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 
 
 public class AfterAlarmBR extends BroadcastReceiver {
@@ -28,7 +28,7 @@ public class AfterAlarmBR extends BroadcastReceiver {
         Log.i(TAG, "Fire notification id = " + id.hashCode());
 
         Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
-        startHoverIntent.setData(Uri.parse(chore_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
+        startHoverIntent.setData(Uri.parse(CHORE_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
         startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, id);
         startHoverIntent.putExtra(NOTIFICATION, notification);
         context.startService(startHoverIntent);

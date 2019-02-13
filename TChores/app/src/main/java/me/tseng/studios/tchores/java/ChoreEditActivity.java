@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -55,6 +56,9 @@ public class ChoreEditActivity extends AppCompatActivity
 
  //   @BindView(R.id.choreImage)
  //   ImageView mImageView;
+
+    @BindView(R.id.EReditRbutton)
+    Button mUpdateButton;
 
     @BindView(R.id.EReditTextName)
     EditText mNameView;
@@ -127,7 +131,10 @@ public class ChoreEditActivity extends AppCompatActivity
 
                            } catch (Exception e) {
                                Log.e(TAG, "Date stored on Firebase database is badly formated.");
+                           } finally {
+                               mUpdateButton.setEnabled(true);
                            }
+
 
                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                        } else {

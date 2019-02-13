@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -31,6 +32,8 @@ import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
+
+import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 
 
 public class NotificationChoreCompleteBR extends BroadcastReceiver {
@@ -148,7 +151,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 if (ldt.isAfter(LocalDateTime.now())) {
                     // This was already bumped
-                    throw new FirebaseFirestoreException("Weird -- this action is trying to bump the alarm time when it is already in the future.",
+                    throw new FirebaseFirestoreException("Weird -- this action is trying to bump the alarm time when it is already in the future." +
+                            " -  Alarm was at " + ldt.toString(),
                             FirebaseFirestoreException.Code.INVALID_ARGUMENT);
                 }
 
@@ -205,7 +209,12 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.cancel(choreId.hashCode());
 
-                // TODO cancel the chat head --  OR give feedback it was accomplished first then go away.
+                // Cancel the chat head
+                Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
+                startHoverIntent.setData(Uri.parse(CHORE_URI_PREFIX + choreId));  // faked just to differentiate alarms on different chores
+                startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, choreId);
+                startHoverIntent.putExtra(TChoreHoverMenuService.KEY_CHORE_RESOLVED,true );
+                context.startService(startHoverIntent);
 
                 // set the new alarm
                 AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());

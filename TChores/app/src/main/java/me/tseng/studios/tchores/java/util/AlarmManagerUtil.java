@@ -24,7 +24,7 @@ import me.tseng.studios.tchores.java.NotificationChoreCompleteBR;
 import me.tseng.studios.tchores.java.AfterAlarmBR;
 import me.tseng.studios.tchores.java.model.Chore;
 
-import static me.tseng.studios.tchores.java.model.Chore.chore_URI_PREFIX;
+import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 
 public class AlarmManagerUtil {
     private static final String TAG = "TChores.RTC Alarm";
@@ -93,7 +93,7 @@ public class AlarmManagerUtil {
     @NonNull
     private static Intent buildIntent(Context context, Class classReceiving, String id, String action) {
         Intent intent = new Intent(context, classReceiving);
-        intent.setData(Uri.parse(chore_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
+        intent.setData(Uri.parse(CHORE_URI_PREFIX + id));  // faked just to differentiate alarms on different chores
         intent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, id);
         intent.putExtra(ChoreDetailActivity.KEY_ACTION, action);
         intent.setAction(action); // Needed to differentiate Intents so Notification manager doesn't squash them together
