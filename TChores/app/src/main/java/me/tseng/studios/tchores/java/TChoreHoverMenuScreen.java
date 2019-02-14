@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -40,6 +41,7 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
     private static final String TAG = "TChores.HoverMenuScreen";
 
     private final Context mContext;
+    private View mContent;
     private final String mPageTitle;
     private Icon mIcon;
     private Map<String, PendingIntent> mMapPendingIntents;
@@ -62,7 +64,8 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
 
     @NonNull
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.chore_actions, this, true);
+        mContent = LayoutInflater.from(mContext).inflate(R.layout.chore_actions, this, true);
+        mContent.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         mImageViewPhoto = (ImageView) findViewById(R.id.ca_chore_image);
         mTextViewName = (TextView) findViewById(R.id.ca_chore_name);
@@ -102,12 +105,12 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
     @NonNull
     @Override
     public View getView() {
-        return this;
+        return mContent;
     }
 
     @Override
     public boolean isFullscreen() {
-        return true;
+        return false;
     }
 
     @Override
