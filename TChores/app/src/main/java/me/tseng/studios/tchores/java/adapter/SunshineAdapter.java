@@ -95,13 +95,14 @@ public class SunshineAdapter extends FirestoreAdapter<SunshineAdapter.ViewHolder
 
             boolean isAfterToday = LocalDate.now().isBefore(ld);
             if (isAfterToday) {
+                imageView.setColorFilter(context.getColor(R.color.greyDisabledColorFilter));
                 dayView.setTextColor(context.getColor(R.color.greyDisabled));
                 bPreCalcedView.setTextColor(context.getColor(R.color.greyDisabled));
                 awardPerfectDayView.setTextColor(context.getColor(R.color.greyDisabled));
             } else {
                 dayView.setTextColor(context.getColor(R.color.text_dark_title));
-                bPreCalcedView.setTextColor(context.getColor(R.color.greyDisabled));
-                awardPerfectDayView.setTextColor(context.getColor(R.color.greyDisabled));
+                bPreCalcedView.setTextColor(context.getColor(R.color.text_dark_title));
+                awardPerfectDayView.setTextColor(context.getColor(R.color.text_dark_title));
             }
 
             // Click listener

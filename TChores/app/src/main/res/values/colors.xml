@@ -8,6 +8,8 @@
     <color name="greyPrimary">#DE000000</color>
     <color name="greySecondary">#8B000000</color>
     <color name="greyDisabled">#61000000</color>
+    <color name="greyDisabledColorFilter">#F0C4C4C4</color>
+
     <color name="background_deselected">#54000000</color>
     <color name="chore_future_text_color">#000000</color>
     <color name="chore_past_text_color">#F44336</color>

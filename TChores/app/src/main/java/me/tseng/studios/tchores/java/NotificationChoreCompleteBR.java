@@ -313,11 +313,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             sunshine.getChoreFlState().set(indexFlurr, flurr.getText());
             sunshineRef.update(Sunshine.FIELD_CHOREFLSTATE, sunshine.getChoreFlState());
 
-            // TODO Check FIELD_AWARDPERFECTDAY
             if (!sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_REFUSED_LOCALIZED) &&
                 !sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
-                sunshine.setAwardPerfectDay(true);  // just for completeness
-                sunshineRef.update(Sunshine.FIELD_AWARDPERFECTDAY, true);
             }
 
             sunshine.getChoreFlTimestamp().set(indexFlurr, Timestamp.now());
@@ -326,6 +323,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG, "Success on updating Sunshine");
+
+                        // TODO Check FIELD_AWARDPERFECTDAY
+
                     };
                 });
 
