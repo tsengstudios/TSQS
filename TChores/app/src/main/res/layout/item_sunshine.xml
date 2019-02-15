@@ -29,6 +29,7 @@
         android:layout_toRightOf="@+id/sunshineItemImage"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textColor="@color/greyDisabled"
         tools:text="31" />
 
     <TextView
@@ -54,7 +55,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="13dp"
         android:layout_toEndOf="@+id/sunshineItemImage"
-        android:textColor="@color/greySecondary"
+        android:textColor="@color/greyDisabled"
         tools:text="Perfect" />
 
 

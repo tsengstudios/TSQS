@@ -1,6 +1,8 @@
 package me.tseng.studios.tchores.java.adapter;
 
+import android.content.Context;
 import android.content.res.Resources;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,10 +80,29 @@ public class SunshineAdapter extends FirestoreAdapter<SunshineAdapter.ViewHolder
                          final OnSunshineSelectedListener listener) {
 
             final Sunshine sunshine = snapshot.toObject(Sunshine.class);
+            final Context context = itemView.getContext();
 
-            dayView.setText(String.valueOf(LocalDate.parse(sunshine.getDay()).getDayOfMonth()));
+            final LocalDate ld = LocalDate.parse(sunshine.getDay());
+            dayView.setText(String.valueOf(ld.getDayOfMonth()));
             bPreCalcedView.setText(sunshine.getBPreCalced() ? "PreCalced" : "not calc");
-            awardPerfectDayView.setText(sunshine.getAwardPerfectDay() ? "Perfect" : "imperf");
+            if (sunshine.getAwardPerfectDay() ) {
+                imageView.setColorFilter(context.getColor(R.color.colorAccent));
+                awardPerfectDayView.setText(context.getString(R.string.sunshine_display_perfect_day_short));
+            } else {
+                imageView.setColorFilter(context.getColor(R.color.design_default_color_primary_dark));
+                awardPerfectDayView.setText(context.getString(R.string.sunshine_display_imperfect_day_short));
+            }
+
+            boolean isAfterToday = LocalDate.now().isBefore(ld);
+            if (isAfterToday) {
+                dayView.setTextColor(context.getColor(R.color.greyDisabled));
+                bPreCalcedView.setTextColor(context.getColor(R.color.greyDisabled));
+                awardPerfectDayView.setTextColor(context.getColor(R.color.greyDisabled));
+            } else {
+                dayView.setTextColor(context.getColor(R.color.text_dark_title));
+                bPreCalcedView.setTextColor(context.getColor(R.color.greyDisabled));
+                awardPerfectDayView.setTextColor(context.getColor(R.color.greyDisabled));
+            }
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

@@ -67,6 +67,9 @@ public class SunshineDetailAdapter extends RecyclerView.Adapter<SunshineDetailAd
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.sunshineChoreCheckmarkImageView)
+        ImageView sunshineChoreCheckmarkImageView;
+
         @BindView(R.id.sunshineChoreNameView)
         TextView sunshineChoreNameView;
 
@@ -87,9 +90,11 @@ public class SunshineDetailAdapter extends RecyclerView.Adapter<SunshineDetailAd
             switch (mSunshine.getChoreFlState().get(position)) {
                 case ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED :
                     sunshineChoreNameView.setTypeface(null, Typeface.BOLD);
+                    sunshineChoreCheckmarkImageView.setVisibility(View.VISIBLE);
                     break;
                 default:
                     sunshineChoreNameView.setTypeface(null, Typeface.NORMAL);
+                    sunshineChoreCheckmarkImageView.setVisibility(View.INVISIBLE);
                     break;
             }
 
