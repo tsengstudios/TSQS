@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -34,9 +35,11 @@ public class AlarmManagerUtil {
     public static final int REQUEST_CODE = 0;
 
 
-    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String sPhoto, String notificationChannelId) {
+    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String sPhoto, String notificationChannelId, String sScheduledLocalDateTime) {
 
         createNotificationChannel(context);
+
+        LocalDateTime localDateTimeAlarm = localDateTimeFromString(sAlarmLocalDateTime);
 
         Intent intent = buildIntent(context, ChoreDetailActivity.class, id, ChoreDetailActivity.ACTION_VIEW);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -58,20 +61,22 @@ public class AlarmManagerUtil {
 
 
         Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, id, ChoreDetailActivity.ACTION_VIEW);
-        afterAlarmIntent.putExtra(AfterAlarmBR.NOTIFICATION,
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_NOTIFICATION,
                 getNotification(context, sContentTitle, "THIS IS THE CHORE TEXT TO FILL IN", sPhoto, notificationChannelId, pendingAfterTapNotificationIntent, action1, action2, action3));
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_PRIORITY_CHANNEL, notificationChannelId);
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BDTIME, sScheduledLocalDateTime);
+
+        Log.i(TAG,"Alarm set. @" + localDateTimeAlarm.toString() + " Title: " + sContentTitle + " : " + id);
+
         PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        // Calculate alarm time in Epoch milliseconds
-        int alarmType = AlarmManager.RTC_WAKEUP;
-        long rtcAlarmMillis;
-        try {
-            rtcAlarmMillis = ZonedDateTime.of(LocalDateTime.parse(sAlarmLocalDateTime),ZoneId.systemDefault()).toEpochSecond()*1000;
-        } catch (Exception e) {
-            Log.e(TAG, "Date in sAlarmLocalDateTime is badly formatted. = " + sAlarmLocalDateTime);
-            rtcAlarmMillis = 0;
-        }
+        setAlarmWIntent(context, localDateTimeAlarm, afterAlarmPendingIntent, true);
+    }
+
+
+    public static void setAlarmWIntent(Context context, LocalDateTime localDateTimeAlarm, PendingIntent afterAlarmPendingIntent, boolean isExactTime) {
+        long rtcAlarmMillis = ZonedDateTime.of(localDateTimeAlarm, ZoneId.systemDefault()).toEpochSecond()*1000;     // Calculate alarm time in Epoch milliseconds
 
 //        Log.i(TAG,"rtcAlarmMillis     = " + String.valueOf(rtcAlarmMillis));
 //        Log.i(TAG,"currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
@@ -83,11 +88,22 @@ public class AlarmManagerUtil {
         // The AlarmManager, like most system services, isn't created by application code, but
         // requested from the system.
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
-        alarmManager.setExactAndAllowWhileIdle(alarmType,rtcAlarmMillis, afterAlarmPendingIntent);
-
+        alarmManager.cancel(afterAlarmPendingIntent);
+        if (isExactTime)
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rtcAlarmMillis, afterAlarmPendingIntent);
+        else
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rtcAlarmMillis, afterAlarmPendingIntent);
         // END_INCLUDE (configure_alarm_manager);
+    }
 
-        Log.i(TAG,"Alarm set. @" + rtcAlarmMillis + " Title: " + sContentTitle + " : " + id);
+    public static LocalDateTime localDateTimeFromString(String sAlarmLocalDateTime) {
+        try {
+            LocalDateTime localDateTimeAlarm = LocalDateTime.parse(sAlarmLocalDateTime);
+            return localDateTimeAlarm;
+        } catch (Exception e) {
+            Log.e(TAG, "Date in sAlarmLocalDateTime is badly formatted. = " + sAlarmLocalDateTime);
+            return LocalDateTime.MIN;
+        }
     }
 
     @NonNull
@@ -140,6 +156,33 @@ public class AlarmManagerUtil {
                         Chore.PriorityChannelImportance(pc));
                 channel.setDescription(Chore.PriorityChannelDescription(pc));
 
+                switch (pc) {
+                    case CRITICAL:
+                        channel.setBypassDnd(true);
+                        channel.enableLights(true);
+                        channel.setLightColor(Color.WHITE);
+                        channel.setVibrationPattern(new long[] {0, 100, 1000, 300, 200, 100, 500, 200, 100});
+                        break;
+                    case IMPORTANT2SELF:
+                        channel.setBypassDnd(false);
+                        channel.enableLights(true);
+                        channel.setLightColor(Color.BLUE);
+                        channel.setVibrationPattern(new long[] {0, 1000, 1000, 300});
+                        break;
+                    case IMPORTANT2OTHERS:
+                        channel.setBypassDnd(false);
+                        channel.enableLights(true);
+                        channel.setLightColor(Color.RED);
+                        channel.setVibrationPattern(new long[] {0, 700, 500, 700});
+                        break;
+                    case NORMAL:
+                    default:
+                        channel.setBypassDnd(false);
+                        channel.enableLights(false);
+                        channel.setLightColor(Color.RED);
+                        channel.setVibrationPattern(new long[] {0, 400});
+                        break;
+                }
                 // Register the channel with the system; you can't change the importance
                 // or other notification behaviors after this
                 NotificationManager notificationManager = context.getSystemService(NotificationManager.class);

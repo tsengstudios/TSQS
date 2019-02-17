@@ -181,13 +181,10 @@ public class TChoresService extends JobIntentService {
 
         String id = document.getId();
         String name = d.get(Chore.FIELD_NAME).toString();
-        LocalDateTime ldt;
-        try {
-            ldt = LocalDateTime.parse(d.get(Chore.FIELD_ADTIME).toString());
-        } catch (Exception e) {
-            Log.e(TAG, "Date stored on Firebase database is badly formated.");
-            ldt = LocalDateTime.MIN;
-        }
+        LocalDateTime ldt =
+                AlarmManagerUtil.localDateTimeFromString(d.get(Chore.FIELD_ADTIME).toString());
+        LocalDateTime ldtScheduledLocalDateTime =
+                AlarmManagerUtil.localDateTimeFromString(d.get(Chore.FIELD_BDTIME).toString());
 
         String photo = d.get(Chore.FIELD_PHOTO).toString();
         String priorityChannel = d.get(Chore.FIELD_PRIORITYCHANNEL).toString();
@@ -197,7 +194,8 @@ public class TChoresService extends JobIntentService {
                 " at " + ldt.toString() +
                 " => " + d);
 
-        AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel);
+        AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel, ldtScheduledLocalDateTime.toString());
+
     }
 
 

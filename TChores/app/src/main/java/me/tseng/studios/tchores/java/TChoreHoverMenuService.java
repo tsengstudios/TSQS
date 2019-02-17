@@ -26,7 +26,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class TChoreHoverMenuService extends HoverMenuService {
 
     @Override
     protected void onHoverMenuLaunched(@NonNull Intent intent, @NonNull HoverView hoverView) {
-        Notification notification = intent.getParcelableExtra(AfterAlarmBR.NOTIFICATION);
+        Notification notification = intent.getParcelableExtra(AfterAlarmBR.KEY_NOTIFICATION);
         String choreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
         boolean bRemoveChore = intent.getBooleanExtra(KEY_CHORE_RESOLVED, false);
 

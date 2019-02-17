@@ -51,7 +51,6 @@ public class Chore {
     private int notifyWorldAfter;
     private PriorityChannel priorityChannel;
 
-
     public enum RecuranceInterval {
         HOURLY, DAILY, WEEKLY, WEEKDAYS, WEEKENDS, BIWEEKLY, MONTHLY
     };
@@ -102,6 +101,15 @@ public class Chore {
                 break;
         }
         return d;
+    }
+
+    public static PriorityChannel getPriorityChannelFromString(String sPriorityChannel) {
+        try {
+            PriorityChannel pc = PriorityChannel.valueOf(sPriorityChannel);
+            return pc;
+        } catch(Exception e)  {
+            return PriorityChannel.NORMAL;
+        }
     }
 
 

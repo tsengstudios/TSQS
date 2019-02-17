@@ -137,13 +137,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 // Before changing BDTime, record the chore BDTime upon which the user just acted
                 flurr.setChoreBDTime(chore.getBDTime());
 
-                LocalDateTime ldt;
-                try {
-                    ldt = LocalDateTime.parse(chore.getADTime());
-                } catch (Exception e) {
-                    Log.e(TAG, "Date stored on Firebase database is badly formated.");
-                    ldt = LocalDateTime.MIN;
-                }
+                LocalDateTime ldt = AlarmManagerUtil.localDateTimeFromString(chore.getADTime());
 
                 Log.d(TAG, "Got Chore: " + choreId +
                         " -  Alarm was at " + ldt.toString() +
@@ -202,6 +196,10 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 Log.i(TAG, "Chore action now marked");
 
+                // set the new alarm (also cancels the backup alarm)
+                AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel(), chore.getBDTime());
+
+
                 recordChoreIntoSunshine(chore, flurr, sUserId);
 
 
@@ -215,9 +213,6 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, choreId);
                 startHoverIntent.putExtra(TChoreHoverMenuService.KEY_CHORE_RESOLVED,true );
                 context.startService(startHoverIntent);
-
-                // set the new alarm
-                AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel());
 
                 // TODO compute awards here?
 
