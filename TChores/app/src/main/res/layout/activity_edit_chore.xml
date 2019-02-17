@@ -8,7 +8,7 @@
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="0dp">
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="0dp"
@@ -65,7 +65,7 @@
             android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Diffuculty:"
             app:layout_constraintStart_toStartOf="parent"
@@ -160,6 +160,24 @@
             android:text="debugTime"
             app:layout_constraintStart_toStartOf="@+id/EReditTextTime"
             app:layout_constraintTop_toBottomOf="@+id/EReditTextTime" />
+
+        <Spinner
+            android:id="@+id/ERSpinnerPriorityChannel"
+            style="@style/AppTheme.FilterSpinner"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="@+id/ERspnrAssignee"
+            app:layout_constraintTop_toBottomOf="@+id/ERspnrAssignee" />
+
+        <TextView
+            android:id="@+id/textPriorityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Priority"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ERspnrAssignee" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

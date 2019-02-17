@@ -106,13 +106,26 @@
             style="@style/AppTheme.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/choreName"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="0dp"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             tools:text="hard" />
+
+        <TextView
+            android:id="@+id/chorePriorityChannel"
+            style="@style/AppTheme.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/choreNumRatings"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="8dp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            tools:text="IMPORTANT2OTHERS" />
 
         <TextView
             android:id="@+id/choreDetailBDTime"

@@ -114,7 +114,6 @@ public class ChoreAddActivity extends AppCompatActivity {
         String feedbackType = feedbackSpinner.getSelectedItem().toString();
 
         //getting priortiyChannel
-        final Spinner priorityChannelSpinner = (Spinner) findViewById(R.id.spinnerPriorityChannel);
         String sPriorityChannel = priorityChannelSpinner.getSelectedItem().toString();
         Chore.PriorityChannel priorityChannel = Chore.PriorityChannel.valueOf(sPriorityChannel);
 

@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
@@ -78,6 +79,9 @@ public class ChoreEditActivity extends AppCompatActivity
     @BindView(R.id.ERspinnerPhoto)
     Spinner mSpinnerPhoto;
 
+    @BindView(R.id.ERSpinnerPriorityChannel)
+    Spinner mSpinnerPriority;
+
     @BindView(R.id.ERdiffucultyBar)
     RatingBar mPriceView;
 
@@ -119,6 +123,7 @@ public class ChoreEditActivity extends AppCompatActivity
                            mNameView.setText(document.getString(Chore.FIELD_NAME));
                            mSpinnerAssignee.setSelection(getIndex(mSpinnerAssignee, document.getString(Chore.FIELD_CATEGORY)));
                            mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, document.getString(Chore.FIELD_PHOTO)));
+                           mSpinnerPriority.setSelection(getIndex(mSpinnerPriority, document.getString(Chore.FIELD_PRIORITYCHANNEL)));
 
                            LocalDateTime ldt;
                            try {
@@ -187,9 +192,11 @@ public class ChoreEditActivity extends AppCompatActivity
         });
 
         // initiate the spinner for chore Photo
-        mSpinnerPhoto = (Spinner) findViewById(R.id.ERspinnerPhoto);
         ChoreImageAdapter adapter = ChoreImageAdapter.getChoreImageAdapter(this);
         mSpinnerPhoto.setAdapter(adapter);
+        ArrayAdapter pcAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Chore.PriorityChannel.values());
+        mSpinnerPriority.setAdapter(pcAdapter);
+
     }
 
     @Override
@@ -288,6 +295,7 @@ public class ChoreEditActivity extends AppCompatActivity
         mchoreRef.update(Chore.FIELD_BDTIME, ldt.toString());
         mchoreRef.update(Chore.FIELD_DATEUSERLASTSET, ldt.toString());
         mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
+        mchoreRef.update(Chore.FIELD_PRIORITYCHANNEL, mSpinnerPriority.getSelectedItem().toString());
         mchoreRef.update(Chore.FIELD_CATEGORY, sAssignee)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

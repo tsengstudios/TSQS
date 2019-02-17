@@ -71,6 +71,9 @@ public class ChoreDetailActivity extends AppCompatActivity
     @BindView(R.id.choreCategory)
     TextView mCategoryView;
 
+    @BindView(R.id.chorePriorityChannel)
+    TextView mPriorityChannel;
+
     @BindView(R.id.chorePrice)
     TextView mPriceView;
 
@@ -186,6 +189,7 @@ public class ChoreDetailActivity extends AppCompatActivity
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
         mCityView.setText(chore.getCity());
         mCategoryView.setText(chore.getCategory());
+        mPriorityChannel.setText(chore.getPriorityChannel());
         mPriceView.setText(ChoreUtil.getPriceString(chore));
 
         LocalDateTime ldt = LocalDateTime.parse(chore.getBDTime());
