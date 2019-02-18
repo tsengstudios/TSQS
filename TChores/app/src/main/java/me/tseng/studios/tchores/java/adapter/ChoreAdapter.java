@@ -19,7 +19,6 @@ import com.google.firebase.firestore.Query;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,8 +70,8 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
         @BindView(R.id.choreItemPrice)
         TextView priceView;
 
-        @BindView(R.id.choreItemCategory)
-        TextView categoryView;
+//        @BindView(R.id.choreItemCategory)
+//        TextView categoryView;
 
         @BindView(R.id.choreItemCity)
         TextView cityView;
@@ -111,7 +110,7 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
             nameView.setText(chore.getName());
             ratingBar.setRating((float) chore.getAvgRating());
             cityView.setText(chore.getCity());
-            categoryView.setText(chore.getCategory());
+//            categoryView.setText(chore.getUuid());
             numRatingsView.setText(resources.getString(R.string.fmt_num_ratings,
                     chore.getNumRatings()));
             priceView.setText(ChoreUtil.getPriceString(chore));

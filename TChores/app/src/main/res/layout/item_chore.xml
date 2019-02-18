@@ -34,9 +34,10 @@
         style="@style/Widget.MaterialRatingBar.RatingBar.Indicator.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/choreItemName"
         android:layout_below="@+id/choreItemName"
-        android:layout_marginBottom="4dp" />
+        android:layout_alignLeft="@+id/choreItemName"
+        android:layout_marginBottom="4dp"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/choreItemNumRatings"

@@ -7,7 +7,6 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.EnumMap;
 
 /**
  * Chore POJO.
@@ -16,7 +15,7 @@ import java.util.EnumMap;
 public class Chore {
 
     public static final String FIELD_CITY = "city";
-    public static final String FIELD_CATEGORY = "category";
+    public static final String FIELD_UUID = "uuid";
     public static final String FIELD_PHOTO = "photo";
     public static final String FIELD_PRICE = "price";
     public static final String FIELD_NAME = "name";
@@ -37,7 +36,7 @@ public class Chore {
     @Exclude private String id;
     private String name;
     private String city;
-    private String category;
+    private String uuid;
     private String photo;   // This is now the app resource id of a PNG file that will be used in the ImageView for this object (not a URL)
     private int price;
     private int numRatings;
@@ -115,11 +114,11 @@ public class Chore {
 
     public Chore() {}
 
-    public Chore(String name, String city, String category, String photo,
+    public Chore(String name, String city, String uuid, String photo,
                  int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
         this.name = name;
         this.city = city;
-        this.category = category;
+        this.uuid = uuid;
         this.photo = photo;
         this.price = price;
         this.numRatings = numRatings;
@@ -154,12 +153,12 @@ public class Chore {
         this.city = city;
     }
 
-    public String getCategory() {
-        return category;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getPhoto() {

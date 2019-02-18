@@ -40,6 +40,7 @@ import butterknife.OnClick;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.ChoreImageAdapter;
 import me.tseng.studios.tchores.java.model.Chore;
+import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
 import static me.tseng.studios.tchores.java.util.ChoreUtil.getLocalDateTime;
 
@@ -73,8 +74,8 @@ public class ChoreEditActivity extends AppCompatActivity
 //    @BindView(R.id.choreCity)
 //    TextView mCityView;
 
-    @BindView(R.id.ERspnrAssignee)
-    Spinner mSpinnerAssignee;
+//    @BindView(R.id.ERspnrAssignee)
+//    Spinner mSpinnerAssignee;
 
     @BindView(R.id.ERspinnerPhoto)
     Spinner mSpinnerPhoto;
@@ -115,41 +116,36 @@ public class ChoreEditActivity extends AppCompatActivity
 
 
         mchoreRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-               @Override
-               public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                   if (task.isSuccessful()) {
-                       document = task.getResult();
-                       if (document.exists()) {
-                           mNameView.setText(document.getString(Chore.FIELD_NAME));
-                           mSpinnerAssignee.setSelection(getIndex(mSpinnerAssignee, document.getString(Chore.FIELD_CATEGORY)));
-                           mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, document.getString(Chore.FIELD_PHOTO)));
-                           mSpinnerPriority.setSelection(getIndex(mSpinnerPriority, document.getString(Chore.FIELD_PRIORITYCHANNEL)));
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    document = task.getResult();
+                    if (document.exists()) {
+                        Chore chore = document.toObject(Chore.class);
+                        mNameView.setText(chore.getName());
+                        mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, chore.getPhoto()));
+                        mSpinnerPriority.setSelection(getIndex(mSpinnerPriority, chore.getPriorityChannel()));
 
-                           LocalDateTime ldt;
-                           try {
-                               ldt = LocalDateTime.parse(document.getString(Chore.FIELD_ADTIME));
+                        LocalDateTime ldt = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
 
-                               mLocalDateOnCalendarView = ldt.toLocalDate();
-                               mCalendarView.setDate(ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+                        mLocalDateOnCalendarView = ldt.toLocalDate();
+                        mCalendarView.setDate(ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
-                               mEditTextTime.setText(String.format("%1$02d:%2$02d", ldt.getHour(),ldt.getMinute()));
+                        mEditTextTime.setText(String.format("%1$02d:%2$02d", ldt.getHour(), ldt.getMinute()));
 
-                           } catch (Exception e) {
-                               Log.e(TAG, "Date stored on Firebase database is badly formated.");
-                           } finally {
-                               mUpdateButton.setEnabled(true);
-                           }
+                        mPriceView.setRating(chore.getPrice());
 
+                        mUpdateButton.setEnabled(true);
 
-                           Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                       } else {
-                           Log.d(TAG, "No such document");
-                       }
-                   } else {
-                       Log.d(TAG, "get failed with ", task.getException());
-                   }
-               }
-           });
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
 
         // Calendar Date View
@@ -238,7 +234,7 @@ public class ChoreEditActivity extends AppCompatActivity
 //        mRatingIndicator.setFlurr((float) chore.getAvgRating());
 //        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
 //        mCityView.setText(chore.getCity());
-//        mSpinnerAssignee.setText(chore.getCategory());
+//        mSpinnerAssignee.setText(chore.getUuid());
 //        mPriceView.setText(ChoreUtil.getPriceString(chore));
 //
 //        // Background image
@@ -278,8 +274,6 @@ public class ChoreEditActivity extends AppCompatActivity
             return;
         }
 
-        //getting assigned to whom data
-        String sAssignee = mSpinnerAssignee.getSelectedItem().toString();
 
         // get selected photo
         String sPhoto = mSpinnerPhoto.getSelectedItem().toString();
@@ -295,8 +289,7 @@ public class ChoreEditActivity extends AppCompatActivity
         mchoreRef.update(Chore.FIELD_BDTIME, ldt.toString());
         mchoreRef.update(Chore.FIELD_DATEUSERLASTSET, ldt.toString());
         mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
-        mchoreRef.update(Chore.FIELD_PRIORITYCHANNEL, mSpinnerPriority.getSelectedItem().toString());
-        mchoreRef.update(Chore.FIELD_CATEGORY, sAssignee)
+        mchoreRef.update(Chore.FIELD_PRIORITYCHANNEL, mSpinnerPriority.getSelectedItem().toString())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

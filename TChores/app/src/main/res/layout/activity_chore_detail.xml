@@ -30,9 +30,9 @@
             android:id="@+id/choreButtonBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:layout_alignLeft="@+id/choreName"
             android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackground"
             app:srcCompat="@drawable/ic_close_white_24px" />
 
         <TextView
@@ -50,10 +50,13 @@
         <me.zhanghai.android.materialratingbar.MaterialRatingBar
             android:id="@+id/choreRating"
             style="@style/Widget.MaterialRatingBar.RatingBar.Indicator"
-            android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_above="@+id/choreCategory"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/choreCity"
             android:layout_alignLeft="@+id/choreName"
+            android:layout_marginLeft="36dp"
+            android:layout_marginBottom="4dp"
+            android:visibility="invisible"
             app:mrb_progressTint="@android:color/white"
             app:mrb_secondaryProgressTint="@android:color/white" />
 
@@ -62,42 +65,40 @@
             style="@style/AppTheme.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/choreRating"
             android:layout_alignTop="@+id/choreRating"
+            android:layout_alignBottom="@+id/choreRating"
+            android:layout_alignParentStart="true"
+
+            android:layout_marginStart="8dp"
             android:layout_marginLeft="4dp"
-            android:layout_toRightOf="@+id/choreRating"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
             android:gravity="center"
             android:textColor="@android:color/white"
             tools:text="(10)" />
 
         <TextView
-            android:id="@+id/choreCategory"
+            android:id="@+id/choreUuid"
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/choreImage"
             android:layout_alignLeft="@id/choreName"
-            android:layout_marginBottom="8dp"
+            android:layout_alignBottom="@id/choreImage"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/white"
+            android:visibility="gone"
             tools:text="worker" />
-
-        <TextView
-            android:id="@+id/choreCity_divider"
-            style="@style/AppTheme.TextDivider"
-            android:layout_alignTop="@+id/choreCategory"
-            android:layout_toRightOf="@+id/choreCategory"
-            android:text="@string/divider_bullet"
-            android:textColor="@android:color/white" />
 
         <TextView
             android:id="@+id/choreCity"
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/choreCategory"
-            android:layout_below="@+id/choreCategory"
-            android:layout_toRightOf="@+id/choreCity_divider"
+            android:layout_alignLeft="@id/choreName"
+            android:layout_alignBottom="@id/choreImage"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/white"
             tools:text="boss" />
 

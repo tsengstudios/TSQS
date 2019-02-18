@@ -94,6 +94,8 @@ public class AlarmManagerUtil {
         else
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rtcAlarmMillis, afterAlarmPendingIntent);
         // END_INCLUDE (configure_alarm_manager);
+
+        // Note: to see the current alarms on the phone, use  C:\Users\Larry\AppData\Local\Android\Sdk\platform-tools\adb shell dumpsys alarm >dump.txt
     }
 
     public static LocalDateTime localDateTimeFromString(String sAlarmLocalDateTime) {

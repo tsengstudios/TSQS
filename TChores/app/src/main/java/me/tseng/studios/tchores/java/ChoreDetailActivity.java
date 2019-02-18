@@ -68,8 +68,8 @@ public class ChoreDetailActivity extends AppCompatActivity
     @BindView(R.id.choreCity)
     TextView mCityView;
 
-    @BindView(R.id.choreCategory)
-    TextView mCategoryView;
+//    @BindView(R.id.choreUuid)
+//    TextView mUuidView;
 
     @BindView(R.id.chorePriorityChannel)
     TextView mPriorityChannel;
@@ -188,7 +188,7 @@ public class ChoreDetailActivity extends AppCompatActivity
         mRatingIndicator.setRating((float) chore.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, chore.getNumRatings()));
         mCityView.setText(chore.getCity());
-        mCategoryView.setText(chore.getCategory());
+//        mUuidView.setText(chore.getUuid());
         mPriorityChannel.setText(chore.getPriorityChannel());
         mPriceView.setText(ChoreUtil.getPriceString(chore));
 

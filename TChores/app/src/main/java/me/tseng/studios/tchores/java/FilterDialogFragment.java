@@ -174,7 +174,7 @@ public class FilterDialogFragment extends DialogFragment {
         Filters filters = new Filters();
 
         if (mRootView != null) {
-            filters.setCategory(getSelectedCategory());
+            filters.setUuid(getSelectedCategory());
             filters.setCity(getSelectedCity());
             filters.setPrice(getSelectedPrice());
             filters.setSortBy(getSelectedSortBy());

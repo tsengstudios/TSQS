@@ -59,7 +59,7 @@ public class ChoresFragment extends Fragment implements
 
     private static final int CHORE_LIMIT = 50;
 
-    String mCurrentUserName;
+    String mCurrentUserUID;
     private ChoresFragmentViewModel mViewModel;
 
     private ChoreAdapter mAdapter;
@@ -107,13 +107,13 @@ public class ChoresFragment extends Fragment implements
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null)
             return;
-        mCurrentUserName = user.getDisplayName();
-        mViewModel.getFilters().setCategory(mCurrentUserName);
+        mCurrentUserUID = user.getUid();
+        mViewModel.getFilters().setUuid(mCurrentUserUID);
 
         // Get ${CHORE_LIMIT} chores
         mQuery = mFirestore.collection("chores")
                 .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
-                .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
+                .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUID)
                 .limit(CHORE_LIMIT);
 
 

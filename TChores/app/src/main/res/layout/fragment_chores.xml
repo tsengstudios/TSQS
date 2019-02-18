@@ -27,6 +27,7 @@
         android:layout_below="@+id/toolbar"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal|center_vertical"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -34,8 +35,8 @@
 
         <ImageView
             style="@style/AppTheme.PizzaGuy"
-            android:src="@drawable/pizza_monster"
-            android:contentDescription="@string/no_results_found_image_guy" />
+            android:contentDescription="@string/no_results_found_image_guy"
+            android:src="@drawable/pizza_monster" />
 
         <TextView
             android:layout_width="wrap_content"

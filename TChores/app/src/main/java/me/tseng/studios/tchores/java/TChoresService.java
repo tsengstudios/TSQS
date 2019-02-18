@@ -152,14 +152,14 @@ public class TChoresService extends JobIntentService {
                     // Firestore
                     mFirestore = FirebaseFirestore.getInstance();
 
-                    String mCurrentUserName = user.getDisplayName();        // TODO this should be using userId
-                    Log.i(TAG, "Got username: " + mCurrentUserName);
+                    String mCurrentUserUid = user.getUid();        // TODO this should be using userId
+                    Log.i(TAG, "Got username: " + mCurrentUserUid);
 
 
                     Query q = (sChoreId == null) ?
                             mFirestore.collection("chores")
                                     .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
-                                    .whereEqualTo(Chore.FIELD_CATEGORY, mCurrentUserName)
+                                    .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUid)
                             :
                             mFirestore.collection("chores").whereEqualTo(FieldPath.documentId(), sChoreId);
 

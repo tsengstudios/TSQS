@@ -109,10 +109,6 @@ public class ChoreAddActivity extends AppCompatActivity {
         final EditText nameField = (EditText) findViewById(R.id.editTextName);
         String name = nameField.getText().toString();
 
-        //getting assigned to whom data
-        final Spinner feedbackSpinner = (Spinner) findViewById(R.id.spnrAssignee);
-        String feedbackType = feedbackSpinner.getSelectedItem().toString();
-
         //getting priortiyChannel
         String sPriorityChannel = priorityChannelSpinner.getSelectedItem().toString();
         Chore.PriorityChannel priorityChannel = Chore.PriorityChannel.valueOf(sPriorityChannel);
@@ -120,7 +116,7 @@ public class ChoreAddActivity extends AppCompatActivity {
 
         //username
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getDisplayName();
+        String uid = user.getUid();
 
         LocalDateTime ldt = getLocalDateTime(mLocalDateCalendarView, mEditTextTime.getText().toString());
         if (ldt.isBefore(LocalDateTime.now())) {
@@ -131,8 +127,8 @@ public class ChoreAddActivity extends AppCompatActivity {
 
         Chore newChore = new Chore(
                 name,
+                "",
                 uid,
-                feedbackType,
                 "2131230816",
                 Math.round(mRatingBar.getRating()),
                 0,

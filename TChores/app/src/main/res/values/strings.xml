@@ -35,7 +35,7 @@
     <string name="divider_bullet">•</string>
     <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
-    <string name="message_no_results">Oops, couldn\'t find any results\nthat matched your filter</string>
+    <string name="message_no_results">Click on the white + button\nto create a new chore...</string>
     <string name="message_no_reviews">Waiting to start the completion history of this chore...!</string>
     <string name="hint_review">How was your experience?</string>
     <string name="submit">Submit</string>
@@ -59,7 +59,7 @@
     <string name="addtype1">assign to who</string>
     <string name="addtype2">diffuculty</string>
     <string name="addtype3">url of photo of chore</string>
-    <string name="addtype4">Reward category</string>
+    <string name="addtype4">uuid of user to do chore</string>
 
     <!-- Types of food I could think of in 5 minutes -->
     <string-array name="categories">

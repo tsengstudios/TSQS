@@ -121,9 +121,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add_items:
-                onAddItemsClicked();
-                break;
             case R.id.menu_sign_out:
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
@@ -199,38 +196,6 @@ public class MainActivity extends AppCompatActivity implements
 
         startActivityForResult(intent, RC_SIGN_IN);
         mViewModel.setIsSigningIn(true);
-    }
-
-    private void onAddItemsClicked() {
-        // Add a bunch of random chores
-        WriteBatch batch = mFirestore.batch();
-        for (int i = 0; i < 10; i++) {
-            DocumentReference restRef = mFirestore.collection("chores").document();
-
-            // Create random chore
-            Chore randomChore = ChoreUtil.getRandom(this);
-//            List<Flurr> randomFlurrs = FlurrUtil.getRandomList(randomChore.getNumRatings());
-//            randomChore.setAvgRating(FlurrUtil.getAverageRating(randomFlurrs));
-
-            // Add chore
-            batch.set(restRef, randomChore);
-
-//            // Add ratings to subcollection
-//            for (Flurr flurr : randomFlurrs) {
-//                batch.set(restRef.collection("flurrs").document(), flurr);
-//            }
-        }
-
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "Write batch succeeded.");
-                } else {
-                    Log.w(TAG, "write batch failed.", task.getException());
-                }
-            }
-        });
     }
 
     private void showSignInErrorDialog(@StringRes int message) {

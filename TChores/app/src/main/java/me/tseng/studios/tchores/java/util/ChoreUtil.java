@@ -67,7 +67,7 @@ public class ChoreUtil {
 
         chore.setName(getRandomName(random));
         chore.setCity(getRandomString(cities, random));
-        chore.setCategory(getRandomString(categories, random));
+        chore.setUuid(getRandomString(categories, random));
         chore.setPhoto(getRandomImageUrl(random, context));
         chore.setPrice(getRandomInt(prices, random));
         chore.setNumRatings(random.nextInt(20));

@@ -14,7 +14,7 @@ import com.google.firebase.firestore.Query;
  */
 public class Filters {
 
-    private String category = null;
+    private String uuid = null;
     private String city = null;
     private int price = -1;
     private String sortBy = null;
@@ -33,13 +33,13 @@ public class Filters {
         Filters filters = new Filters();
         filters.setSortBy(Chore.FIELD_ADTIME);
         filters.setSortDirection(Query.Direction.DESCENDING);
-        filters.setCategory(currentUserName);
+        filters.setUuid(currentUserName);
 
         return filters;
     }
 
-    public boolean hasCategory() {
-        return !(TextUtils.isEmpty(category));
+    public boolean hasUuid() {
+        return !(TextUtils.isEmpty(uuid));
     }
 
     public boolean hasCity() {
@@ -54,12 +54,12 @@ public class Filters {
         return !(TextUtils.isEmpty(sortBy));
     }
 
-    public String getCategory() {
-        return category;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getCity() {
@@ -97,19 +97,19 @@ public class Filters {
     public String getSearchDescription(Context context) {
         StringBuilder desc = new StringBuilder();
 
-        if (category == null && city == null) {
+        if (uuid == null && city == null) {
             desc.append("<b>");
             desc.append(context.getString(R.string.all_chores));
             desc.append("</b>");
         }
 
-        if (category != null) {
+        if (uuid != null) {
             desc.append("<b>");
-            desc.append(category);
+            desc.append(uuid);
             desc.append("</b>");
         }
 
-        if (category != null && city != null) {
+        if (uuid != null && city != null) {
             desc.append(" in ");
         }
 
