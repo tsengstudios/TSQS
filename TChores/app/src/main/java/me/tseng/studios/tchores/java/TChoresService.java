@@ -26,6 +26,7 @@ import com.google.type.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -48,6 +49,7 @@ public class TChoresService extends JobIntentService {
      */
     static final int JOB_ID = 888;
     public static final String REVIEW_SUNSHINE_URI = "review:sunshine";
+    public static final String RECALC_SUNSHINE_FROM_TODAY_URI = "recalc:sunshinefromtoday";
     private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
 
     /**
@@ -73,6 +75,12 @@ public class TChoresService extends JobIntentService {
         enqueueWork(context, intent);
     }
 
+    static void enqueueRecalcSunshineFromToday(Context context) {
+        Intent intent = new Intent();
+        intent.setData(Uri.parse(RECALC_SUNSHINE_FROM_TODAY_URI));
+        enqueueWork(context, intent);
+    }
+
     @Override
     protected void onHandleWork(Intent intent) {
         // We have received work to do.  The system or framework is already
@@ -81,8 +89,14 @@ public class TChoresService extends JobIntentService {
         String suri = intent.getDataString();
         toast("Executing: " + suri);
 
-        if ((suri != null) && suri.equals(REVIEW_SUNSHINE_URI)) {
-            reviewSunshines();
+        if ((suri != null)) {
+            if (suri.equals(REVIEW_SUNSHINE_URI)) {
+                reviewSunshines(false);
+            } else if (suri.equals(RECALC_SUNSHINE_FROM_TODAY_URI)) {
+                reviewSunshines(true);
+            } else
+                throw new UnsupportedOperationException("This intent data work is not supported.");
+
         } else {
             String sChoreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
             setAlarms(sChoreId);
@@ -120,13 +134,13 @@ public class TChoresService extends JobIntentService {
         sa(sChoreId, onCompleteListener);
     }
 
-    public void reviewSunshines() {
+    public void reviewSunshines(final boolean needsRecalcFuture) {
         final OnCompleteListener<QuerySnapshot> onCompleteListener = new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     QuerySnapshot qsChores = task.getResult();  // get chores
-                    reviewSunshineWithChores(user.getUid(), qsChores);
+                    reviewSunshineWithChores(user.getUid(), qsChores, needsRecalcFuture);
                 } else {
                     Log.e(TAG, "Error getting chores before reviewing Sunshines", task.getException());
                 }
@@ -199,7 +213,7 @@ public class TChoresService extends JobIntentService {
     }
 
 
-    private void reviewSunshineWithChores(final String userId, final QuerySnapshot qsChores) {
+    private void reviewSunshineWithChores(final String userId, final QuerySnapshot qsChores, final boolean needsRecalcFuture) {
         if (userId == null) return; // wait to review after userId is known
         mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
                 .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
@@ -248,9 +262,21 @@ public class TChoresService extends JobIntentService {
                                     sunshine = mergeSunshines(pcSunshine, sunshine);
 
                                     listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
-                                } else if (flagMergedIntoThisOne) {
-                                    // this merged but not precalced sunshine ref needs updating
-                                    listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
+                                } else {
+                                    if (needsRecalcFuture && !ldSunshine.isBefore(LocalDate.now()) ) {
+
+                                        if (ldSunshine.isEqual(LocalDate.now())) {
+                                            sunshine = recalcSunshineToday(sunshine, ldSunshine, qsChores);
+                                        } else {  // future sunshine
+                                            sunshine = preCalcSunshine(userId, ldSunshine, qsChores);  // replace current Sunshine with new precalc one
+                                        }
+
+                                        listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
+
+                                    } else if (flagMergedIntoThisOne) {
+                                        // this merged but not precalced sunshine ref needs updating
+                                        listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
+                                    }
                                 }
 
                             }
@@ -423,6 +449,46 @@ public class TChoresService extends JobIntentService {
         return sunshine;
     }
 
+    private Sunshine recalcSunshineToday(Sunshine sunshine, LocalDate ld, @NonNull QuerySnapshot qsChores) {
+        // qsChores    - all Chores for user
+
+        List<Chore> chores = new ArrayList<Chore>() {};
+
+        // is chore x on this date?
+        for (QueryDocumentSnapshot cS : qsChores) {
+            Chore c = cS.toObject(Chore.class);
+            if (c.isScheduledOnDate(ld)) {
+                c.setid(cS.getId());    // use @Exclude  private id
+                chores.add(c);
+            }
+        }
+
+        // into the sunshine, add new chores now scheduled
+        for(Chore c: chores) {
+            int indexC = sunshine.getChoreIds().indexOf(c.getid());
+            if (indexC == -1) {
+                sunshine.addChore(c);
+            } else {
+                // keep this chore
+            }
+        }
+
+        // into the sunshine, remove chores that are not in the newly semi-"precalced"
+        List<String> ids2Remove = new ArrayList<>();
+        for (String id : sunshine.getChoreIds()) {
+            if (getIndexByIdProperty(chores, id) == -1) {
+                ids2Remove.add(id); // this chore needs to be deleted from the sunshine
+            }
+        }
+        for (String id: ids2Remove) {   // avoid ConcurrentModificationException
+            sunshine.removeChore(id);
+        }
+
+        sunshine.setBPreCalced(true);
+
+        return sunshine;
+    }
+
     private static <T> List<T> joinedListA(List<T> a, List<T> b) {
         a.addAll(b);
         return a;
@@ -438,7 +504,14 @@ public class TChoresService extends JobIntentService {
         public T2 getF2() {return f2;}
     }
 
-
+    private int getIndexByIdProperty(List<Chore> chores, String yourString) {
+        for (Chore chore: chores) {
+            if (chore.getid().equals(yourString)) {
+                return chores.indexOf(chore);
+            }
+        }
+        return -1;// not in list
+    }
 
 
 

@@ -155,6 +155,18 @@ public class Sunshine {
         }
     }
 
+    public void removeChore(String choreId) {
+        int index = choreIds.indexOf(choreId);
+        if (index == -1)
+            throw new RuntimeException("There should always be a chore that was asked to be removed");
+
+        choreIds.remove(index);
+        choreNames.remove(index);
+        choreFlState.remove(index);
+        choreFlTimestamp.remove(index);
+        choreFlSnoozeCount.remove(index);
+    }
+
     public void addFirstAndOnlyFlurr(Flurr flurr) {
         // called after addChore()
         if (flurr.getText().equals(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {

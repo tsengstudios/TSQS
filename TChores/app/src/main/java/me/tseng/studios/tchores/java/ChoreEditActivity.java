@@ -296,7 +296,7 @@ public class ChoreEditActivity extends AppCompatActivity
                         Log.i(TAG,"YAY!");
 
                         TChoresService.enqueueSetChoreAlarm(context, mchoreId);
-
+                        TChoresService.enqueueRecalcSunshineFromToday(context); // TODO race condition?
                     }
                 });
 

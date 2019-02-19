@@ -151,6 +151,7 @@ public class ChoreAddActivity extends AppCompatActivity {
                     Log.d(TAG, "Write batch succeeded.");
 
                     TChoresService.enqueueSetChoreAlarm(context, futureChoreId);
+                    TChoresService.enqueueRecalcSunshineFromToday(context); // TODO race condition?
                 } else {
                     Log.w(TAG, "write batch failed.", task.getException());
                 }
