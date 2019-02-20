@@ -26,7 +26,7 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 public class SunshineAdapter extends FirestoreAdapter<SunshineAdapter.ViewHolder> {
 
-    private int selectedPos = RecyclerView.NO_POSITION;
+    protected int selectedPos = RecyclerView.NO_POSITION;
 
     public interface OnSunshineSelectedListener {
 

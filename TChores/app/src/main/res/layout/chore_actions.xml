@@ -66,4 +66,16 @@
         android:layout_marginTop="39dp"
         android:text="Snooze" />
 
+    <ProgressBar
+        android:id="@+id/progressBarSpinning"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ca_button_snooze"
+        android:layout_alignStart="@+id/ca_button_snooze"
+        android:layout_marginStart="53dp"
+        android:indeterminateTint="@color/chore_past_text_color"
+        android:visibility="invisible"
+        tools:visibility="visible" />
+
 </RelativeLayout>

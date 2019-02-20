@@ -33,6 +33,7 @@ import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 
@@ -138,16 +139,16 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 // Before changing BDTime, record the chore BDTime upon which the user just acted
                 flurr.setChoreBDTime(chore.getBDTime());
 
-                LocalDateTime ldt = AlarmManagerUtil.localDateTimeFromString(chore.getADTime());
+                LocalDateTime ldtA = AlarmManagerUtil.localDateTimeFromString(chore.getADTime());
 
                 Log.d(TAG, "Got Chore: " + choreId +
-                        " -  Alarm was at " + ldt.toString() +
+                        " -  Alarm was at " + ldtA.toString() +
                         " Name=" + name);
 
-                if (ldt.isAfter(LocalDateTime.now())) {
+                if (ldtA.isAfter(LocalDateTime.now())) {
                     // This was already bumped
                     throw new FirebaseFirestoreException("Weird -- this action is trying to bump the alarm time when it is already in the future." +
-                            " -  Alarm was at " + ldt.toString(),
+                            " -  Alarm was at " + ldtA.toString(),
                             FirebaseFirestoreException.Code.INVALID_ARGUMENT);
                 }
 
@@ -155,57 +156,62 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 // record new alarm times for chore into Firestore
                 if (setNormalRecurrence) {
                     boolean bChangeDTime = true;
-                    switch (chore.getRecurrenceIntervalAsEnum()) {
-                        case ONLY1OCCURANCE:
-                            // do not change ADTime or BDTime
-                            bChangeDTime = false;
-                            break;
-                        case HOURLY:
-                            ldt = ldt.plusMinutes(60);
-                            break;
-                        case THREETIMESADAY:
-                            ldt = ldt.plusHours(8);
-                            break;
-                        case DAILY:
-                            ldt = ldt.plusDays(1);
-                            break;
-                        case WEEKLY:
-                            ldt = ldt.plusWeeks(1);
-                            break;
-                        case WEEKDAYS:
-                            ldt = ldt.plusDays(1);
-                            if (ldt.getDayOfWeek().equals(DayOfWeek.SATURDAY))
-                                ldt = ldt.plusDays(2);
-                            break;
-                        case WEEKENDS:
-                            do {
-                                ldt = ldt.plusDays(1);
-                            } while ((!ldt.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !ldt.getDayOfWeek().equals(DayOfWeek.SUNDAY)));
-                            break;
-                        case BIWEEKLY:
-                            ldt = ldt.plusWeeks(2);
-                            break;
-                        case MONTHLY:
-                            ldt = ldt.plusMonths(1);
-                            break;
+                    LocalDateTime ldtB = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
 
-                        default:
-                            throw new UnsupportedOperationException("not finished building recurrence interval support");
+                    while (ldtB.isBefore(LocalDateTime.now()) && bChangeDTime) {
+                        switch (chore.getRecurrenceIntervalAsEnum()) {
+                            case ONLY1OCCURANCE:
+                                // do not change ADTime or BDTime
+                                bChangeDTime = false;
+                                break;
+                            case HOURLY:
+                                ldtB = ldtB.plusMinutes(60);
+                                break;
+                            case THREETIMESADAY:
+                                ldtB = ldtB.plusHours(8);
+                                break;
+                            case DAILY:
+                                ldtB = ldtB.plusDays(1);
+                                break;
+                            case WEEKLY:
+                                ldtB = ldtB.plusWeeks(1);
+                                break;
+                            case WEEKDAYS:
+                                ldtB = ldtB.plusDays(1);
+                                if (ldtB.getDayOfWeek().equals(DayOfWeek.SATURDAY))
+                                    ldtB = ldtB.plusDays(2);
+                                break;
+                            case WEEKENDS:
+                                do {
+                                    ldtB = ldtB.plusDays(1);
+                                }
+                                while ((!ldtB.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !ldtB.getDayOfWeek().equals(DayOfWeek.SUNDAY)));
+                                break;
+                            case BIWEEKLY:
+                                ldtB = ldtB.plusWeeks(2);
+                                break;
+                            case MONTHLY:
+                                ldtB = ldtB.plusMonths(1);
+                                break;
+
+                            default:
+                                throw new UnsupportedOperationException("not finished building recurrence interval support");
+                        }
                     }
 
                     // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
 
                     if (bChangeDTime) {
-                        chore.setADTime(ldt.toString());
-                        chore.setBDTime(ldt.toString());
+                        chore.setADTime(ldtB.toString());
+                        chore.setBDTime(ldtB.toString());
                         // of course this is exactly where we do NOT update Chore.FIELD_DATEUSERLASTSET
                     }
 
                 } else {
-                    ldt = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
-                    chore.setADTime(ldt.toString());
+                    ldtA = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                    chore.setADTime(ldtA.toString());
                     // DO NOT set or update BDTime on !setNormalRecurrence / snooze action
-                    // chore.setBDTime(ldt.toString());
+                    // chore.setBDTime(ldtA.toString());
                 }
 
 
@@ -258,7 +264,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
 
     private void recordChoreIntoSunshine(final Chore chore, final Flurr flurr, final String userId) {
-        LocalDate sunshineDay = Chore.LocalDateFromString(flurr.getChoreBDTime());
+        LocalDate sunshineDay = ChoreUtil.LocalDateFromLocalDateTimeString(flurr.getChoreBDTime());
         final String sSunshineDay = sunshineDay.toString();
 
         // get the right sunshine

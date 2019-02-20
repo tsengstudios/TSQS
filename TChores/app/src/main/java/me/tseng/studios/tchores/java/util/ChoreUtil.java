@@ -175,5 +175,13 @@ public class ChoreUtil {
         return LocalDateTime.of(ldDate, lt);
     }
 
+    public static LocalDate LocalDateFromLocalDateTimeString(String s) {
+        try {
+            LocalDate ld = LocalDateTime.parse(s).toLocalDate();
+            return ld;
+        } catch (Exception e) {
+            return LocalDate.MIN;
+        }
+    }
 
 }

@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Map;
@@ -51,6 +52,7 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
     private Button mButtonRefuse;
     private Button mButtonComplete;
     private Button mButtonSnooze;
+    private ProgressBar mProgressBarSpinning;
 
     public TChoreHoverMenuScreen(@NonNull Context context, @NonNull String pageTitle, Icon icon, Map<String, PendingIntent> mapPendingIntents) {
         super(context);
@@ -72,6 +74,7 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
         mButtonRefuse = (Button) findViewById(R.id.ca_button_refuse);
         mButtonComplete = (Button) findViewById(R.id.ca_button_complete);
         mButtonSnooze = (Button) findViewById(R.id.ca_button_snooze);
+        mProgressBarSpinning = (ProgressBar) findViewById(R.id.progressBarSpinning);
 
         hookupButtonWithPendingIntent(mButtonRefuse, ChoreDetailActivity.ACTION_REFUSED_LOCALIZED);
         hookupButtonWithPendingIntent(mButtonComplete, ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED);
@@ -88,10 +91,13 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
             public void onClick(View v) {
                 PendingIntent pi = mMapPendingIntents.get(actionKey);
                 if (pi != null) {
+                    mProgressBarSpinning.setVisibility(VISIBLE);
                     try {
                         pi.send();
                     } catch (PendingIntent.CanceledException e) {
                         Log.e(TAG, "Failed PendingIntent.send() " + e.getLocalizedMessage());
+                    } finally {
+
                     }
 
                 }
@@ -116,6 +122,7 @@ public class TChoreHoverMenuScreen extends FrameLayout implements Content {
     @Override
     public void onShown() {
         // No-op.
+        mProgressBarSpinning.setVisibility(INVISIBLE);
     }
 
     @Override

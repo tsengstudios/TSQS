@@ -7,8 +7,9 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.type.DayOfWeek;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 /**
  * Chore POJO.
@@ -283,14 +284,10 @@ public class Chore {
         }
     }
 
-    public static LocalDate LocalDateFromString(String s) {
-        return LocalDateTime.parse(s).toLocalDate();
-    }
-
     public boolean isScheduledOnDate(LocalDate ld) {
-        LocalDate ldThis = LocalDateFromString(bDTime);
+        LocalDate ldThis = ChoreUtil.LocalDateFromLocalDateTimeString(bDTime);
 
-        if (ld.isBefore(LocalDateFromString(dateUserLastSet))) {
+        if (ld.isBefore(ChoreUtil.LocalDateFromLocalDateTimeString(dateUserLastSet))) {
             // assume chore did not exist before this chore was last edited. (creation date is too ambiguous given ability to edit a chore name)
             return false;
         }

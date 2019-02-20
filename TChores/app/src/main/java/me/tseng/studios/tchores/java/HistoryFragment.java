@@ -14,9 +14,12 @@ import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+
+import java.time.LocalDate;
 
 import javax.annotation.Nullable;
 
@@ -27,6 +30,8 @@ import me.tseng.studios.tchores.java.adapter.SunshineAdapter;
 import me.tseng.studios.tchores.java.adapter.SunshineDetailAdapter;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.viewmodel.HistoryFragmentViewModel;
+
+import static me.tseng.studios.tchores.java.util.SunshineUtil.localDateFromString;
 
 
 /**
@@ -135,11 +140,25 @@ public class HistoryFragment extends Fragment implements
             @Override
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
-                if (getItemCount() == 0) {
+                final int itemCount = getItemCount();
+                if (itemCount == 0) {
                     mSunshineRecycler.setVisibility(View.GONE);
                 } else {
                     mSunshineRecycler.setVisibility(View.VISIBLE);
-                    //  TODO this should never happen, or at least it should trigger creation of some sunshines
+
+                    if (selectedPos == RecyclerView.NO_POSITION) {
+                        LocalDate ldToday = LocalDate.now();
+                        for (int i = itemCount - 1; i > 0; i--) {
+                            DocumentSnapshot snapshot = getSnapshot(i);
+                            LocalDate ld = localDateFromString(snapshot.getString(Sunshine.FIELD_DAY));
+                            if (ldToday.isEqual(ld)) {
+                                // Select today's sunshine once
+                                selectedPos = i;
+                                notifyDataSetChanged();
+                                onSunshineSelected(snapshot.toObject(Sunshine.class));
+                            }
+                        }
+                    }
                 }
             }
 
