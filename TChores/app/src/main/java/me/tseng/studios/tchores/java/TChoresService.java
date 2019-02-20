@@ -427,6 +427,13 @@ public class TChoresService extends JobIntentService {
      *   "scheduled" means a chore was scheduled to be done that day).
      * Note: the date that chores are finished, refused or snoozed don't matter.  That chore was
      * supposed to be done on a certain day.
+     * DONE:    If PRECalculating expected Sunshine before the day occurs (or on the day it occurs):
+     * might have chores that will get removed. or added before (or during) that day,  Manage these scenarios by
+     * triggering recomputation when submitting/editing a chore.
+     * If POSTCalculating expected Sunshine AFTER the day occurs:
+     * might think there were chores expected, but were not created until after day (don't include)..
+     * or some chores might have been deleted (don't include).
+     * (WAY AFTER) BDTime or dateUserLastSet  was updated to after that day before this computation. (don't include)
      */
     private Sunshine preCalcSunshine(String userId, LocalDate ld, @NonNull QuerySnapshot qsChores) {
         // qsChores    - all Chores for user
