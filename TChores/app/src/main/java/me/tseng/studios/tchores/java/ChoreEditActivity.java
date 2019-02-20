@@ -83,6 +83,9 @@ public class ChoreEditActivity extends AppCompatActivity
     @BindView(R.id.ERSpinnerPriorityChannel)
     Spinner mSpinnerPriority;
 
+    @BindView(R.id.ERSpinnerRecurrenceInterval)
+    Spinner mSpinnerRecurrence;
+
     @BindView(R.id.ERdiffucultyBar)
     RatingBar mPriceView;
 
@@ -125,6 +128,7 @@ public class ChoreEditActivity extends AppCompatActivity
                         mNameView.setText(chore.getName());
                         mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, chore.getPhoto()));
                         mSpinnerPriority.setSelection(getIndex(mSpinnerPriority, chore.getPriorityChannel()));
+                        mSpinnerRecurrence.setSelection(getIndex(mSpinnerRecurrence, chore.getRecurrenceInterval()));
 
                         LocalDateTime ldt = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
 
@@ -187,12 +191,13 @@ public class ChoreEditActivity extends AppCompatActivity
             };
         });
 
-        // initiate the spinner for chore Photo
+        // initiate the spinner for chore Photo, PriorityChannel and RecurrenceInterval
         ChoreImageAdapter adapter = ChoreImageAdapter.getChoreImageAdapter(this);
         mSpinnerPhoto.setAdapter(adapter);
         ArrayAdapter pcAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Chore.PriorityChannel.values());
         mSpinnerPriority.setAdapter(pcAdapter);
-
+        ArrayAdapter riAdapter = new ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, Chore.RecurrenceInterval.values());
+        mSpinnerRecurrence.setAdapter(riAdapter);
     }
 
     @Override
@@ -289,6 +294,7 @@ public class ChoreEditActivity extends AppCompatActivity
         mchoreRef.update(Chore.FIELD_BDTIME, ldt.toString());
         mchoreRef.update(Chore.FIELD_DATEUSERLASTSET, ldt.toString());
         mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
+        mchoreRef.update(Chore.FIELD_RECURRENCEINTERVAL, mSpinnerRecurrence.getSelectedItem().toString());
         mchoreRef.update(Chore.FIELD_PRIORITYCHANNEL, mSpinnerPriority.getSelectedItem().toString())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -126,7 +126,7 @@ public class ChoreAdapter extends FirestoreAdapter<ChoreAdapter.ViewHolder> {
                 aDTimeView.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.chore_past_text_color));
             }
             aDTimeView.setText(textTimeView);
-            recurringIntervalView.setText(chore.getRecuranceInterval());
+            recurringIntervalView.setText(chore.getRecurrenceInterval());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

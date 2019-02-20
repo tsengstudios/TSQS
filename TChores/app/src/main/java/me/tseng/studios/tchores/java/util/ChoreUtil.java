@@ -75,7 +75,7 @@ public class ChoreUtil {
         // Note: average rating intentionally not set
 
         chore.setADTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        chore.setRecuranceInterval(randomEnum(Chore.RecuranceInterval.class, random).name());
+        chore.setRecurrenceInterval(randomEnum(Chore.RecurrenceInterval.class, random).name());
 
         chore.setBDTime(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         chore.setDateUserLastSet(chore.getBDTime());

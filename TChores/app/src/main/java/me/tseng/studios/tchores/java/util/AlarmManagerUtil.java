@@ -66,8 +66,6 @@ public class AlarmManagerUtil {
         afterAlarmIntent.putExtra(AfterAlarmBR.KEY_PRIORITY_CHANNEL, notificationChannelId);
         afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BDTIME, sScheduledLocalDateTime);
 
-        Log.i(TAG,"Alarm set. @" + localDateTimeAlarm.toString() + " Title: " + sContentTitle + " : " + id);
-
         PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
@@ -82,18 +80,23 @@ public class AlarmManagerUtil {
 //        Log.i(TAG,"currentTimeMillis  = " + String.valueOf(System.currentTimeMillis()));
 //        Log.i(TAG,"LocalDateTime now  = " + LocalDateTime.now().toString());
 
-        if (rtcAlarmMillis < System.currentTimeMillis())
-            return;     // don't set alarms to the past
-
         // The AlarmManager, like most system services, isn't created by application code, but
         // requested from the system.
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
-        alarmManager.cancel(afterAlarmPendingIntent);
+        alarmManager.cancel(afterAlarmPendingIntent);   // Cancel the backup alarm even before checking if the next alarm will be in the past
+
+        if (rtcAlarmMillis < System.currentTimeMillis()) {
+            Log.i(TAG, "Alarm not set because it is in past. @" + localDateTimeAlarm.toString());
+            return;     // don't set alarms to the past
+        }
+
         if (isExactTime)
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rtcAlarmMillis, afterAlarmPendingIntent);
         else
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, rtcAlarmMillis, afterAlarmPendingIntent);
         // END_INCLUDE (configure_alarm_manager);
+
+        Log.i(TAG,"Alarm set. @" + localDateTimeAlarm.toString());
 
         // Note: to see the current alarms on the phone, use  C:\Users\Larry\AppData\Local\Android\Sdk\platform-tools\adb shell dumpsys alarm >dump.txt
     }

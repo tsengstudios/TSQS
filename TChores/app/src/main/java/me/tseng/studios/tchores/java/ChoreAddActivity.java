@@ -9,7 +9,6 @@ import android.os.Bundle;
 
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Chore;
-import me.tseng.studios.tchores.java.model.Flurr;
 
 import android.util.Log;
 import android.view.View;
@@ -30,10 +29,8 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import butterknife.OnClick;
-import me.tseng.studios.tchores.java.util.FlurrUtil;
 
 import static me.tseng.studios.tchores.java.util.ChoreUtil.getLocalDateTime;
 
@@ -134,7 +131,7 @@ public class ChoreAddActivity extends AppCompatActivity {
                 0,
                 0,
                 ldt.toString(),
-                Chore.RecuranceInterval.DAILY,
+                Chore.RecurrenceInterval.DAILY,
                 ldt.toString(),
                 ldt.toString(),
                 10,

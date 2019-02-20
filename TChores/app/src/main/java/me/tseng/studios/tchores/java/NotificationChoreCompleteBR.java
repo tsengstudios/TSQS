@@ -23,6 +23,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
+import com.google.type.DayOfWeek;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,7 +69,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_ACTION);
         }
         String recordedActionLocal = "error: improper action sent";
-        Boolean tempSetNormalRecurance = true;
+        Boolean tempSetNormalRecurrence = true;
         switch (actionId) {
             case ChoreDetailActivity.ACTION_COMPLETED :
                 recordedActionLocal = ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED;
@@ -80,14 +81,14 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 break;
             case ChoreDetailActivity.ACTION_SNOOZED :
                 recordedActionLocal = ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED;
-                tempSetNormalRecurance = false;
+                tempSetNormalRecurrence = false;
                 break;
             case ChoreDetailActivity.ACTION_VIEW :
                 throw new UnsupportedOperationException("Didn't implement the View action yet");  // TODO maybe useful to have this BR support recasting the View ChoreDetailActivity intent.
                 // return; break;
             default:
         }
-        final Boolean setNormalRecurance = tempSetNormalRecurance;
+        final Boolean setNormalRecurrence = tempSetNormalRecurrence;
 
         Log.d(TAG, "got into Compelete Broadcast Receiver. choreId= " + choreId + "  and action id= " + actionId);
 
@@ -132,7 +133,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                         chore.setAvgRating(newAvgRating);
 
                 String name = chore.getName();
-                Chore.RecuranceInterval ri = chore.getRecuranceIntervalAsEnum();
+                Chore.RecurrenceInterval ri = chore.getRecurrenceIntervalAsEnum();
 
                 // Before changing BDTime, record the chore BDTime upon which the user just acted
                 flurr.setChoreBDTime(chore.getBDTime());
@@ -152,10 +153,18 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 // calculate new alarm time
                 // record new alarm times for chore into Firestore
-                if (setNormalRecurance) {
-                    switch (chore.getRecuranceIntervalAsEnum()) {
+                if (setNormalRecurrence) {
+                    boolean bChangeDTime = true;
+                    switch (chore.getRecurrenceIntervalAsEnum()) {
+                        case ONLY1OCCURANCE:
+                            // do not change ADTime or BDTime
+                            bChangeDTime = false;
+                            break;
                         case HOURLY:
                             ldt = ldt.plusMinutes(60);
+                            break;
+                        case THREETIMESADAY:
+                            ldt = ldt.plusHours(8);
                             break;
                         case DAILY:
                             ldt = ldt.plusDays(1);
@@ -163,20 +172,39 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                         case WEEKLY:
                             ldt = ldt.plusWeeks(1);
                             break;
+                        case WEEKDAYS:
+                            ldt = ldt.plusDays(1);
+                            if (ldt.getDayOfWeek().equals(DayOfWeek.SATURDAY))
+                                ldt = ldt.plusDays(2);
+                            break;
+                        case WEEKENDS:
+                            do {
+                                ldt = ldt.plusDays(1);
+                            } while ((!ldt.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !ldt.getDayOfWeek().equals(DayOfWeek.SUNDAY)));
+                            break;
+                        case BIWEEKLY:
+                            ldt = ldt.plusWeeks(2);
+                            break;
+                        case MONTHLY:
+                            ldt = ldt.plusMonths(1);
+                            break;
+
                         default:
-                            throw new UnsupportedOperationException("not finished building recurance interval support");
+                            throw new UnsupportedOperationException("not finished building recurrence interval support");
                     }
 
                     // TODO iumplement switch(chore.getPriorityChannel())  perhaps we shouldn't be allowing snooze for 2 hours, and we need to act on this snooze action....
 
-                    chore.setADTime(ldt.toString());
-                    chore.setBDTime(ldt.toString());
-                    // of course this is exactly where we do NOT update Chore.FIELD_DATEUSERLASTSET
+                    if (bChangeDTime) {
+                        chore.setADTime(ldt.toString());
+                        chore.setBDTime(ldt.toString());
+                        // of course this is exactly where we do NOT update Chore.FIELD_DATEUSERLASTSET
+                    }
 
                 } else {
                     ldt = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
                     chore.setADTime(ldt.toString());
-                    // DO NOT set or update BDTime on !setNormalRecurance / snooze action
+                    // DO NOT set or update BDTime on !setNormalRecurrence / snooze action
                     // chore.setBDTime(ldt.toString());
                 }
 

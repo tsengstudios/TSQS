@@ -4,9 +4,11 @@ import android.app.NotificationManager;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.type.DayOfWeek;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Chore POJO.
@@ -22,7 +24,7 @@ public class Chore {
     public static final String FIELD_POPULARITY = "numRatings";
     public static final String FIELD_AVG_RATING = "avgRating";
     public static final String FIELD_ADTIME = "adtime";                         // careful.  For some reason Firebase wants to decapitalize aDTime to adtime as a field name in the database.  So, leave this decapitalized....
-    public static final String FIELD_RECURANCEINTERVAL = "recuranceInterval";
+    public static final String FIELD_RECURRENCEINTERVAL = "recurrenceInterval";
     public static final String FIELD_BDTIME = "bdtime";                         // Daily targeted time to fire. careful on capitalization....
     public static final String FIELD_DATEUSERLASTSET = "dateUserLastSet";       // datetime the user last edited this chore
     public static final String FIELD_SNOOZEMINUTES = "snoozeMinutes";           // minutes to add for snooze
@@ -42,7 +44,7 @@ public class Chore {
     private int numRatings;
     private double avgRating;
     private String aDTime;
-    private RecuranceInterval recuranceInterval;
+    private RecurrenceInterval recurrenceInterval;
     private String bDTime;
     private String dateUserLastSet;
     private int snoozeMinutes;
@@ -50,8 +52,8 @@ public class Chore {
     private int notifyWorldAfter;
     private PriorityChannel priorityChannel;
 
-    public enum RecuranceInterval {
-        HOURLY, DAILY, WEEKLY, WEEKDAYS, WEEKENDS, BIWEEKLY, MONTHLY
+    public enum RecurrenceInterval {
+        HOURLY, THREETIMESADAY, DAILY, WEEKLY, WEEKDAYS, WEEKENDS, BIWEEKLY, MONTHLY, ONLY1OCCURANCE
     };
 
     public enum PriorityChannel {
@@ -115,7 +117,7 @@ public class Chore {
     public Chore() {}
 
     public Chore(String name, String city, String uuid, String photo,
-                 int price, int numRatings, double avgRating, String aDTime, RecuranceInterval recuranceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
+                 int price, int numRatings, double avgRating, String aDTime, RecurrenceInterval recurrenceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
         this.name = name;
         this.city = city;
         this.uuid = uuid;
@@ -124,7 +126,7 @@ public class Chore {
         this.numRatings = numRatings;
         this.avgRating = avgRating;
         this.aDTime = aDTime;
-        this.recuranceInterval = recuranceInterval;
+        this.recurrenceInterval = recurrenceInterval;
         this.bDTime = bDTime;
         this.dateUserLastSet = dateUserLastSet;
         this.snoozeMinutes = snoozeMinutes;
@@ -202,24 +204,24 @@ public class Chore {
     }
 
    @Exclude
-    public RecuranceInterval getRecuranceIntervalAsEnum(){
-        return recuranceInterval;
+    public RecurrenceInterval getRecurrenceIntervalAsEnum(){
+        return recurrenceInterval;
     }
 
     // these methods are just a Firebase 9.0.0 hack to handle the enum
-    public String getRecuranceInterval(){
-        if (recuranceInterval == null){
-            return null;
+    public String getRecurrenceInterval(){
+        if (recurrenceInterval == null){
+            return RecurrenceInterval.ONLY1OCCURANCE.name();
         } else {
-            return recuranceInterval.name();
+            return recurrenceInterval.name();
         }
     }
 
-    public void setRecuranceInterval(String recuranceIntervalString){
-        if (recuranceIntervalString == null){
-            this.recuranceInterval = null;
+    public void setRecurrenceInterval(String recurrenceIntervalString){
+        if (recurrenceIntervalString == null){
+            this.recurrenceInterval = RecurrenceInterval.ONLY1OCCURANCE;
         } else {
-            this.recuranceInterval = RecuranceInterval.valueOf(recuranceIntervalString);
+            this.recurrenceInterval = RecurrenceInterval.valueOf(recurrenceIntervalString);
         }
     }
 
@@ -293,8 +295,11 @@ public class Chore {
             return false;
         }
 
-        switch (recuranceInterval) {
+        switch (recurrenceInterval) {
             case HOURLY:
+                return true;
+
+            case THREETIMESADAY:
                 return true;
 
             case DAILY:
@@ -303,8 +308,23 @@ public class Chore {
             case WEEKLY:
                 return (ldThis.getDayOfWeek() == ld.getDayOfWeek());
 
+            case WEEKDAYS:
+                return (!ldThis.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !ldThis.getDayOfWeek().equals(DayOfWeek.SUNDAY));
+
+            case WEEKENDS:
+                return (ldThis.getDayOfWeek().equals(DayOfWeek.SATURDAY) || ldThis.getDayOfWeek().equals(DayOfWeek.SUNDAY));
+
+            case BIWEEKLY:
+                return (ldThis.until(ld, ChronoUnit.WEEKS) % 2 == 0);
+
+            case MONTHLY:
+                return (ldThis.getDayOfMonth() == ld.getDayOfMonth());
+
+            case ONLY1OCCURANCE:
+                return (ldThis.isEqual(ld));
+
             default:
-                throw new UnsupportedOperationException("not finished isScheduledOnDate() support for" +  recuranceInterval.toString());
+                throw new UnsupportedOperationException("not finished isScheduledOnDate() support for" +  recurrenceInterval.toString());
         }
 
     }

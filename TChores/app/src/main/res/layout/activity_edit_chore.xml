@@ -180,5 +180,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ERdiffucultyBar" />
 
+        <Spinner
+            android:id="@+id/ERSpinnerRecurrenceInterval"
+            style="@style/AppTheme.FilterSpinner"
+            android:layout_width="wrap_content"
+            app:layout_constraintStart_toStartOf="@+id/ERSpinnerPriorityChannel"
+            app:layout_constraintTop_toTopOf="@+id/labelRecurrence" />
+
+        <TextView
+            android:id="@+id/labelRecurrence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Recurrence"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ERSpinnerPriorityChannel" />
+
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
