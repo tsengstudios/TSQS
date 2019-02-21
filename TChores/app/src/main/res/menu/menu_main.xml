@@ -10,12 +10,12 @@
         <!--android:id="@+id/menu_add_items"-->
         <!--android:title="@string/add_random_items" />-->
 
-    <item
-        android:id="@+id/menu_open_chat_head"
-        android:title="@string/open_chat_head" />
+    <!--<item-->
+        <!--android:id="@+id/menu_open_chat_head"-->
+        <!--android:title="@string/open_chat_head" />-->
 
-    <item
-        android:id="@+id/menu_review_sunshines"
-        android:title="@string/review_sunshines" />
+    <!--<item-->
+        <!--android:id="@+id/menu_review_sunshines"-->
+        <!--android:title="@string/review_sunshines" />-->
 
 </menu>

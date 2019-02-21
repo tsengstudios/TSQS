@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,12 +19,9 @@ import android.view.MenuItem;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
+
 
 import java.util.Collections;
 
@@ -34,8 +32,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.mattcarroll.hover.overlay.OverlayPermission;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.model.Chore;
-import me.tseng.studios.tchores.java.util.ChoreUtil;
 import me.tseng.studios.tchores.java.viewmodel.MainActivityViewModel;
 
 public class MainActivity extends AppCompatActivity implements
@@ -125,13 +121,7 @@ public class MainActivity extends AppCompatActivity implements
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
                 break;
-            case R.id.menu_open_chat_head:
-                Intent startHoverIntent = new Intent(MainActivity.this, TChoreHoverMenuService.class);
-                startService(startHoverIntent);
-                break;
-            case R.id.menu_review_sunshines:
-                TChoresService.enqueueReviewSunshines(this);
-                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -168,6 +158,20 @@ public class MainActivity extends AppCompatActivity implements
                 } else {
                     showSignInErrorDialog(R.string.message_unknown);
                 }
+            } else {
+                // Now signed in
+                Fragment navHostfrag = getSupportFragmentManager().findFragmentById(R.id.nav_host);
+                if (navHostfrag != null) {
+                    Fragment frag = navHostfrag.getChildFragmentManager().getPrimaryNavigationFragment();
+                    frag = (frag == null) ? navHostfrag : frag;     // hack: sometimes after first navigation, the nav_host becomes the child ChoreFragment (which of course has no child fragment)
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(false)
+                            .detach(frag)
+                            .attach(frag)
+                            .commitNowAllowingStateLoss();
+                }
+
             }
         }
         if (requestCode == REQUEST_CODE_HOVER_PERMISSION) {

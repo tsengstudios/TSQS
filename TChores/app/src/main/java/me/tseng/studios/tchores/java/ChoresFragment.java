@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -54,12 +55,16 @@ public class ChoresFragment extends Fragment implements
     @BindView(R.id.viewEmpty)
     ViewGroup mEmptyView;
 
+    @BindView(R.id.fragchore_username)
+    TextView mUsername;
+
     private FirebaseFirestore mFirestore;
     private Query mQuery;
 
     private static final int CHORE_LIMIT = 50;
 
     String mCurrentUserUID;
+    String mUserDisplayName;
     private ChoresFragmentViewModel mViewModel;
 
     private ChoreAdapter mAdapter;
@@ -104,25 +109,26 @@ public class ChoresFragment extends Fragment implements
         // Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null)
-            return;
-        mCurrentUserUID = user.getUid();
-        mViewModel.getFilters().setUuid(mCurrentUserUID);
-
-        // Get ${CHORE_LIMIT} chores
-        mQuery = mFirestore.collection("chores")
-                .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
-                .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUID)
-                .limit(CHORE_LIMIT);
-
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+
+            mCurrentUserUID = user.getUid();
+            mViewModel.getFilters().setUuid(mCurrentUserUID);
+            mUserDisplayName = user.getDisplayName();
+
+            // Get ${CHORE_LIMIT} chores
+            mQuery = mFirestore.collection("chores")
+                    .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
+                    .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUID)
+                    .limit(CHORE_LIMIT);
+        }
+
         ViewGroup rootView = (ViewGroup) inflater
                 .inflate(R.layout.fragment_chores, container, false);
         ButterKnife.bind(this, rootView);
@@ -165,6 +171,7 @@ public class ChoresFragment extends Fragment implements
         mchoresRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mchoresRecycler.setAdapter(mAdapter);
 
+        mUsername.setText(mUserDisplayName);
     }
 
     @Override
