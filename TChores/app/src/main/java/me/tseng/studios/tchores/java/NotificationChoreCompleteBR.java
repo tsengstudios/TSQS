@@ -248,8 +248,6 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 startHoverIntent.putExtra(TChoreHoverMenuService.KEY_CHORE_RESOLVED,true );
                 context.startService(startHoverIntent);
 
-                // TODO compute awards here?
-
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -303,7 +301,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                                     public void onSuccess(DocumentReference documentReference) {
                                         Log.i(TAG, "Success on updating Sunshine");
 
-                                        // TODO  trigger reviewSunshineWithChores(userId, );
+                                        // enqueueReviewSunshines() would clean these up, and should be called on rebooting the app
+                                        // Awards can't be reliably calculated in this 'error' situation.
                                     };
                                 });
 
@@ -325,7 +324,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         Sunshine sunshine = document.toObject(Sunshine.class);
         if (isProperSunshineFound) {
             // we already found a proper sunshine this must indicate a duplicate
-            // TODO handle consolidating sunshines
+            // Handle consolidating sunshines in TChoresService  (at less busy time)
             return isProperSunshineFound;
         }
 
@@ -342,9 +341,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             sunshine.getChoreFlState().set(indexFlurr, flurr.getText());
             sunshineRef.update(Sunshine.FIELD_CHOREFLSTATE, sunshine.getChoreFlState());
 
-            if (!sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_REFUSED_LOCALIZED) &&
-                !sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
-            }
+            // Check FIELD_AWARDPERFECTDAY here, and when reviewing sunshines
+            sunshine.computePerfectDayAward();
+            sunshineRef.update(Sunshine.FIELD_AWARDPERFECTDAY, sunshine.getAwardPerfectDay());
 
             sunshine.getChoreFlTimestamp().set(indexFlurr, Timestamp.now());
             sunshineRef.update(Sunshine.FIELD_CHOREFLTIME, sunshine.getChoreFlTimestamp())
@@ -353,8 +352,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG, "Success on updating Sunshine");
 
-                        // TODO Check FIELD_AWARDPERFECTDAY
-
+                        // TODO trigger  compute awards here?
                     };
                 });
 

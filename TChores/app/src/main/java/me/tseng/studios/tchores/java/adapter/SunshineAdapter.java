@@ -53,6 +53,8 @@ public class SunshineAdapter extends FirestoreAdapter<SunshineAdapter.ViewHolder
         holder.itemView.setSelected(selectedPos == position);
         holder.itemView.setClipToOutline(true);
 
+        if (selectedPos == position)
+            mListener.onSunshineSelected(getSnapshot(position).toObject(Sunshine.class));
     }
 
 

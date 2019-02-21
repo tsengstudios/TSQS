@@ -261,6 +261,7 @@ public class TChoresService extends JobIntentService {
 
                                     sunshine = mergeSunshines(pcSunshine, sunshine);
 
+                                    sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                     listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
                                 } else {
                                     if (needsRecalcFuture && !ldSunshine.isBefore(LocalDate.now()) ) {
@@ -271,10 +272,12 @@ public class TChoresService extends JobIntentService {
                                             sunshine = preCalcSunshine(userId, ldSunshine, qsChores);  // replace current Sunshine with new precalc one
                                         }
 
+                                        sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                         listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
 
                                     } else if (flagMergedIntoThisOne) {
                                         // this merged but not precalced sunshine ref needs updating
+                                        sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                         listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
                                     }
                                 }
@@ -410,7 +413,7 @@ public class TChoresService extends JobIntentService {
         //un-Map into sunshineA
         sunshineA.setSCFList(map.values());
 
-        // TODO compute new AwardPerfectDay here?
+        // compute new AwardPerfectDay elsewhere, after done with all merging and precalcing.
         sunshineA.setAwardPerfectDay(false);
 
         return sunshineA;

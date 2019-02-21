@@ -239,7 +239,6 @@ public class HistoryFragment extends Fragment implements
     @Override
     public void onSunshineSelected(Sunshine sunshine) {
         // selected sunshine
-        // TODO feed sunshine into mSunshineDetailRecycler
         mDetailAdapter.updateSunshine(sunshine);
     }
 

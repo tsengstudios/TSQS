@@ -179,6 +179,28 @@ public class Sunshine {
 
     }
 
+
+    public boolean computePerfectDayAward() {
+        boolean bNotComplete = false;
+        if (bpreCalced) {
+            for (String s : choreFlState) {
+                if (!ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED.equals(s)) {
+                    bNotComplete = true;
+                    break;
+                }
+            }
+        }
+
+        awardPerfectDay = !bNotComplete;
+
+        return awardPerfectDay;
+        // was this computation once:
+//        if (!sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_REFUSED_LOCALIZED) &&
+//                !sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
+//        }
+    }
+
+
     public void setSCFList(Collection<SCF> collection) {
         choreIds = new ArrayList<String>();
         choreNames = new ArrayList<String>();
