@@ -32,7 +32,8 @@ public class Chore {
     public static final String FIELD_MUSTWITHIN = "mustWithin";                 // time the chore must be completed within
     public static final String FIELD_NOTIFYWORLDAFTER = "notifyWorldAfter";     // time after which lack of completion will trigger notifying others
     public static final String FIELD_PRIORITYCHANNEL = "priorityChannel";       // the type of chore completion necessity
-
+    public static final String FIELD_BACKUPNOTIFICATIONDELAY = "backupNotificationDelay";   // time before backup notification fires.
+    public static final String FIELD_CRITICALBACKUPTIME = "criticalBackupTime"; // time before critical backup plan enacted
 
     public static final String CHORE_URI_PREFIX = "chore:";
 
@@ -52,6 +53,8 @@ public class Chore {
     private int mustWithin;
     private int notifyWorldAfter;
     private PriorityChannel priorityChannel;
+    private int backupNotificationDelay;
+    private int criticalBackupTime;
 
     public enum RecurrenceInterval {
         HOURLY, THREETIMESADAY, DAILY, WEEKLY, WEEKDAYS, WEEKENDS, BIWEEKLY, MONTHLY, ONLY1OCCURANCE
@@ -61,64 +64,11 @@ public class Chore {
         NORMAL, IMPORTANT2SELF, IMPORTANT2OTHERS, CRITICAL
     };
 
-    public static final String PriorityChannelDescription(PriorityChannel pc) {
-        String d;
-        switch (pc) {
-            case NORMAL:
-                d = "Normal chore priority";
-                break;
-            case IMPORTANT2SELF:
-                d = "Priority with importance to myself";
-                break;
-            case IMPORTANT2OTHERS:
-                d = "Priority with importance to someone else";
-                break;
-            case CRITICAL:
-                d = "Critical importance to do this chore";
-                break;
-            default:
-                d = "APriority";
-                break;
-        }
-        return d;
-    }
-
-    public static final int PriorityChannelImportance(PriorityChannel pc) {
-        int d;
-        switch (pc) {
-            case NORMAL:
-                d = NotificationManager.IMPORTANCE_DEFAULT;
-                break;
-            case IMPORTANT2SELF:
-                d = NotificationManager.IMPORTANCE_HIGH;
-                break;
-            case IMPORTANT2OTHERS:
-                d = NotificationManager.IMPORTANCE_DEFAULT;
-                break;
-            case CRITICAL:
-                d = NotificationManager.IMPORTANCE_HIGH;  // note IMPORTANCE_MAX is apparently unused.
-                break;
-            default:
-                d = NotificationManager.IMPORTANCE_DEFAULT;
-                break;
-        }
-        return d;
-    }
-
-    public static PriorityChannel getPriorityChannelFromString(String sPriorityChannel) {
-        try {
-            PriorityChannel pc = PriorityChannel.valueOf(sPriorityChannel);
-            return pc;
-        } catch(Exception e)  {
-            return PriorityChannel.NORMAL;
-        }
-    }
-
 
     public Chore() {}
 
     public Chore(String name, String city, String uuid, String photo,
-                 int price, int numRatings, double avgRating, String aDTime, RecurrenceInterval recurrenceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel) {
+                 int price, int numRatings, double avgRating, String aDTime, RecurrenceInterval recurrenceInterval, String bDTime, String dateUserLastSet, int snoozeMinutes, int mustWithin, int notifyWorldAfter, PriorityChannel priorityChannel, int backupNotificationDelay, int criticalBackupTime) {
         this.name = name;
         this.city = city;
         this.uuid = uuid;
@@ -134,6 +84,8 @@ public class Chore {
         this.mustWithin = mustWithin;
         this.notifyWorldAfter = notifyWorldAfter;
         this.priorityChannel = priorityChannel;
+        this.backupNotificationDelay = backupNotificationDelay;
+        this.criticalBackupTime = criticalBackupTime;
     }
 
     public String getid() {return id; }             // @Excluded  private  id
@@ -282,6 +234,76 @@ public class Chore {
         } else {
             this.priorityChannel = PriorityChannel.valueOf(priorityTypeString);
         }
+    }
+
+    public static final String PriorityChannelDescription(PriorityChannel pc) {
+        String d;
+        switch (pc) {
+            case NORMAL:
+                d = "Normal chore priority";
+                break;
+            case IMPORTANT2SELF:
+                d = "Priority with importance to myself";
+                break;
+            case IMPORTANT2OTHERS:
+                d = "Priority with importance to someone else";
+                break;
+            case CRITICAL:
+                d = "Critical importance to do this chore";
+                break;
+            default:
+                d = "APriority";
+                break;
+        }
+        return d;
+    }
+
+    public static final int PriorityChannelImportance(PriorityChannel pc) {
+        int d;
+        switch (pc) {
+            case NORMAL:
+                d = NotificationManager.IMPORTANCE_DEFAULT;
+                break;
+            case IMPORTANT2SELF:
+                d = NotificationManager.IMPORTANCE_HIGH;
+                break;
+            case IMPORTANT2OTHERS:
+                d = NotificationManager.IMPORTANCE_DEFAULT;
+                break;
+            case CRITICAL:
+                d = NotificationManager.IMPORTANCE_HIGH;  // note IMPORTANCE_MAX is apparently unused.
+                break;
+            default:
+                d = NotificationManager.IMPORTANCE_DEFAULT;
+                break;
+        }
+        return d;
+    }
+
+    public static PriorityChannel getPriorityChannelFromString(String sPriorityChannel) {
+        try {
+            PriorityChannel pc = PriorityChannel.valueOf(sPriorityChannel);
+            return pc;
+        } catch(Exception e)  {
+            return PriorityChannel.NORMAL;
+        }
+    }
+
+
+    public int getBackupNotificationDelay() {
+        return backupNotificationDelay;
+    }
+
+    public void setBackupNotificationDelay(int backupNotificationDelay) {
+        this.backupNotificationDelay = backupNotificationDelay;
+    }
+
+    public int getCriticalBackupTime() {
+        return criticalBackupTime;
+    }
+
+    public void setCriticalBackupTime(int criticalBackupTime) {
+        this.criticalBackupTime = criticalBackupTime;
     }
 
     public boolean isScheduledOnDate(LocalDate ld) {

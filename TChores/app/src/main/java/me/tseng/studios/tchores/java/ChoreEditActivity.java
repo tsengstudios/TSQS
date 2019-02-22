@@ -41,6 +41,7 @@ import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.ChoreImageAdapter;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
+import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 import static me.tseng.studios.tchores.java.util.ChoreUtil.getLocalDateTime;
 
@@ -83,6 +84,15 @@ public class ChoreEditActivity extends AppCompatActivity
     @BindView(R.id.ERSpinnerPriorityChannel)
     Spinner mSpinnerPriority;
 
+    @BindView(R.id.ERSpinnerSnoozeMinutes)
+    Spinner mSpinnerSnoozeMinutes;
+
+    @BindView(R.id.ERSpinnerBackupNotificationDelay)
+    Spinner mSpinnerBackupNotificationDelay;
+
+    @BindView(R.id.ERSpinnerCriticalBackupTime)
+    Spinner mSpinnerCriticalBackupTime;
+
     @BindView(R.id.ERSpinnerRecurrenceInterval)
     Spinner mSpinnerRecurrence;
 
@@ -117,7 +127,7 @@ public class ChoreEditActivity extends AppCompatActivity
         // Get reference to the chore
         mchoreRef = mFirestore.collection("chores").document(mchoreId);
 
-
+        final Context context = this;
         mchoreRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -129,6 +139,13 @@ public class ChoreEditActivity extends AppCompatActivity
                         mSpinnerPhoto.setSelection(getIndex(mSpinnerPhoto, chore.getPhoto()));
                         mSpinnerPriority.setSelection(getIndex(mSpinnerPriority, chore.getPriorityChannel()));
                         mSpinnerRecurrence.setSelection(getIndex(mSpinnerRecurrence, chore.getRecurrenceInterval()));
+                        mSpinnerSnoozeMinutes.setSelection(getIndex(mSpinnerSnoozeMinutes,
+                                ChoreUtil.getSnoozeMinutesNearestLabel(context, chore.getSnoozeMinutes())));
+                        mSpinnerBackupNotificationDelay.setSelection(getIndex(mSpinnerBackupNotificationDelay,
+                                ChoreUtil.getBackupNotificationDelayNearestLabel(context, chore.getBackupNotificationDelay())));
+                        mSpinnerCriticalBackupTime.setSelection(getIndex(mSpinnerCriticalBackupTime,
+                                ChoreUtil.getCriticalBackupTimeNearestLabel(context, chore.getCriticalBackupTime())));
+
 
                         LocalDateTime ldt = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
 
@@ -295,6 +312,15 @@ public class ChoreEditActivity extends AppCompatActivity
         mchoreRef.update(Chore.FIELD_DATEUSERLASTSET, ldt.toString());
         mchoreRef.update(Chore.FIELD_PHOTO, sPhoto);
         mchoreRef.update(Chore.FIELD_RECURRENCEINTERVAL, mSpinnerRecurrence.getSelectedItem().toString());
+        mchoreRef.update(Chore.FIELD_SNOOZEMINUTES,
+                        ChoreUtil.getSnoozeMinutesFromIndex(context,
+                             mSpinnerSnoozeMinutes.getSelectedItemPosition()));
+        mchoreRef.update(Chore.FIELD_BACKUPNOTIFICATIONDELAY,
+                        ChoreUtil.getBackupNotificationDelayFromIndex(context,
+                             mSpinnerBackupNotificationDelay.getSelectedItemPosition()));
+        mchoreRef.update(Chore.FIELD_CRITICALBACKUPTIME,
+                        ChoreUtil.getCriticalBackupTimeFromIndex(context,
+                             mSpinnerCriticalBackupTime.getSelectedItemPosition()));
         mchoreRef.update(Chore.FIELD_PRIORITYCHANNEL, mSpinnerPriority.getSelectedItem().toString())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

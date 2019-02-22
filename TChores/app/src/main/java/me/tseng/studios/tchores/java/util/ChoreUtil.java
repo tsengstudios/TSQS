@@ -184,4 +184,65 @@ public class ChoreUtil {
         }
     }
 
+
+    public static int getMyNearestIndex(Context context, int sm, int intArrayResource) {
+        int[] arraySM = context.getResources().getIntArray(intArrayResource);
+
+        if (sm < arraySM[0])
+            return 0;
+
+        int retval = 0;
+        for (int i = arraySM.length - 1; i >= 0; i--) {
+            if (arraySM[i] <= sm) {
+                retval = i;
+                break;
+            }
+        }
+
+        return retval;
+    }
+
+    public static String getMyNearestLabel(Context context, int sm, int stringArrayResource, int intArrayResource) {
+        String[] arraySM = context.getResources().getStringArray(stringArrayResource);
+
+        return arraySM[getMyNearestIndex(context, sm, intArrayResource)];
+    }
+
+    public static int getMyFromIndex(Context context, int index, int intArrayResource) {
+        int[] arraySM = context.getResources().getIntArray(intArrayResource);
+
+        return arraySM[index];
+    }
+
+
+    public static int getSnoozeMinutesNearestIndex(Context context, int sm) {
+        return getMyNearestIndex(context, sm, R.array.int_snooze_minute_fixed_options);
+    }
+    public static String getSnoozeMinutesNearestLabel(Context context, int sm) {
+        return getMyNearestLabel(context, sm, R.array.string_snooze_minute_fixed_options, R.array.int_snooze_minute_fixed_options);
+    }
+    public static int getSnoozeMinutesFromIndex(Context context, int index) {
+        return getMyFromIndex(context, index, R.array.int_snooze_minute_fixed_options);
+    }
+
+    public static int getBackupNotificationDelayNearestIndex(Context context, int sm) {
+        return getMyNearestIndex(context, sm, R.array.int_backup_notification_delay_fixed_options);
+    }
+    public static String getBackupNotificationDelayNearestLabel(Context context, int sm) {
+        return getMyNearestLabel(context, sm, R.array.string_backup_notification_delay_fixed_options, R.array.int_backup_notification_delay_fixed_options);
+    }
+    public static int getBackupNotificationDelayFromIndex(Context context, int index) {
+        return getMyFromIndex(context, index, R.array.int_backup_notification_delay_fixed_options);
+    }
+
+    public static int getCriticalBackupTimeNearestIndex(Context context, int sm) {
+        return getMyNearestIndex(context, sm, R.array.int_critical_backup_time_fixed_options);
+    }
+    public static String getCriticalBackupTimeNearestLabel(Context context, int sm) {
+        return getMyNearestLabel(context, sm, R.array.string_critical_backup_time_fixed_options, R.array.int_critical_backup_time_fixed_options);
+    }
+    public static int getCriticalBackupTimeFromIndex(Context context, int index) {
+        return getMyFromIndex(context, index, R.array.int_critical_backup_time_fixed_options);
+    }
+
 }

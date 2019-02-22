@@ -137,7 +137,10 @@ public class ChoreAddActivity extends AppCompatActivity {
                 10,
                 25*60,
                 2*60,
-                priorityChannel);
+                priorityChannel,
+                10,
+                30
+        );
 
         batch.set(restRef, newChore);
         // removed random flurr generation
