@@ -27,7 +27,7 @@
 
     <integer-array
         name="int_backup_notification_delay_fixed_options">
-
+        <item>2</item>
         <item>5</item>
         <item>10</item>
         <item>15</item>
@@ -39,7 +39,7 @@
     </integer-array>
     <string-array
         name="string_backup_notification_delay_fixed_options">
-
+        <item>2 minutes</item>
         <item>5 minutes</item>
         <item>10 minutes</item>
         <item>15 minutes</item>

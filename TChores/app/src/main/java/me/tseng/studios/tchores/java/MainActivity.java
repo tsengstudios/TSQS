@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import io.fabric.sdk.android.Fabric;
 import java.util.Collections;
 
 import androidx.navigation.NavController;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+   //     Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
@@ -176,8 +179,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (requestCode == REQUEST_CODE_HOVER_PERMISSION) {
             mPermissionsRequested = true;
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
         }
 
     }

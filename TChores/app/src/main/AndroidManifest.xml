@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACTION_MANAGE_OVERLAY_PERMISSION" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <!--  NOTE: review compiled permissions via:  -->
+    <!--  C:\Users\Larry\AppData\Local\Android\Sdk\build-tools\28.0.3>aapt d permissions C:\Users\Larry\AndroidStudioProjects\TStudios\TSQS\TChores\app\build\outputs\apk\debug\app-debug.apk  -->
+
 
     <application
         android:name="android.support.multidex.MultiDexApplication"
@@ -61,6 +65,12 @@
             android:enabled="true"
             android:exported="true" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="87c8246b67e138765945025f0c37fcce2b3f2dce" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
     </application>
 
 </manifest>

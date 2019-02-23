@@ -208,7 +208,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     }
 
                 } else {
-                    ldtA = LocalDateTime.now().plusMinutes(2);   // TODO proper snooze of 10 minutes later...
+                    ldtA = LocalDateTime.now().plusMinutes(chore.getSnoozeMinutes());   // TODO proper snooze of 10 minutes later...
                     chore.setADTime(ldtA.toString());
                     // DO NOT set or update BDTime on !setNormalRecurrence / snooze action
                     // chore.setBDTime(ldtA.toString());
@@ -231,7 +231,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 Log.i(TAG, "Chore action now marked");
 
                 // set the new alarm (also cancels the backup alarm)
-                AlarmManagerUtil.setAlarm(context, choreId, chore.getADTime(), chore.getName(), chore.getPhoto(), chore.getPriorityChannel(), chore.getBDTime());
+                AlarmManagerUtil.setAlarm(context, chore);
 
 
                 recordChoreIntoSunshine(chore, flurr, sUserId);

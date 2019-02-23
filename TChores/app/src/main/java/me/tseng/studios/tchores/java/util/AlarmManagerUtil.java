@@ -35,36 +35,38 @@ public class AlarmManagerUtil {
     public static final int REQUEST_CODE = 0;
 
 
-    public static void setAlarm(Context context, String id, String sAlarmLocalDateTime, String sContentTitle, String sPhoto, String notificationChannelId, String sScheduledLocalDateTime) {
+    public static void setAlarm(Context context, Chore chore) {
 
         createNotificationChannel(context);
 
-        LocalDateTime localDateTimeAlarm = localDateTimeFromString(sAlarmLocalDateTime);
+        LocalDateTime localDateTimeAlarm = localDateTimeFromString(chore.getADTime());
 
-        Intent intent = buildIntent(context, ChoreDetailActivity.class, id, ChoreDetailActivity.ACTION_VIEW);
+        Intent intent = buildIntent(context, ChoreDetailActivity.class, chore.getid(), ChoreDetailActivity.ACTION_VIEW);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Intent action1Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_COMPLETED);
+        Intent action1Intent = buildIntent(context, NotificationChoreCompleteBR.class, chore.getid(), ChoreDetailActivity.ACTION_COMPLETED);
         PendingIntent pendingActionIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, action1Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action1 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
                 ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED, pendingActionIntent).build();
 
-        Intent action2Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_REFUSED);
+        Intent action2Intent = buildIntent(context, NotificationChoreCompleteBR.class, chore.getid(), ChoreDetailActivity.ACTION_REFUSED);
         PendingIntent pendingAction2Intent = PendingIntent.getBroadcast(context, REQUEST_CODE, action2Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action2 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
                 ChoreDetailActivity.ACTION_REFUSED_LOCALIZED, pendingAction2Intent).build();
 
-        Intent action3Intent = buildIntent(context, NotificationChoreCompleteBR.class, id, ChoreDetailActivity.ACTION_SNOOZED);
+        Intent action3Intent = buildIntent(context, NotificationChoreCompleteBR.class, chore.getid(), ChoreDetailActivity.ACTION_SNOOZED);
         PendingIntent pendingAction3Intent = PendingIntent.getBroadcast(context, REQUEST_CODE, action3Intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action action3 = new Notification.Action.Builder(Icon.createWithResource(context, R.drawable.fui_ic_check_circle_black_128dp),
                 ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED, pendingAction3Intent).build();
 
 
-        Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, id, ChoreDetailActivity.ACTION_VIEW);
+        Intent afterAlarmIntent = buildIntent(context, AfterAlarmBR.class, chore.getid(), ChoreDetailActivity.ACTION_VIEW);
         afterAlarmIntent.putExtra(AfterAlarmBR.KEY_NOTIFICATION,
-                getNotification(context, sContentTitle, "THIS IS THE CHORE TEXT TO FILL IN", sPhoto, notificationChannelId, pendingAfterTapNotificationIntent, action1, action2, action3));
-        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_PRIORITY_CHANNEL, notificationChannelId);
-        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BDTIME, sScheduledLocalDateTime);
+                getNotification(context, chore.getName(), "THIS IS THE CHORE TEXT TO FILL IN", chore.getPhoto(), chore.getPriorityChannel(), pendingAfterTapNotificationIntent, action1, action2, action3));
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_PRIORITY_CHANNEL, chore.getPriorityChannel());
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BDTIME, chore.getBDTime());
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BACKUPNOTIFICATIONDELAY, chore.getBackupNotificationDelay());
+        afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_CRITICALBACKUPTIME, chore.getCriticalBackupTime());
 
         PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

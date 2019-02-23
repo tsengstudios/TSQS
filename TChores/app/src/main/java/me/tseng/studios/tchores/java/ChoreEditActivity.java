@@ -1,10 +1,13 @@
 package me.tseng.studios.tchores.java;
 
+import android.Manifest;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -43,6 +46,7 @@ import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 import me.tseng.studios.tchores.java.util.ChoreUtil;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static me.tseng.studios.tchores.java.util.ChoreUtil.getLocalDateTime;
 
 
@@ -280,8 +284,34 @@ public class ChoreEditActivity extends AppCompatActivity
         onBackPressed();
     }
 
+    public static final int REQUEST_CODE_SEND_SMS_PERMISSION = 10;
+
+    public void onRequestPermissionsResult (int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_CODE_SEND_SMS_PERMISSION) {
+            // yay, no need to flag it.  need to check in AfterAlarmBR for permission just before using anyway
+            if (grantResults[0] == PERMISSION_GRANTED)
+                Log.i(TAG, "SMS Permission granted");
+            else
+                Log.e(TAG, "SMS permission was denied");
+        }
+    }
+
     @OnClick(R.id.EReditRbutton)
     public void submitchore(View button) {
+
+        if (Chore.PriorityChannel.CRITICAL.toString().equals(mSpinnerPriority.getSelectedItem().toString())) {
+            // Consider SEND_SMS permission
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+                    != PERMISSION_GRANTED) {
+                // Permission is not granted
+                boolean bcheck = shouldShowRequestPermissionRationale(Manifest.permission.SEND_SMS);
+                ActivityCompat.requestPermissions(ChoreEditActivity.this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        REQUEST_CODE_SEND_SMS_PERMISSION);
+                return; // throw them back into activity to keep dialog in context
+            }
+        }
 
         //getting text input
         LocalDateTime ldt = getLocalDateTime(mLocalDateOnCalendarView, mEditTextTime.getText().toString());

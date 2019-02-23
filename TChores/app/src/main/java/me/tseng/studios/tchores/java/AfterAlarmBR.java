@@ -1,17 +1,23 @@
 package me.tseng.studios.tchores.java;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
+import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.time.LocalDateTime;
 
 import me.tseng.studios.tchores.BuildConfig;
+import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 
@@ -22,13 +28,14 @@ public class AfterAlarmBR extends BroadcastReceiver {
 
     private static final String TAG = "TChores.AfterAlarmBR";
 
-    public static long MINUTES_BACKUP_ALARM = 2;
-    public static long MAXMINUTESCRITICAL = 4;
-
     public static String KEY_NOTIFICATION = BuildConfig.APPLICATION_ID + ".notification";
     public static String KEY_ENSURE_PRIORITY = BuildConfig.APPLICATION_ID + ".ensure_priority";
     public static String KEY_PRIORITY_CHANNEL = BuildConfig.APPLICATION_ID + ".priority_channel";
     public static String KEY_CHORE_BDTIME = BuildConfig.APPLICATION_ID + ".chore_bdtime";
+    public static String KEY_CHORE_BACKUPNOTIFICATIONDELAY = BuildConfig.APPLICATION_ID + ".chore_backupnotificationdelay";
+    public static String KEY_CHORE_CRITICALBACKUPTIME = BuildConfig.APPLICATION_ID + ".chore_criticalbackuptime";
+
+    public static String CRITICAL_NOTIFY_PHONENUMBERS = "+14259859263,+14253123969";
 
 
     @Override
@@ -51,49 +58,54 @@ public class AfterAlarmBR extends BroadcastReceiver {
 
         Log.i(TAG, sPriorityChannel + " Alarm received for id = " + id.hashCode());
 
-        if (!ensurePriority) {
-            notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
+        notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
 
-            context.startService(startHoverIntent);
-        } else {
-            // Assume
-            switch (priorityChannel) {
-                case NORMAL:
-                    // let it go?  Should we not even have set a backup alarm
-                    return;
+        context.startService(startHoverIntent);
 
-                case CRITICAL:
-                    if (ldtChoreBDTime.isBefore(LocalDateTime.now().minusMinutes(MAXMINUTESCRITICAL))) {
-                        // fire notification to others?
-                        Log.i(TAG, "Critical alarm time has past.");
+        switch (priorityChannel) {
+            case NORMAL:
+                // let it go.  do not set a backup alarm
+                break;
 
+            case CRITICAL:
+            case IMPORTANT2OTHERS:
+                int maxMinutes = intent.getIntExtra(KEY_CHORE_CRITICALBACKUPTIME, Integer.MAX_VALUE);
+                if (!LocalDateTime.now().isBefore(ldtChoreBDTime.plusMinutes(maxMinutes))) {
+                    // fire notification to others?
+                    Log.i(TAG, "Critical alarm time has past.");
+
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(context, "No permission to send SMS upon a chore\'s Critical Time", Toast.LENGTH_LONG);
+                    } else {
+                        String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
+
+                        // split by commas, stripping whitespace afterwards
+                        String numbers[] = CRITICAL_NOTIFY_PHONENUMBERS.split(", *");
+                        String textText = String.format(context.getString(R.string.sms_format_string_message), sContentTitle);
+
+                        SmsManager smsManager = SmsManager.getDefault();
+                        for (String number : numbers) {
+                            smsManager.sendTextMessage(number, null, textText, null, null);
+                        }
                     }
-                    // fire notification and hover again
+                }
 
-                    break;
-                case IMPORTANT2SELF:
-                    break;
-                case IMPORTANT2OTHERS:
-                    break;
+            case IMPORTANT2SELF:
+                // set Backup Alarm
+                long minutesBackupAlarm = intent.getIntExtra(KEY_CHORE_BACKUPNOTIFICATIONDELAY, Integer.MAX_VALUE);
+                LocalDateTime ldt = LocalDateTime.now().plusMinutes(minutesBackupAlarm);
+                intent.putExtra(KEY_ENSURE_PRIORITY, true);
+                PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManagerUtil.setAlarmWIntent(context, ldt, afterAlarmPendingIntent, false);
 
-                default:
-                    break;
-            }
+                break;
 
-            // reshow notification and hover
-            notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
-
-            context.startService(startHoverIntent);
-
+            default:
+                Log.e(TAG, "Unsupported PriorityChannel");
+                break;
         }
 
-        // set Backup Alarm
-
-        intent.putExtra(KEY_ENSURE_PRIORITY, true);
-        PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        LocalDateTime ldt = LocalDateTime.now().plusMinutes(MINUTES_BACKUP_ALARM);
-        AlarmManagerUtil.setAlarmWIntent(context, ldt, afterAlarmPendingIntent, false);
     }
 
 }

@@ -191,24 +191,15 @@ public class TChoresService extends JobIntentService {
     }
 
     private static void setAlmOnQDS(Context mServiceContext, QueryDocumentSnapshot document) {
-        Map<String, Object> d = document.getData();
+        Chore chore = document.toObject(Chore.class);
+        chore.setid(document.getId());
 
-        String id = document.getId();
-        String name = d.get(Chore.FIELD_NAME).toString();
-        LocalDateTime ldt =
-                AlarmManagerUtil.localDateTimeFromString(d.get(Chore.FIELD_ADTIME).toString());
-        LocalDateTime ldtScheduledLocalDateTime =
-                AlarmManagerUtil.localDateTimeFromString(d.get(Chore.FIELD_BDTIME).toString());
+        Log.d(TAG, "Got Chore: " + chore.getid() +
+                " = " + chore.getName() +
+                " at " + chore.getADTime() +
+                " => " + chore.toString());
 
-        String photo = d.get(Chore.FIELD_PHOTO).toString();
-        String priorityChannel = d.get(Chore.FIELD_PRIORITYCHANNEL).toString();
-
-        Log.d(TAG, "Got Chore: " + id +
-                " = " + name +
-                " at " + ldt.toString() +
-                " => " + d);
-
-        AlarmManagerUtil.setAlarm(mServiceContext, id, ldt.toString(), name, photo, priorityChannel, ldtScheduledLocalDateTime.toString());
+        AlarmManagerUtil.setAlarm(mServiceContext, chore);
 
     }
 

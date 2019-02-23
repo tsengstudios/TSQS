@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tseng Chores v1.0.2</string>
+    <string name="app_name">Tseng Chores</string>
 
     <string name="value_any_category">Any Worker</string>
     <string name="value_any_city">Any Boss</string>
@@ -108,4 +108,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sunshine_display_perfect_day_short">Perfect</string>
     <string name="sunshine_display_imperfect_day_short">imperf</string>
+    <string name="sms_format_string_message">Critical time past for: %1.150s</string>
 </resources>
