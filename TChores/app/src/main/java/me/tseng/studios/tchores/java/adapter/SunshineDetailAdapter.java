@@ -24,6 +24,7 @@ import butterknife.ButterKnife;
 import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.ChoreDetailActivity;
 import me.tseng.studios.tchores.java.model.Sunshine;
+import me.tseng.studios.tchores.java.util.FlurrUtil;
 
 
 public class SunshineDetailAdapter extends RecyclerView.Adapter<SunshineDetailAdapter.ViewHolder> {
@@ -76,6 +77,7 @@ public class SunshineDetailAdapter extends RecyclerView.Adapter<SunshineDetailAd
         @BindView(R.id.sunshineChoreTimestamp)
         TextView sunshineChoreTimestampView;
 
+        final LocalDateTime ZEROLOCALDATETIME = LocalDateTime.of(2000,1,1,1,1);
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -99,9 +101,12 @@ public class SunshineDetailAdapter extends RecyclerView.Adapter<SunshineDetailAd
             }
 
             Timestamp timestamp = mSunshine.getChoreFlTimestamp().get(position);
-            LocalDateTime ldt = timestamp.toDate().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
-            sunshineChoreTimestampView.setText(ldt.format(DateTimeFormatter.ISO_DATE_TIME));
-
+            LocalDateTime ldt = timestamp.toDate().toInstant().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
+            if (ldt.isBefore(ZEROLOCALDATETIME))
+                sunshineChoreTimestampView.setText("");
+            else {
+                sunshineChoreTimestampView.setText(ldt.format(FlurrUtil.timestampDateTimeFormatter));
+            }
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

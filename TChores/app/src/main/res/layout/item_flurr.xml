@@ -3,38 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="8dp"
+    android:paddingTop="8dp"
+    android:paddingRight="8dp">
 
     <TextView
         android:id="@+id/ratingItemName"
         style="@style/AppTheme.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/greySecondary"
-        android:maxLines="1"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="49dp"
         android:ellipsize="end"
         android:maxWidth="120dp"
-        android:layout_alignParentLeft="true"
+        android:maxLines="1"
+        android:textColor="@color/greySecondary"
+        android:visibility="gone"
         tools:text="John Doe" />
-
-    <TextView
-        android:id="@+id/ratingItemDivider"
-        style="@style/AppTheme.TextDivider"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/ratingItemName"
-        android:text="@string/divider_bullet" />
 
     <TextView
         android:id="@+id/ratingItemDate"
         style="@style/AppTheme.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
         android:textColor="@color/greySecondary"
-        android:layout_toLeftOf="@+id/ratingItemRating"
-        android:layout_toRightOf="@+id/ratingItemDivider"
         tools:text="01/01/2001" />
 
     <me.zhanghai.android.materialratingbar.MaterialRatingBar
@@ -42,22 +38,25 @@
         style="@style/Widget.MaterialRatingBar.RatingBar.Indicator.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/ratingItemText"
         style="@style/AppTheme.Subheader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ratingItemName"
+        android:layout_alignTop="@+id/ratingItemDate"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="-1dp"
         android:layout_marginBottom="4dp"
-        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/ratingItemDate"
         android:textColor="@color/greyPrimary"
         tools:text="chore completed." />
 
     <View
         style="@style/AppTheme.Divider"
         android:layout_below="@id/ratingItemText"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
 </RelativeLayout>

@@ -12,12 +12,14 @@ import me.tseng.studios.tchores.java.model.Flurr;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import me.tseng.studios.tchores.java.util.FlurrUtil;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 /**
@@ -68,7 +70,9 @@ public class FlurrAdapter extends FirestoreAdapter<FlurrAdapter.ViewHolder> {
             textView.setText(flurr.getText());
 
             if (flurr.getTimestamp() != null) {
-                dateView.setText(flurr.getTimestamp().toDate().toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+                LocalDateTime ldt = flurr.getTimestamp().toDate().toInstant().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
+                String stringLdt = ldt.format(FlurrUtil.timestampDateTimeFormatter);
+                dateView.setText(stringLdt);
             }
         }
     }

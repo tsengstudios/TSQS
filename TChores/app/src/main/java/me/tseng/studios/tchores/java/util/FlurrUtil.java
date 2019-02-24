@@ -2,6 +2,7 @@ package me.tseng.studios.tchores.java.util;
 
 import me.tseng.studios.tchores.java.model.Flurr;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -101,4 +102,7 @@ public class FlurrUtil {
         int ind = random.nextInt(array.length);
         return array[ind];
     }
+
+    public static DateTimeFormatter timestampDateTimeFormatter = DateTimeFormatter.ofPattern("yy/MM/dd HH:mm");
+
 }

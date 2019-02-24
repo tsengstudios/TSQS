@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Nullable;
 
@@ -56,6 +58,9 @@ public class HistoryFragment extends Fragment implements
 
     @BindView(R.id.recyclersunshinedetail)
     RecyclerView mSunshineDetailRecycler;
+
+    @BindView(R.id.labelDay)
+    TextView mLabelDay;
 
     private FirebaseFirestore mFirestore;
     private Query mQuery;
@@ -240,6 +245,11 @@ public class HistoryFragment extends Fragment implements
     public void onSunshineSelected(Sunshine sunshine) {
         // selected sunshine
         mDetailAdapter.updateSunshine(sunshine);
+
+        final LocalDate ld = localDateFromString(sunshine.getDay());
+        String fld = ld.format(DateTimeFormatter.ofPattern("EEEE, MMMM d"));
+        String sHeading = String.format(getString(R.string.label_sunshine_detail_heading), fld);
+        mLabelDay.setText(sHeading);
     }
 
     // for mSunshineDetailRecyclerView

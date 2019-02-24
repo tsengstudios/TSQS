@@ -179,9 +179,6 @@
         android:visibility="gone"
         tools:visibility="visible">
 
-        <ImageView
-            android:src="@drawable/pizza_monster"
-            style="@style/AppTheme.PizzaGuy" />
 
         <TextView
             style="@style/AppTheme.Body1"

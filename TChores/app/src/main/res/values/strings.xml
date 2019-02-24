@@ -36,7 +36,7 @@
     <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
     <string name="message_no_results">Click on the white + button\nto create a new chore...</string>
-    <string name="message_no_reviews">Waiting to start the completion history of this chore...!</string>
+    <string name="message_no_reviews">No completion history yet...!</string>
     <string name="hint_review">How was your experience?</string>
     <string name="submit">Submit</string>
     <string name="filter_add_review">Add review</string>
@@ -109,4 +109,5 @@
     <string name="sunshine_display_perfect_day_short">Perfect</string>
     <string name="sunshine_display_imperfect_day_short">imperf</string>
     <string name="sms_format_string_message">Critical time past for: %1.150s</string>
+    <string name="label_sunshine_detail_heading">%s</string>
 </resources>
