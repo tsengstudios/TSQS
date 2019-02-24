@@ -153,7 +153,7 @@ public class HistoryFragment extends Fragment implements
 
                     if (selectedPos == RecyclerView.NO_POSITION) {
                         LocalDate ldToday = LocalDate.now();
-                        for (int i = itemCount - 1; i > 0; i--) {
+                        for (int i = itemCount - 1; i >= 0; i--) {
                             DocumentSnapshot snapshot = getSnapshot(i);
                             LocalDate ld = localDateFromString(snapshot.getString(Sunshine.FIELD_DAY));
                             if (ldToday.isEqual(ld)) {
