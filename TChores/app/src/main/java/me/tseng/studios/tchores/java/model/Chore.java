@@ -30,7 +30,6 @@ public class Chore {
     public static final String FIELD_DATEUSERLASTSET = "dateUserLastSet";       // datetime the user last edited this chore
     public static final String FIELD_SNOOZEMINUTES = "snoozeMinutes";           // minutes to add for snooze
     public static final String FIELD_MUSTWITHIN = "mustWithin";                 // time the chore must be completed within
-    public static final String FIELD_NOTIFYWORLDAFTER = "notifyWorldAfter";     // time after which lack of completion will trigger notifying others
     public static final String FIELD_PRIORITYCHANNEL = "priorityChannel";       // the type of chore completion necessity
     public static final String FIELD_BACKUPNOTIFICATIONDELAY = "backupNotificationDelay";   // time before backup notification fires.
     public static final String FIELD_CRITICALBACKUPTIME = "criticalBackupTime"; // time before critical backup plan enacted
@@ -51,7 +50,6 @@ public class Chore {
     private String dateUserLastSet;
     private int snoozeMinutes;
     private int mustWithin;
-    private int notifyWorldAfter;
     private PriorityChannel priorityChannel;
     private int backupNotificationDelay;
     private int criticalBackupTime;
@@ -82,7 +80,6 @@ public class Chore {
         this.dateUserLastSet = dateUserLastSet;
         this.snoozeMinutes = snoozeMinutes;
         this.mustWithin = mustWithin;
-        this.notifyWorldAfter = notifyWorldAfter;
         this.priorityChannel = priorityChannel;
         this.backupNotificationDelay = backupNotificationDelay;
         this.criticalBackupTime = criticalBackupTime;
@@ -208,11 +205,6 @@ public class Chore {
         this.mustWithin = mustWithin;
     }
 
-    public int getNotifyWorldAfter() {
-        return notifyWorldAfter;
-    }
-
-    public void setNotifyWorldAfter(int notifyWorldAfter) { this.notifyWorldAfter = notifyWorldAfter; }
 
     @Exclude
     public PriorityChannel getPriorityTypeAsEnum(){

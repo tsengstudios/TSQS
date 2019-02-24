@@ -81,7 +81,6 @@ public class ChoreUtil {
         chore.setDateUserLastSet(chore.getBDTime());
         chore.setSnoozeMinutes(10);
         chore.setMustWithin(25*60);
-        chore.setNotifyWorldAfter(25*60);
         chore.setPriorityChannel(randomEnum(Chore.PriorityChannel.class, random).name());
 
         return chore;
