@@ -38,7 +38,6 @@
             android:id="@+id/labelDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_sunshine_detail_heading"
             android:textAppearance="@style/AppTheme.Headline" />
 
         <!-- detail recycler -->
