@@ -1,14 +1,26 @@
 package me.tseng.studios.tchores.java;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import me.tseng.studios.tchores.R;
+import me.tseng.studios.tchores.java.adapter.AwardsAdapter;
+import me.tseng.studios.tchores.java.model.Sunshine;
+import me.tseng.studios.tchores.java.viewmodel.AwardsFragmentViewModel;
 
 
 /**
@@ -19,7 +31,9 @@ import me.tseng.studios.tchores.R;
  * Use the {@link AwardsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AwardsFragment extends Fragment {
+public class AwardsFragment extends Fragment implements
+        AwardsAdapter.OnAwardSelectedListener {
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,6 +44,17 @@ public class AwardsFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    @BindView(R.id.recyclerAwards)
+    RecyclerView mAwardRecycler;
+
+    private FirebaseFirestore mFirestore;
+    private Query mQuery;
+
+    String mCurrentUserId;
+    private AwardsFragmentViewModel mViewModel;
+
+    private AwardsAdapter mAdapter;
 
     public AwardsFragment() {
         // Required empty public constructor
@@ -60,19 +85,109 @@ public class AwardsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        // View model
+        mViewModel = ViewModelProviders.of(this).get(AwardsFragmentViewModel.class);
+
+        // Enable Firestore logging
+        FirebaseFirestore.setLoggingEnabled(true);
+
+        // Firestore
+        mFirestore = FirebaseFirestore.getInstance();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+            return;
+        mCurrentUserId = user.getUid();
+
+
+        mQuery = mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+                .whereEqualTo(Sunshine.FIELD_USERID, mCurrentUserId)
+                .whereEqualTo(Sunshine.FIELD_AWARDPERFECTDAY, true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_awards, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_awards, container, false);
+        ButterKnife.bind(this, rootView);
+        //need to specify sources of view
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
+        }
+    }
+
+/*
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedBundle) {
+
+        // RecyclerView
+        mAdapter = new SunshineAdapter(mQuery,this) {
+            @Override
+            protected void onDataChanged() {
+                // Show/hide content if the query returns empty.
+                final int itemCount = getItemCount();
+                if (itemCount == 0) {
+                    mSunshineRecycler.setVisibility(View.GONE);
+                } else {
+                    mSunshineRecycler.setVisibility(View.VISIBLE);
+
+                    if (selectedPos == RecyclerView.NO_POSITION) {
+                        LocalDate ldToday = LocalDate.now();
+                        for (int i = itemCount - 1; i >= 0; i--) {
+                            DocumentSnapshot snapshot = getSnapshot(i);
+                            LocalDate ld = localDateFromString(snapshot.getString(Sunshine.FIELD_DAY));
+                            if (ldToday.isEqual(ld)) {
+                                // Select today's sunshine once
+                                selectedPos = i;
+                                notifyDataSetChanged();
+                                onSunshineSelected(snapshot.toObject(Sunshine.class));
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            protected void onError(FirebaseFirestoreException e) {
+                // Show a snackbar on errors
+                Snackbar.make(getView().findViewById(android.R.id.content),
+                        "SunshineAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+            }
+        };
+
+        // Detail RecyclerView
+        mDetailAdapter = new SunshineDetailAdapter(this) {        };
+
+
+        mSunshineRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, true));
+        mSunshineRecycler.setAdapter(mAdapter);
+        mSunshineDetailRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mSunshineDetailRecycler.setAdapter(mDetailAdapter);
+
+    }*/
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Start listening for Firestore updates
+        if (mAdapter != null) {
+            mAdapter.startListening();
+        }
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.stopListening();
         }
     }
 
@@ -106,5 +221,9 @@ public class AwardsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void onAwardSelected(int x) {
+
     }
 }

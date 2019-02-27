@@ -87,7 +87,7 @@ public class TChoresService extends JobIntentService {
         // holding a wake lock for us at this point, so we can just go.
         Log.i(TAG, "Executing work.");
         String suri = intent.getDataString();
-        toast("Executing: " + suri);
+        // toast("Executing: " + suri);
 
         if ((suri != null)) {
             if (suri.equals(REVIEW_SUNSHINE_URI)) {
@@ -114,7 +114,7 @@ public class TChoresService extends JobIntentService {
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "Destroying service @ " + SystemClock.elapsedRealtime());
-        toast("TChoresService Destroyed.");
+        // toast("TChoresService Destroyed.");
     }
 
 

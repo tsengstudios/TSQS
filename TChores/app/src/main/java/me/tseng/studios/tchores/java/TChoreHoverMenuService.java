@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Icon;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -102,7 +103,11 @@ public class TChoreHoverMenuService extends HoverMenuService {
         public void tryAdd(Notification notification, String choreId, HoverView hoverView) {
             Section sectionFound = findSection(choreId);
             if (sectionFound == null) {
-                String sContentTitle = notification.extras.getString(Notification.EXTRA_TITLE);
+                final Bundle extras = notification.extras;
+                if (extras == null) {
+                    throw new RuntimeException("Notification extras==null  while choreId=" + choreId);
+                }
+                String sContentTitle = extras.getString(Notification.EXTRA_TITLE);
                 Icon icon = notification.getLargeIcon();
 
                 Map<String, PendingIntent> mapPendingIntents = getMapPendingIntents(notification.actions);

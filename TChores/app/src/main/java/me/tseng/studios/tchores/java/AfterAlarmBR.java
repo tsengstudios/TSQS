@@ -56,7 +56,7 @@ public class AfterAlarmBR extends BroadcastReceiver {
         startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, id);
         startHoverIntent.putExtra(KEY_NOTIFICATION, notification);
 
-        Log.i(TAG, sPriorityChannel + " Alarm received for id = " + id.hashCode());
+        Log.i(TAG, sPriorityChannel + " Alarm received for id = " + id);
 
         notificationManager.notify(id.hashCode(), notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
 

@@ -7,8 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -50,6 +52,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     private static final int REQUEST_CODE = 1;
     public static final int NOTIFICATION_ID_LOGIN = 88;     // id needed to cancel notification
 
+    private static Context mContext;
 
     public static class Tuple2<T1,T2> {
         private T1 f1;
@@ -65,6 +68,11 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        Log.i(TAG, "onReceive()");
+        mContext = context;
+
+        toast("onReceive()");
+
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -74,19 +82,21 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     FirebaseAuth.getInstance().removeAuthStateListener(this);
                     //do stuff
                     Log.i(TAG, "onReceive() a chore is complete, login now complete");
+                    toast("onReceive() a chore is complete, login now complete");
                     postLogin(context, intent);
 
                     // cancel the login notification
                     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.cancel(NotificationChoreCompleteBR.NOTIFICATION_ID_LOGIN);
+                    notificationManager.cancel(NOTIFICATION_ID_LOGIN);
                 }
                 else {
                     // trigger login
                     Log.i(TAG, "onReceive() a chore is complete, but need to login");
+                    toast("onReceive() there is no current user.");
 
                     // collapse chathead
                     Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
-                    startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, "");
+                    startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, "PHONY_CHORE_ID");
                     startHoverIntent.putExtra(TChoreHoverMenuService.KEY_COLLAPSE_CHAT_HEAD,true );
                     context.startService(startHoverIntent);
 
@@ -124,6 +134,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         if (actionId== null) {
             throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_ACTION);
         }
+
+        toast(context, "postLogin() after argument check");
+
         String recordedActionLocal = "error: improper action sent";
         Boolean tempSetNormalRecurrence = true;
         switch (actionId) {
@@ -311,6 +324,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             }
         });
 
+        toast(context,"postLogin() attempt transaction");
     }
 
     private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
@@ -421,6 +435,25 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         return isProperSunshineFound;
     }
 
+    final Handler mHandler = new Handler();
+
+    // Helper for showing tests
+    void toast(final CharSequence text) {
+        mHandler.post(new Runnable() {
+            @Override public void run() {
+                Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    static void toast(final Context context, final CharSequence text) {
+        // Helper for showing tests
+        Handler handler = new Handler();
+            handler.post(new Runnable() {
+                @Override public void run() {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show(); }
+            });
+    }
 
 }
 
