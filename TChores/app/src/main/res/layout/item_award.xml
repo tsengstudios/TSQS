@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="false"
+    android:layout_centerVertical="false"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/awardImage"
+        android:layout_width="119dp"
+        android:layout_height="119dp"
+        android:background="@color/colorPrimaryDark"
+        android:scaleType="centerCrop"
+        android:src="@drawable/mrb_star_border_icon_black_36dp"
+        android:tint="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/awardTitle"
+        style="@style/AppTheme.Subheader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@android:color/white"
+        tools:text="Perfect Days" />
+
+    <TextView
+        android:id="@+id/awardPerfectDayNumber"
+        style="@style/AppTheme.Body2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@android:color/white"
+        tools:text="99" />
+
+</RelativeLayout>
