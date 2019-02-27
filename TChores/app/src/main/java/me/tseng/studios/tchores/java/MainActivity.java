@@ -1,6 +1,8 @@
 package me.tseng.studios.tchores.java;
 
+import android.app.NotificationManager;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -175,6 +177,9 @@ public class MainActivity extends AppCompatActivity implements
                             .commitNowAllowingStateLoss();
                 }
 
+                // cancel the login notification
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(NotificationChoreCompleteBR.NOTIFICATION_ID_LOGIN);
             }
         }
         if (requestCode == REQUEST_CODE_HOVER_PERMISSION) {

@@ -166,7 +166,7 @@ public class TChoresService extends JobIntentService {
                     // Firestore
                     mFirestore = FirebaseFirestore.getInstance();
 
-                    String mCurrentUserUid = user.getUid();        // TODO this should be using userId
+                    String mCurrentUserUid = user.getUid();
                     Log.i(TAG, "Got username: " + mCurrentUserUid);
 
 
@@ -182,7 +182,8 @@ public class TChoresService extends JobIntentService {
 
 
                 }else{
-                    //do nothing
+                    // TODO try to logon and try this again
+                    Log.e(TAG, "TODO try to logon and try this again");
 
                 }
             }

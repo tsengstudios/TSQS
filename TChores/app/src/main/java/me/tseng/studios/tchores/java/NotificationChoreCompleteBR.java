@@ -1,6 +1,8 @@
 package me.tseng.studios.tchores.java;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import me.tseng.studios.tchores.BuildConfig;
+import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.model.Sunshine;
@@ -41,11 +45,13 @@ import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
     private static final String TAG = "TChores.NotificationChoreCompleteBR";
+    public static final String MAINACTIVITY_LOGIN_URI = "login:me";
+    public static final String ACTION_LOGIN = BuildConfig.APPLICATION_ID + ".LOGIN";    // Prefix for Intent Action
+    private static final int REQUEST_CODE = 1;
+    public static final int NOTIFICATION_ID_LOGIN = 88;     // id needed to cancel notification
 
-    public static String NOTIFICATION_ID = "notification-id";
-    public static String NOTIFICATION = "notification";
 
-    public class Tuple2<T1,T2> {
+    public static class Tuple2<T1,T2> {
         private T1 f1;
         private T2 f2;
         Tuple2(T1 f1, T2 f2) {
@@ -55,11 +61,60 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         public T2 getF2() {return f2;}
     }
 
-    private FirebaseFirestore mFirestore;
 
 
     @Override
-    public void onReceive(final Context context, Intent intent) {
+    public void onReceive(final Context context, final Intent intent) {
+        FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user;
+                user = firebaseAuth.getCurrentUser();   // TODO SECURITY ISSUE: we need to null the global user  if they logout....
+                if (user != null) {
+                    FirebaseAuth.getInstance().removeAuthStateListener(this);
+                    //do stuff
+                    Log.i(TAG, "onReceive() a chore is complete, login now complete");
+                    postLogin(context, intent);
+
+                    // cancel the login notification
+                    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.cancel(NotificationChoreCompleteBR.NOTIFICATION_ID_LOGIN);
+                }
+                else {
+                    // trigger login
+                    Log.i(TAG, "onReceive() a chore is complete, but need to login");
+
+                    // collapse chathead
+                    Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
+                    startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, "");
+                    startHoverIntent.putExtra(TChoreHoverMenuService.KEY_COLLAPSE_CHAT_HEAD,true );
+                    context.startService(startHoverIntent);
+
+                    // notification to login
+                    Intent intentNotifyLogin = new Intent(context, MainActivity.class);
+                    intentNotifyLogin.setData(Uri.parse(MAINACTIVITY_LOGIN_URI));
+                    intentNotifyLogin.setAction(ACTION_LOGIN); // Needed to differentiate Intents so Notification manager doesn't squash them together
+                    intentNotifyLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(context, REQUEST_CODE, intentNotifyLogin, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    Notification.Builder builder = new Notification.Builder(context, Chore.PriorityChannel.CRITICAL.name());
+                    builder.setContentTitle("Please Login");
+                    builder.setContentText("Need to be logged-in before registering a chore action");
+                    builder.setSmallIcon(R.drawable.ic_monetization_on_white_24px);
+                    builder.setContentIntent(pendingIntent);
+                    builder.setAutoCancel(false);
+                    builder.setCategory(Notification.CATEGORY_ALARM);  // TODO this might change depending on chore
+                    Notification notification = builder.build();
+
+                    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.notify(NOTIFICATION_ID_LOGIN, notification);    // hashCode won't guarantee uniqueness, but probably for two alarms at the same time?
+                }
+            }
+        });
+
+    }
+
+    public static void postLogin(final Context context, Intent intent) {
 
         final String choreId = Objects.requireNonNull(intent.getExtras()).getString(ChoreDetailActivity.KEY_CHORE_ID);
         if (choreId == null) {
@@ -94,7 +149,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         Log.d(TAG, "got into Compelete Broadcast Receiver. choreId= " + choreId + "  and action id= " + actionId);
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
-        mFirestore = FirebaseFirestore.getInstance();
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final String sUserId = firebaseUser.getUid();
 
@@ -105,9 +160,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 recordedActionLocal,
                 choreId,
                 "TEMP Needs Replacing");
-        final DocumentReference flurrRef = mFirestore.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
+        final DocumentReference flurrRef = firestore.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
 
-        final DocumentReference choreRef = mFirestore.collection("chores").document(choreId);
+        final DocumentReference choreRef = firestore.collection("chores").document(choreId);
 
 //        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
@@ -115,7 +170,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 //        ratingRef.update(updates);
 
         // In a transaction, add the new flurr and update the aggregate totals and Reset chore target time
-        mFirestore.runTransaction(new Transaction.Function<Tuple2<Chore,Flurr>>() {
+        firestore.runTransaction(new Transaction.Function<Tuple2<Chore,Flurr>>() {
             @Override
             public Tuple2<Chore,Flurr> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                 DocumentSnapshot choreSnapshot = transaction.get(choreRef);
@@ -234,7 +289,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 AlarmManagerUtil.setAlarm(context, chore);
 
 
-                recordChoreIntoSunshine(chore, flurr, sUserId);
+                recordChoreIntoSunshine(firestore, chore, flurr, sUserId);
 
 
                 // cancel the notification
@@ -261,13 +316,13 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
 
 
-    private void recordChoreIntoSunshine(final Chore chore, final Flurr flurr, final String userId) {
+    private static void recordChoreIntoSunshine(final FirebaseFirestore firestore, final Chore chore, final Flurr flurr, final String userId) {
         LocalDate sunshineDay = ChoreUtil.LocalDateFromLocalDateTimeString(flurr.getChoreBDTime());
         final String sSunshineDay = sunshineDay.toString();
 
         // get the right sunshine
         // try to get the current sunshine  (is the docref proof of existance?)
-        mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+        firestore.collection(Sunshine.COLLECTION_PATHNAME)
             .orderBy(Sunshine.FIELD_DAY, Query.Direction.DESCENDING)
             .whereEqualTo(Sunshine.FIELD_USERID, userId)
             .limit(SUNSHINE_LIMIT)
@@ -280,7 +335,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             if (document.getString(Sunshine.FIELD_DAY).equals(sSunshineDay)) {
-                                isProperSunshineFound = recordChoreIntoPromisingSunshine(isProperSunshineFound, document, flurr);
+                                isProperSunshineFound = recordChoreIntoPromisingSunshine(firestore, isProperSunshineFound, document, flurr);
                                 if (isProperSunshineFound)
                                     break;
                             }
@@ -294,7 +349,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                             flurr.setTimestamp(Timestamp.now());
                             sunshine.addFirstAndOnlyFlurr(flurr);
 
-                            mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
+                            firestore.collection(Sunshine.COLLECTION_PATHNAME)
                                 .add(sunshine)
                                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                     @Override
@@ -319,7 +374,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
     /*  Continue the search for the right sunshine, and record the flurr if it is the right sunshine
      *  return true if sunshine already contains the flurr's chore
      */
-    private boolean recordChoreIntoPromisingSunshine(boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
+    private static boolean recordChoreIntoPromisingSunshine(FirebaseFirestore firestore, boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
 
         Sunshine sunshine = document.toObject(Sunshine.class);
         if (isProperSunshineFound) {
@@ -331,7 +386,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         // add this flurr
         int indexFlurr = sunshine.getChoreIds().indexOf(flurr.getChoreId());
         if (indexFlurr >= 0) {
-            DocumentReference sunshineRef = mFirestore.collection(Sunshine.COLLECTION_PATHNAME).document(document.getId());
+            DocumentReference sunshineRef = firestore.collection(Sunshine.COLLECTION_PATHNAME).document(document.getId());
 
             if (flurr.getText() == ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED) {
                 sunshine.getChoreFlSnoozeCount().set(indexFlurr, 1 + sunshine.getChoreFlSnoozeCount().get(indexFlurr));

@@ -43,6 +43,7 @@ public class TChoreHoverMenuService extends HoverMenuService {
     private static final String TAG = "TChores.TChoreHoverMenuService";
 
     public static final String KEY_CHORE_RESOLVED = "chore.resolved";
+    public static final String KEY_COLLAPSE_CHAT_HEAD = "collapse.chat.head";
 
     MultiSectionHoverMenu mMultiSectionHoverMenu;
 
@@ -52,6 +53,11 @@ public class TChoreHoverMenuService extends HoverMenuService {
         Notification notification = intent.getParcelableExtra(AfterAlarmBR.KEY_NOTIFICATION);
         String choreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
         boolean bRemoveChore = intent.getBooleanExtra(KEY_CHORE_RESOLVED, false);
+        boolean bCollapseChatHead = intent.getBooleanExtra(KEY_COLLAPSE_CHAT_HEAD, false);
+        if (bCollapseChatHead) {
+            hoverView.collapse();
+            return;
+        }
 
         if (mMultiSectionHoverMenu == null) {
             mMultiSectionHoverMenu = createHoverMenu(notification, choreId, hoverView);
