@@ -55,18 +55,24 @@ public class TChoreHoverMenuService extends HoverMenuService {
         String choreId = intent.getStringExtra(ChoreDetailActivity.KEY_CHORE_ID);
         boolean bRemoveChore = intent.getBooleanExtra(KEY_CHORE_RESOLVED, false);
         boolean bCollapseChatHead = intent.getBooleanExtra(KEY_COLLAPSE_CHAT_HEAD, false);
+        if (notification == null && bRemoveChore == false) {
+            throw new RuntimeException("Notification==null  while choreId=" + choreId + " bRemoveChore=" + bRemoveChore + " bCollapseChatHead=" + bCollapseChatHead);
+        }
         if (bCollapseChatHead) {
             hoverView.collapse();
             return;
         }
 
-        if (mMultiSectionHoverMenu == null) {
+        if (mMultiSectionHoverMenu == null && notification != null) {
             mMultiSectionHoverMenu = createHoverMenu(notification, choreId, hoverView);
             hoverView.setMenu(mMultiSectionHoverMenu);
             hoverView.collapse();
         } else {
             if (bRemoveChore) {
-
+                if (mMultiSectionHoverMenu == null) {
+                    // dead Hover menu
+                    return;
+                }
                 // remove this section choreId
                 mMultiSectionHoverMenu.tryRemove(choreId, hoverView);
                 if (mMultiSectionHoverMenu.mSections.size() == 0) {
@@ -78,6 +84,10 @@ public class TChoreHoverMenuService extends HoverMenuService {
                     hoverView.collapse();
                 }
             } else {
+                if (notification == null) {
+                    throw new RuntimeException("Notification==null  while choreId=" + choreId + " bRemoveChore=" + bRemoveChore + " bCollapseChatHead=" + bCollapseChatHead);   // should be impossible without the earlier if condition that would throw a runtime exception
+                }
+
                 // reentry with new choreId?
                 mMultiSectionHoverMenu.tryAdd(notification, choreId, hoverView);
             }

@@ -81,9 +81,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 if (user != null) {
                     FirebaseAuth.getInstance().removeAuthStateListener(this);
                     //do stuff
-                    Log.i(TAG, "onReceive() a chore is complete, login now complete");
+                    Log.i(TAG, "onReceive() a chore is complete, login now complete.  FirebaseUser=" + user.getUid());
                     toast("onReceive() a chore is complete, login now complete");
-                    postLogin(context, intent);
+                    postLogin(context, intent, user);
 
                     // cancel the login notification
                     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -124,7 +124,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
     }
 
-    public static void postLogin(final Context context, Intent intent) {
+    public static void postLogin(final Context context, Intent intent, FirebaseUser user) {
 
         final String choreId = Objects.requireNonNull(intent.getExtras()).getString(ChoreDetailActivity.KEY_CHORE_ID);
         if (choreId == null) {
@@ -159,16 +159,15 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         }
         final Boolean setNormalRecurrence = tempSetNormalRecurrence;
 
-        Log.d(TAG, "got into Compelete Broadcast Receiver. choreId= " + choreId + "  and action id= " + actionId);
+        Log.d(TAG, "postLogin() just before getting user again. choreId= " + choreId + "  and action id= " + actionId);
 
         // assume fireauth user is logged in  TODO check fireauth user is logged in
         final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String sUserId = firebaseUser.getUid();
+        final String sUserId = user.getUid();
 
         // mark chore action
         final Flurr flurr = new Flurr(
-                firebaseUser,
+                user,
                 1,
                 recordedActionLocal,
                 choreId,
@@ -182,6 +181,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 //        updates.put("timestamp", FieldValue.serverTimestamp());
 //        ratingRef.update(updates);
 
+        Log.i(TAG, "postLogin() just before runTransaction.");
+
         // In a transaction, add the new flurr and update the aggregate totals and Reset chore target time
         firestore.runTransaction(new Transaction.Function<Tuple2<Chore,Flurr>>() {
             @Override
@@ -190,20 +191,6 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 Chore chore = choreSnapshot.toObject(Chore.class);
                 chore.setid(choreId);   // for recordChoreIntoSunshine()
 
-                        // Compute new number of ratings
-                        int newNumRatings = chore.getNumRatings() + 1;
-
-                        // Compute new average flurr
-                        double oldRatingTotal = chore.getAvgRating() * chore.getNumRatings();
-                        double newAvgRating = (oldRatingTotal + flurr.getFlurr()) / newNumRatings;
-
-                        // Set new chore info
-                        chore.setNumRatings(newNumRatings);
-                        chore.setAvgRating(newAvgRating);
-
-                String name = chore.getName();
-                Chore.RecurrenceInterval ri = chore.getRecurrenceIntervalAsEnum();
-
                 // Before changing BDTime, record the chore BDTime upon which the user just acted
                 flurr.setChoreBDTime(chore.getBDTime());
 
@@ -211,7 +198,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 Log.d(TAG, "Got Chore: " + choreId +
                         " -  Alarm was at " + ldtA.toString() +
-                        " Name=" + name);
+                        " Name=" + chore.getName());
 
                 if (ldtA.isAfter(LocalDateTime.now())) {
                     // This was already bumped
@@ -287,6 +274,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 transaction.set(choreRef, chore);
                 transaction.set(flurrRef, flurr);
 
+                Log.i(TAG, "end of transaction");
                 return new Tuple2(chore,flurr);
             }
 
