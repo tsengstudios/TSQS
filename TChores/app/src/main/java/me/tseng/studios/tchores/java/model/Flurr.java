@@ -12,6 +12,7 @@ import com.google.firebase.firestore.ServerTimestamp;
  */
 public class Flurr {
 
+    public static final String COLLECTION_PATHNAME = "flurrs";
     public static final String FIELD_TIMESTAMP = "timestamp";
     public static final String FIELD_USERID = "userId";
     public static final String FIELD_USERNAME = "userName";

@@ -123,7 +123,7 @@ public class ChoresFragment extends Fragment implements
             mUserDisplayName = user.getDisplayName();
 
             // Get ${CHORE_LIMIT} chores
-            mQuery = mFirestore.collection("chores")
+            mQuery = mFirestore.collection(Chore.COLLECTION_PATHNAME)
                     .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
                     .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUID)
                     .limit(CHORE_LIMIT);

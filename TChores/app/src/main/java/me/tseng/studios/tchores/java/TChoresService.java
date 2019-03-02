@@ -171,11 +171,11 @@ public class TChoresService extends JobIntentService {
 
 
                     Query q = (sChoreId == null) ?
-                            mFirestore.collection("chores")
+                            mFirestore.collection(Chore.COLLECTION_PATHNAME)
                                     .orderBy(Chore.FIELD_ADTIME, Query.Direction.DESCENDING)
                                     .whereEqualTo(Chore.FIELD_UUID, mCurrentUserUid)
                             :
-                            mFirestore.collection("chores").whereEqualTo(FieldPath.documentId(), sChoreId);
+                            mFirestore.collection(Chore.COLLECTION_PATHNAME).whereEqualTo(FieldPath.documentId(), sChoreId);
 
                     q.get()
                         .addOnCompleteListener(onCompleteListener);

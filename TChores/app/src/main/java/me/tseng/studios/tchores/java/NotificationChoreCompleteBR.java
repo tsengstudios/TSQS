@@ -27,6 +27,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.type.DayOfWeek;
 
 import java.time.LocalDate;
@@ -131,7 +132,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_CHORE_ID);
         }
         String actionId = intent.getExtras().getString(ChoreDetailActivity.KEY_ACTION);
-        if (actionId== null) {
+        if (actionId == null) {
             throw new IllegalArgumentException("Must pass extra " + ChoreDetailActivity.KEY_ACTION);
         }
 
@@ -140,19 +141,19 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
         String recordedActionLocal = "error: improper action sent";
         Boolean tempSetNormalRecurrence = true;
         switch (actionId) {
-            case ChoreDetailActivity.ACTION_COMPLETED :
+            case ChoreDetailActivity.ACTION_COMPLETED:
                 recordedActionLocal = ChoreDetailActivity.ACTION_COMPLETED_LOCALIZED;
 
                 break;
-            case ChoreDetailActivity.ACTION_REFUSED :
+            case ChoreDetailActivity.ACTION_REFUSED:
                 recordedActionLocal = ChoreDetailActivity.ACTION_REFUSED_LOCALIZED;
 
                 break;
-            case ChoreDetailActivity.ACTION_SNOOZED :
+            case ChoreDetailActivity.ACTION_SNOOZED:
                 recordedActionLocal = ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED;
                 tempSetNormalRecurrence = false;
                 break;
-            case ChoreDetailActivity.ACTION_VIEW :
+            case ChoreDetailActivity.ACTION_VIEW:
                 throw new UnsupportedOperationException("Didn't implement the View action yet");  // TODO maybe useful to have this BR support recasting the View ChoreDetailActivity intent.
                 // return; break;
             default:
@@ -172,9 +173,9 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 recordedActionLocal,
                 choreId,
                 "TEMP Needs Replacing");
-        final DocumentReference flurrRef = firestore.collection("flurrs").document();  // Create reference for new flurr, for use inside the transaction
+        final DocumentReference flurrRef = firestore.collection(Flurr.COLLECTION_PATHNAME).document();  // Create reference for new flurr, for use inside the transaction
 
-        final DocumentReference choreRef = firestore.collection("chores").document(choreId);
+        final DocumentReference choreRef = firestore.collection(Chore.COLLECTION_PATHNAME).document(choreId);
 
 //        // Update the flurr timestamp field with the value from the server
 //        Map<String, Object> updates = new HashMap<>();
@@ -183,11 +184,13 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
         Log.i(TAG, "postLogin() just before runTransaction.");
 
-        // In a transaction, add the new flurr and update the aggregate totals and Reset chore target time
-        firestore.runTransaction(new Transaction.Function<Tuple2<Chore,Flurr>>() {
+        // add the new flurr and update the aggregate totals and Reset chore target time
+
+        choreRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public Tuple2<Chore,Flurr> apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                DocumentSnapshot choreSnapshot = transaction.get(choreRef);
+            public void onSuccess(DocumentSnapshot choreSnapshot) {
+
+
                 Chore chore = choreSnapshot.toObject(Chore.class);
                 chore.setid(choreId);   // for recordChoreIntoSunshine()
 
@@ -202,9 +205,8 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
 
                 if (ldtA.isAfter(LocalDateTime.now())) {
                     // This was already bumped
-                    throw new FirebaseFirestoreException("Weird -- this action is trying to bump the alarm time when it is already in the future." +
-                            " -  Alarm was at " + ldtA.toString(),
-                            FirebaseFirestoreException.Code.INVALID_ARGUMENT);
+                    throw new RuntimeException("Weird -- this action is trying to bump the alarm time when it is already in the future." +
+                            " -  Alarm was at " + ldtA.toString());
                 }
 
                 // calculate new alarm time
@@ -269,46 +271,55 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     // chore.setBDTime(ldtA.toString());
                 }
 
+                final Chore fChore = chore;
+
+                Log.i(TAG, "about to batch to Firestore");
 
                 // Commit to Firestore
-                transaction.set(choreRef, chore);
-                transaction.set(flurrRef, flurr);
+                WriteBatch batch = firestore.batch();
+                batch.update(choreRef, Chore.COLLECTION_PATHNAME, fChore);
+                batch.set(flurrRef, flurr);
 
-                Log.i(TAG, "end of transaction");
-                return new Tuple2(chore,flurr);
-            }
+                Log.i(TAG, "about to commit batch to Firestore");
 
-        }).addOnSuccessListener(new OnSuccessListener<Tuple2<Chore,Flurr>>() {
-            @Override
-            public void onSuccess(Tuple2<Chore,Flurr> tupleCF) {
-                Chore chore = tupleCF.getF1();
-                Flurr flurr = tupleCF.getF2();
+                batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void avoid) {
 
-                Log.i(TAG, "Chore action now marked");
+                        Log.i(TAG, "Chore action now marked");
 
-                // set the new alarm (also cancels the backup alarm)
-                AlarmManagerUtil.setAlarm(context, chore);
+                        // set the new alarm (also cancels the backup alarm)
+                        AlarmManagerUtil.setAlarm(context, fChore);
 
 
-                recordChoreIntoSunshine(firestore, chore, flurr, sUserId);
+                        recordChoreIntoSunshine(firestore, fChore, flurr, sUserId);
 
 
-                // cancel the notification
-                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(choreId.hashCode());
+                        // cancel the notification
+                        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(choreId.hashCode());
 
-                // Cancel the chat head
-                Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
-                startHoverIntent.setData(Uri.parse(CHORE_URI_PREFIX + choreId));  // faked just to differentiate alarms on different chores
-                startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, choreId);
-                startHoverIntent.putExtra(TChoreHoverMenuService.KEY_CHORE_RESOLVED,true );
-                context.startService(startHoverIntent);
+                        // Cancel the chat head
+                        Intent startHoverIntent = new Intent(context, TChoreHoverMenuService.class);
+                        startHoverIntent.setData(Uri.parse(CHORE_URI_PREFIX + choreId));  // faked just to differentiate alarms on different chores
+                        startHoverIntent.putExtra(ChoreDetailActivity.KEY_CHORE_ID, choreId);
+                        startHoverIntent.putExtra(TChoreHoverMenuService.KEY_CHORE_RESOLVED, true);
+                        context.startService(startHoverIntent);
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Chore action marking failed", e);
+                    }
+                });
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.e(TAG, "Chore action marking failed", e);
+                Log.e(TAG, "Failed to get chore id=" + choreId);
             }
         });
 

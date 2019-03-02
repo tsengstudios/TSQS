@@ -129,7 +129,7 @@ public class ChoreEditActivity extends AppCompatActivity
         mFirestore = FirebaseFirestore.getInstance();
 
         // Get reference to the chore
-        mchoreRef = mFirestore.collection("chores").document(mchoreId);
+        mchoreRef = mFirestore.collection(Chore.COLLECTION_PATHNAME).document(mchoreId);
 
         final Context context = this;
         mchoreRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

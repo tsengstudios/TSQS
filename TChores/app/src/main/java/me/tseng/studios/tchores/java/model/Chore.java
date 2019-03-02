@@ -17,6 +17,7 @@ import me.tseng.studios.tchores.java.util.ChoreUtil;
 @IgnoreExtraProperties
 public class Chore {
 
+    public static final String COLLECTION_PATHNAME = "chores";
     public static final String FIELD_CITY = "city";
     public static final String FIELD_UUID = "uuid";
     public static final String FIELD_PHOTO = "photo";

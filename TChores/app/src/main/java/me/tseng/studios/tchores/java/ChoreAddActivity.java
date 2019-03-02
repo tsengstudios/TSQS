@@ -99,7 +99,7 @@ public class ChoreAddActivity extends AppCompatActivity {
     public void submitchore(View button) {
         final Context context = this;
         WriteBatch batch = mFirestore.batch();
-        DocumentReference restRef = mFirestore.collection("chores").document();
+        DocumentReference restRef = mFirestore.collection(Chore.COLLECTION_PATHNAME).document();
         final String futureChoreId = restRef.getId();
 
         //getting text input

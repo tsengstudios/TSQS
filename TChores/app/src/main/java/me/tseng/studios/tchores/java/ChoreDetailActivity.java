@@ -117,11 +117,11 @@ public class ChoreDetailActivity extends AppCompatActivity
         mFirestore = FirebaseFirestore.getInstance();
 
         // Get reference to the chore
-        mChoreRef = mFirestore.collection("chores").document(mChoreId);
+        mChoreRef = mFirestore.collection(Chore.COLLECTION_PATHNAME).document(mChoreId);
 
         // Get ratings
         Query flurrsQuery = mFirestore
-                .collection("flurrs")
+                .collection(Flurr.COLLECTION_PATHNAME)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .whereEqualTo(Flurr.FIELD_CHOREID, mChoreId)
                 .limit(50);
