@@ -191,7 +191,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             public void onSuccess(DocumentSnapshot choreSnapshot) {
 
 
-                Chore chore = choreSnapshot.toObject(Chore.class);
+                final Chore chore = choreSnapshot.toObject(Chore.class);
                 chore.setid(choreId);   // for recordChoreIntoSunshine()
 
                 // Before changing BDTime, record the chore BDTime upon which the user just acted
@@ -271,13 +271,12 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     // chore.setBDTime(ldtA.toString());
                 }
 
-                final Chore fChore = chore;
 
                 Log.i(TAG, "about to batch to Firestore");
 
                 // Commit to Firestore
                 WriteBatch batch = firestore.batch();
-                batch.update(choreRef, Chore.COLLECTION_PATHNAME, fChore);
+                batch.set(choreRef, chore);
                 batch.set(flurrRef, flurr);
 
                 Log.i(TAG, "about to commit batch to Firestore");
@@ -289,10 +288,10 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                         Log.i(TAG, "Chore action now marked");
 
                         // set the new alarm (also cancels the backup alarm)
-                        AlarmManagerUtil.setAlarm(context, fChore);
+                        AlarmManagerUtil.setAlarm(context, chore);
 
 
-                        recordChoreIntoSunshine(firestore, fChore, flurr, sUserId);
+                        recordChoreIntoSunshine(firestore, chore, flurr, sUserId);
 
 
                         // cancel the notification

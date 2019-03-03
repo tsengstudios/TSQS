@@ -178,6 +178,9 @@ public class TChoreHoverMenuService extends HoverMenuService {
         private View createTabView(Icon icon) {
             ImageView imageView = new ImageView(mContext);
             imageView.setImageIcon(icon);
+            imageView.setBackgroundResource(R.drawable.border4imageview);
+            imageView.setCropToPadding(true);
+            imageView.setPadding(4, 4, 4, 4);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             return imageView;
         }

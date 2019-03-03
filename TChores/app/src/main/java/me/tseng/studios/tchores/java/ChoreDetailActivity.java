@@ -1,7 +1,9 @@
 package me.tseng.studios.tchores.java;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +20,7 @@ import me.tseng.studios.tchores.R;
 import me.tseng.studios.tchores.java.adapter.FlurrAdapter;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Flurr;
+import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 import me.tseng.studios.tchores.java.util.ChoreUtil;
 
 import com.google.firebase.firestore.DocumentReference;
@@ -86,12 +89,15 @@ public class ChoreDetailActivity extends AppCompatActivity
     @BindView(R.id.choreDetailBDTime)
     TextView mChoreDetailBDTime;
 
+    @BindView(R.id.fabReNotify)
+    FloatingActionButton mFabReNotify;
 
 
     private FirebaseFirestore mFirestore;
     private DocumentReference mChoreRef;
     private ListenerRegistration mchoreRegistration;
     private String mChoreId;
+    private Chore mChore;
 
     private FlurrAdapter mFlurrAdapter;
 
@@ -198,9 +204,12 @@ public class ChoreDetailActivity extends AppCompatActivity
         textTimeView = dtf.format(ldt);
         if (LocalDateTime.now().isBefore(ldt)) {
             mChoreDetailBDTime.setTextColor(getColor(R.color.chore_detail_text_color));
-
+            mChoreDetailBDTime.setTypeface(null, Typeface.NORMAL);
+            mFabReNotify.hide();
         }else {
             mChoreDetailBDTime.setTextColor(getColor(R.color.chore_past_text_color));
+            mChoreDetailBDTime.setTypeface(null, Typeface.BOLD);
+            mFabReNotify.show();
         }
         mChoreDetailBDTime.setText(textTimeView);
 
@@ -219,6 +228,8 @@ public class ChoreDetailActivity extends AppCompatActivity
             }
         }
 
+        chore.setid(mChoreId);
+        mChore = chore;
         Log.i(TAG, "Chore Loaded  name=" + chore.getName());
     }
 
@@ -234,6 +245,12 @@ public class ChoreDetailActivity extends AppCompatActivity
         intent.putExtra(ChoreEditActivity.KEY_chore_ID, mChoreId);
 
         startActivity(intent);
+    }
+
+    @OnClick(R.id.fabReNotify)
+    public void onReNotifyClicked(View view) {
+        Intent afterAlarmIntent = AlarmManagerUtil.getAfterAlarmIntent(view.getContext(), mChore);
+        sendBroadcast(afterAlarmIntent);
     }
 
 

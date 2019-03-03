@@ -41,6 +41,15 @@ public class AlarmManagerUtil {
 
         LocalDateTime localDateTimeAlarm = localDateTimeFromString(chore.getADTime());
 
+        Intent afterAlarmIntent = getAfterAlarmIntent(context, chore);
+
+        PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        setAlarmWIntent(context, localDateTimeAlarm, afterAlarmPendingIntent, true);
+    }
+
+
+    public static Intent getAfterAlarmIntent(Context context, Chore chore) {
         Intent intent = buildIntent(context, ChoreDetailActivity.class, chore.getid(), ChoreDetailActivity.ACTION_VIEW);
         PendingIntent pendingAfterTapNotificationIntent = PendingIntent.getActivity(context, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -68,10 +77,7 @@ public class AlarmManagerUtil {
         afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_BACKUPNOTIFICATIONDELAY, chore.getBackupNotificationDelay());
         afterAlarmIntent.putExtra(AfterAlarmBR.KEY_CHORE_CRITICALBACKUPTIME, chore.getCriticalBackupTime());
 
-        PendingIntent afterAlarmPendingIntent = PendingIntent.getBroadcast(context, 0, afterAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
-        setAlarmWIntent(context, localDateTimeAlarm, afterAlarmPendingIntent, true);
+        return afterAlarmIntent;
     }
 
 
