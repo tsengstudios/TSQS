@@ -2,7 +2,7 @@
 <resources>
     <!-- Colors for the Hover menu itself -->
     <color name="hover_navigator_color">#3b3b3b</color>
-    <color name="hover_shade_color">#312B7E70</color>
+    <color name="hover_shade_color">#EAC2C2C2</color>
 
     <!-- Colors for drill-down menus that can appear in Hover's content area -->
     <color name="hover_content_menu_divider_color">#CCCCCC</color>
