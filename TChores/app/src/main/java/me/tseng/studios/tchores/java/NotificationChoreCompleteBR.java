@@ -198,12 +198,13 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 flurr.setChoreBDTime(chore.getBDTime());
 
                 LocalDateTime ldtA = AlarmManagerUtil.localDateTimeFromString(chore.getADTime());
+                LocalDateTime ldtB = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
 
                 Log.d(TAG, "Got Chore: " + choreId +
                         " -  Alarm was at " + ldtA.toString() +
                         " Name=" + chore.getName());
 
-                if (ldtA.isAfter(LocalDateTime.now())) {
+                if (ldtB.isAfter(LocalDateTime.now())) {        // don't care if chore was postponed into the future  So use ldtB, not ldtA
                     // This was already bumped
                     throw new RuntimeException("Weird -- this action is trying to bump the alarm time when it is already in the future." +
                             " -  Alarm was at " + ldtA.toString());
@@ -213,7 +214,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                 // record new alarm times for chore into Firestore
                 if (setNormalRecurrence) {
                     boolean bChangeDTime = true;
-                    LocalDateTime ldtB = AlarmManagerUtil.localDateTimeFromString(chore.getBDTime());
+
 
                     while (ldtB.isBefore(LocalDateTime.now()) && bChangeDTime) {
                         switch (chore.getRecurrenceIntervalAsEnum()) {
