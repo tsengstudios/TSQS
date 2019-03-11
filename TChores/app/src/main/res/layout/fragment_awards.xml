@@ -13,9 +13,10 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerAwards"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:layoutManager="android.support.v7.widget.staggeredGridLayoutManager"
+            android:layout_gravity="center_horizontal"
+            tools:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
             tools:listitem="@layout/item_award"
             tools:orientation="vertical" />
 

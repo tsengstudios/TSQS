@@ -110,4 +110,5 @@
     <string name="sunshine_display_imperfect_day_short">imperf</string>
     <string name="sms_format_string_message">Critical time past for: %1.150s</string>
     <string name="label_sunshine_detail_heading">%s</string>
+    <string name="award_image_here">Award image here.</string>
 </resources>

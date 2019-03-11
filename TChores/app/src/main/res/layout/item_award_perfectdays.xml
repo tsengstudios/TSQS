@@ -23,13 +23,14 @@
 
         <ImageView
             android:id="@+id/awardImage"
-            android:layout_width="119dp"
-            android:layout_height="119dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_centerHorizontal="true"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary"
+            android:backgroundTint="#C3E7F8"
             android:contentDescription="@string/award_image_here"
             android:scaleType="centerCrop"
-            android:src="@drawable/mrb_star_border_icon_black_36dp"
+            android:src="@drawable/ic_wb_sunny_black_24dp"
             android:tint="@color/colorAccent" />
 
         <TextView
@@ -37,26 +38,32 @@
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="false"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="4dp"
-            android:maxLines="2"
+            android:autoText="false"
+            android:maxLines="3"
             android:textAlignment="center"
             android:textColor="@android:color/white"
-            tools:text="Many\nPerfect Days" />
+            android:textSize="18sp"
+            android:typeface="serif"
+            tools:text="Perfect Days" />
 
         <TextView
             android:id="@+id/awardNumber"
             style="@style/AppTheme.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="-2dp"
-            android:layout_marginBottom="4dp"
+            android:layout_alignTop="@+id/awardImage"
+            android:layout_centerInParent="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="67dp"
+            android:layout_marginTop="58dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@android:color/white"
+            android:textSize="24sp"
             tools:text="99" />
 
         <TextView
@@ -64,11 +71,11 @@
             style="@style/AppTheme.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/awardImage"
             android:layout_alignBottom="@+id/awardImage"
-
             android:layout_alignParentBottom="false"
             android:layout_centerInParent="false"
-            android:layout_centerHorizontal="true"
+            android:layout_centerHorizontal="false"
             android:layout_marginTop="-2dp"
             android:ellipsize="end"
             android:maxLines="1"

@@ -41,6 +41,7 @@ import me.tseng.studios.tchores.java.model.Flurr;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
 import me.tseng.studios.tchores.java.util.ChoreUtil;
+import me.tseng.studios.tchores.java.util.SunshineUtil;
 
 import static me.tseng.studios.tchores.java.model.Chore.CHORE_URI_PREFIX;
 
@@ -389,7 +390,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
      */
     private static boolean recordChoreIntoPromisingSunshine(FirebaseFirestore firestore, boolean isProperSunshineFound, QueryDocumentSnapshot document, Flurr flurr) {
 
-        Sunshine sunshine = document.toObject(Sunshine.class);
+        final Sunshine sunshine = document.toObject(Sunshine.class);
         if (isProperSunshineFound) {
             // we already found a proper sunshine this must indicate a duplicate
             // Handle consolidating sunshines in TChoresService  (at less busy time)
@@ -410,7 +411,7 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
             sunshineRef.update(Sunshine.FIELD_CHOREFLSTATE, sunshine.getChoreFlState());
 
             // Check FIELD_AWARDPERFECTDAY here, and when reviewing sunshines
-            sunshine.computePerfectDayAward();
+            final boolean bNewlyAwardedPerfectDay = sunshine.computePerfectDayAward();
             sunshineRef.update(Sunshine.FIELD_AWARDPERFECTDAY, sunshine.getAwardPerfectDay());
 
             sunshine.getChoreFlTimestamp().set(indexFlurr, Timestamp.now());
@@ -420,7 +421,10 @@ public class NotificationChoreCompleteBR extends BroadcastReceiver {
                     public void onSuccess(Void aVoid) {
                         Log.i(TAG, "Success on updating Sunshine");
 
-                        // TODO trigger  compute awards here?
+                        if (bNewlyAwardedPerfectDay) {
+                            TChoresService.enqueueNewPerfectDay(mContext, SunshineUtil.localDateFromString(sunshine.getDay()));
+                        }
+
                     };
                 });
 

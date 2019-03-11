@@ -181,6 +181,10 @@ public class Sunshine {
 
 
     public boolean computePerfectDayAward() {
+        // this method also sets awardPerfectDay property after computation.
+        // return true if there was a change from not perfect to perfect day
+
+        boolean oldAwardPerfectDay = awardPerfectDay;
         boolean bNotComplete = false;
         if (bpreCalced) {
             for (String s : choreFlState) {
@@ -189,15 +193,11 @@ public class Sunshine {
                     break;
                 }
             }
-        }
+            awardPerfectDay = !bNotComplete;
+        } else
+            awardPerfectDay = false;
 
-        awardPerfectDay = !bNotComplete;
-
-        return awardPerfectDay;
-        // was this computation once:
-//        if (!sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_REFUSED_LOCALIZED) &&
-//                !sunshine.getChoreFlState().contains(ChoreDetailActivity.ACTION_SNOOZED_LOCALIZED)) {
-//        }
+        return !oldAwardPerfectDay && awardPerfectDay;  // only true if there was a change to true
     }
 
 

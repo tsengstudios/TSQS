@@ -4,35 +4,35 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.tseng.studios.tchores.R;
-import me.tseng.studios.tchores.java.adapter.AwardsAdapter;
+import me.tseng.studios.tchores.java.adapter.AwardAdapter;
+import me.tseng.studios.tchores.java.model.Award;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.viewmodel.AwardsFragmentViewModel;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AwardsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AwardsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class AwardsFragment extends Fragment implements
-        AwardsAdapter.OnAwardSelectedListener {
+        AwardAdapter.OnAwardSelectedListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -46,7 +46,7 @@ public class AwardsFragment extends Fragment implements
     private OnFragmentInteractionListener mListener;
 
     @BindView(R.id.recyclerAwards)
-    RecyclerView mAwardRecycler;
+    RecyclerView mAwardsRecycler;
 
     private FirebaseFirestore mFirestore;
     private Query mQuery;
@@ -54,7 +54,7 @@ public class AwardsFragment extends Fragment implements
     String mCurrentUserId;
     private AwardsFragmentViewModel mViewModel;
 
-    private AwardsAdapter mAdapter;
+    private AwardAdapter mAdapter;
 
     public AwardsFragment() {
         // Required empty public constructor
@@ -95,20 +95,24 @@ public class AwardsFragment extends Fragment implements
         // Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null)
-            return;
-        mCurrentUserId = user.getUid();
-
-
-        mQuery = mFirestore.collection(Sunshine.COLLECTION_PATHNAME)
-                .whereEqualTo(Sunshine.FIELD_USERID, mCurrentUserId)
-                .whereEqualTo(Sunshine.FIELD_AWARDPERFECTDAY, true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+
+            mCurrentUserId = user.getUid();
+
+            mQuery = mFirestore.collection(Award.COLLECTION_PATHNAME)
+                    .orderBy(Award.FIELD_USERID)
+                    .orderBy(Award.FIELD_SORTINDEX);
+
+        }
+
+
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_awards, container, false);
         ButterKnife.bind(this, rootView);
         //need to specify sources of view
@@ -122,33 +126,23 @@ public class AwardsFragment extends Fragment implements
         }
     }
 
-/*
+
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedBundle) {
+    public void onViewCreated(final View view, @Nullable Bundle savedBundle) {
 
         // RecyclerView
-        mAdapter = new SunshineAdapter(mQuery,this) {
+        mAdapter = new AwardAdapter(mQuery,this) {
             @Override
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
                 final int itemCount = getItemCount();
                 if (itemCount == 0) {
-                    mSunshineRecycler.setVisibility(View.GONE);
+                    mAwardsRecycler.setVisibility(View.GONE);
                 } else {
-                    mSunshineRecycler.setVisibility(View.VISIBLE);
+                    mAwardsRecycler.setVisibility(View.VISIBLE);
 
                     if (selectedPos == RecyclerView.NO_POSITION) {
-                        LocalDate ldToday = LocalDate.now();
-                        for (int i = itemCount - 1; i >= 0; i--) {
-                            DocumentSnapshot snapshot = getSnapshot(i);
-                            LocalDate ld = localDateFromString(snapshot.getString(Sunshine.FIELD_DAY));
-                            if (ldToday.isEqual(ld)) {
-                                // Select today's sunshine once
-                                selectedPos = i;
-                                notifyDataSetChanged();
-                                onSunshineSelected(snapshot.toObject(Sunshine.class));
-                            }
-                        }
+
                     }
                 }
             }
@@ -157,20 +151,16 @@ public class AwardsFragment extends Fragment implements
             protected void onError(FirebaseFirestoreException e) {
                 // Show a snackbar on errors
                 Snackbar.make(getView().findViewById(android.R.id.content),
-                        "SunshineAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+                        "AwardAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
             }
         };
 
-        // Detail RecyclerView
-        mDetailAdapter = new SunshineDetailAdapter(this) {        };
+
+        mAwardsRecycler.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        mAwardsRecycler.setAdapter(mAdapter);
 
 
-        mSunshineRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, true));
-        mSunshineRecycler.setAdapter(mAdapter);
-        mSunshineDetailRecycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        mSunshineDetailRecycler.setAdapter(mDetailAdapter);
-
-    }*/
+    }
 
     @Override
     public void onStart() {
@@ -223,7 +213,8 @@ public class AwardsFragment extends Fragment implements
         void onFragmentInteraction(Uri uri);
     }
 
-    public void onAwardSelected(int x) {
+    public void onAwardSelected(DocumentSnapshot awardSnapshot) {
 
     }
+
 }

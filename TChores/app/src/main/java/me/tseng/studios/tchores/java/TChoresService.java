@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,17 +25,20 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.type.DayOfWeek;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
+import me.tseng.studios.tchores.java.model.Award;
 import me.tseng.studios.tchores.java.model.Chore;
 import me.tseng.studios.tchores.java.model.Sunshine;
 import me.tseng.studios.tchores.java.util.AlarmManagerUtil;
+import me.tseng.studios.tchores.java.util.AwardUtil;
+import me.tseng.studios.tchores.java.util.SunshineUtil;
 
 
 public class TChoresService extends JobIntentService {
@@ -50,6 +54,9 @@ public class TChoresService extends JobIntentService {
     static final int JOB_ID = 888;
     public static final String REVIEW_SUNSHINE_URI = "review:sunshine";
     public static final String RECALC_SUNSHINE_FROM_TODAY_URI = "recalc:sunshinefromtoday";
+    public static final String COMPUTE_AWARDS_URI = "compute:awards";
+    public static final String KEY_PERFECTDAY = "single_perfect_date";
+    public static final String KEY_PERFECTDAYLIST = "list_perfect_dates";
     private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
 
     /**
@@ -81,6 +88,22 @@ public class TChoresService extends JobIntentService {
         enqueueWork(context, intent);
     }
 
+    static void enqueueNewPerfectDay(Context context, LocalDate ld) {
+        Intent intent = new Intent();
+        intent.setData(Uri.parse(COMPUTE_AWARDS_URI));
+        intent.putExtra(KEY_PERFECTDAY, ld.toString());
+        enqueueWork(context, intent);
+    }
+
+    static void enqueueNewPerfectDay(Context context, List<LocalDate> listLD) {
+        listLD.sort(null);  // hope to generate more valid awards starting with oldest perfect days first
+        List<String> listSPD = AwardUtil.getStringsFromLocalDateList(listLD);
+        Intent intent = new Intent();
+        intent.setData(Uri.parse(COMPUTE_AWARDS_URI));
+        intent.putExtra(KEY_PERFECTDAYLIST, listSPD.toArray());
+        enqueueWork(context, intent);
+    }
+
     @Override
     protected void onHandleWork(Intent intent) {
         // We have received work to do.  The system or framework is already
@@ -94,6 +117,16 @@ public class TChoresService extends JobIntentService {
                 reviewSunshines(false);
             } else if (suri.equals(RECALC_SUNSHINE_FROM_TODAY_URI)) {
                 reviewSunshines(true);
+            } else if (suri.equals(COMPUTE_AWARDS_URI)) {
+                String sNewAwardDay = intent.getStringExtra(KEY_PERFECTDAY);
+                LocalDate ldNewAwardDay = SunshineUtil.localDateFromString(sNewAwardDay);
+
+                final String[] stringArrayNewAwardDays = intent.getStringArrayExtra(KEY_PERFECTDAYLIST);
+                List<LocalDate> listNewAwardDayStrings = (stringArrayNewAwardDays == null)
+                        ? null : AwardUtil.getLocalDatesFromStringList(Arrays.asList(stringArrayNewAwardDays));
+
+                handleNewPerfectDay(ldNewAwardDay, listNewAwardDayStrings);
+
             } else
                 throw new UnsupportedOperationException("This intent data work is not supported.");
 
@@ -224,6 +257,9 @@ public class TChoresService extends JobIntentService {
                             List<DocumentSnapshot> listDS2Delete = new ArrayList<>();
                             List<Tuple2<DocumentSnapshot, Sunshine>> listDS2Update = new ArrayList<>();
 
+                            // Sunshines that were newly awarded perfect days can be enqueued for awards.
+                            List<LocalDate> listNewPerfectDays = new ArrayList<>();
+
                             // this for-loop iterates thru the known sunshines
                             for (int i = 0; i < listDS.length; i ++) {
                                 Sunshine sunshine = listDS[i].toObject(Sunshine.class);
@@ -248,12 +284,13 @@ public class TChoresService extends JobIntentService {
 
                                 }
 
+                                boolean bNewlyAwardedPerfectDay = false;
                                 if (!sunshine.getBPreCalced()) {
                                     Sunshine pcSunshine = preCalcSunshine(userId, ldSunshine, qsChores);
 
                                     sunshine = mergeSunshines(pcSunshine, sunshine);
 
-                                    sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
+                                    bNewlyAwardedPerfectDay = sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                     listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
                                 } else {
                                     if (needsRecalcFuture && !ldSunshine.isBefore(LocalDate.now()) ) {
@@ -264,16 +301,19 @@ public class TChoresService extends JobIntentService {
                                             sunshine = preCalcSunshine(userId, ldSunshine, qsChores);  // replace current Sunshine with new precalc one
                                         }
 
-                                        sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
+                                        bNewlyAwardedPerfectDay = sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                         listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
 
                                     } else if (flagMergedIntoThisOne) {
                                         // this merged but not precalced sunshine ref needs updating
-                                        sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
+                                        bNewlyAwardedPerfectDay = sunshine.computePerfectDayAward();  // compute just before listDS2Update.add()
                                         listDS2Update.add(new Tuple2<>(listDS[i], sunshine));
                                     }
                                 }
 
+                                if (bNewlyAwardedPerfectDay) {
+                                    listNewPerfectDays.add(ldSunshine);
+                                }
                             }
 
                             // Delete listDS2Delete
@@ -327,6 +367,9 @@ public class TChoresService extends JobIntentService {
                                         });
 
                             }
+
+                            if (listNewPerfectDays.size() > 0)
+                                enqueueNewPerfectDay(mServiceContext, listNewPerfectDays);
 
                         } else {
                             throw new RuntimeException("Failed Sunshine query.");
@@ -516,6 +559,332 @@ public class TChoresService extends JobIntentService {
     }
 
 
+    // either ldNewAwardDay or listNewAwardDays  is null.  Use the one valid value to actually award with the perfect day
+    private void handleNewPerfectDay(final LocalDate ldNewAwardDay, final List<LocalDate> listNewAwardDays) {
+        FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                user = firebaseAuth.getCurrentUser();   // TODO SECURITY ISSUE: we need to null the global user  if they logout....
+                if(user != null){
+                    FirebaseAuth.getInstance().removeAuthStateListener(this);
+                    //do stuff
+
+                    // Enable Firestore logging
+                    FirebaseFirestore.setLoggingEnabled(true);
+
+                    // Firestore
+                    mFirestore = FirebaseFirestore.getInstance();
+
+                    String mCurrentUserUid = user.getUid();
+                    Log.i(TAG, "Got username: " + mCurrentUserUid);
+
+                    mFirestore.collection(Award.COLLECTION_PATHNAME)
+                            .whereEqualTo(Award.FIELD_USERID, mCurrentUserUid)
+                            .get()
+                            .addOnCompleteListener(getAwardsOnCompleteListener(ldNewAwardDay, listNewAwardDays));
+
+                }else{
+                    // TODO try to find these again after logon?
+                    Log.e(TAG, "TODO try to logon and try to compute awards again");
+
+                }
+            }
+        });
+
+    }
+
+    final OnCompleteListener<QuerySnapshot> getAwardsOnCompleteListener(final LocalDate ldNewAwardDay, final List<LocalDate> listNewAwardDays) {
+        return new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    final QuerySnapshot taskResult = task.getResult();
+
+                    if (listNewAwardDays != null) {
+                        for (LocalDate ld: listNewAwardDays) {
+                            calculateAwardsWithNewPerfectDay(taskResult, ld);
+                        }
+                    } else
+                        calculateAwardsWithNewPerfectDay(taskResult, ldNewAwardDay);
+
+                } else {
+                    Log.e(TAG, "Error getting awards for user.", task.getException());
+                }
+            }
+        };
+    }
+
+    public void calculateAwardsWithNewPerfectDay(final QuerySnapshot taskResult, LocalDate ldNewAwardDay) {
+        LocalDate ldToday = LocalDate.now();
+        if (ldNewAwardDay.isAfter(ldToday)) {
+            //  impossible to be awarded perfect day in the future
+            Log.w(TAG, "Impossible to be awarded perfect day in the future: " + ldNewAwardDay.toString());
+            return;
+        }
+
+        for (final Award.AwardType awardType : Award.AwardType.values()) {
+            Award award;
+            QueryDocumentSnapshot qds = getQDSAwardFromQuerySnapshot(taskResult, awardType);
+            DocumentReference drAward;
+            if (qds == null) {
+                award = createAward(awardType);
+                drAward = mFirestore.collection(Award.COLLECTION_PATHNAME).document();
+            } else {
+                award = qds.toObject(Award.class);
+                drAward = qds.getReference();
+            }
+
+            List<LocalDate> listDays = award.getPerfectLocalDates();
+            if (listDays != null)
+                listDays.sort(null);
+            else
+                listDays = new ArrayList<LocalDate>();
+
+            int max_perfectdays_2keep;
+
+            switch (awardType) {
+                case PERFECTDAYS:
+                    // look at previously recorded days and see if newAwardDay is a change.
+                    max_perfectdays_2keep = 3;
+
+                    if (listDays.size() > 0 && listDays.get(0).isAfter(ldNewAwardDay)) {
+                        // too late to record this perfect day
+                        continue;
+                    } else if (listDays.contains(ldNewAwardDay)) {
+                        // this was already awarded and accounted for
+                        continue;
+                    } else {
+                        listDays.add(ldNewAwardDay);
+                        listDays.sort(null);
+                        while (listDays.size()> max_perfectdays_2keep)
+                            listDays.remove(0);
+
+                        award.setCountRepeats(award.getCountRepeats() + 1);
+                        award.setPerfecLocalDates(listDays);
+
+                        award.setDateLastCounted(ldToday.toString());
+                        if (listDays.size() > 1)
+                            award.setFlagAwarded(true);
+
+                        // save award
+                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Error writing award: " + awardType, e);
+                            }
+                        });
+                    }
+
+                    break;
+                case PERFECTDAY_FIRST:
+                    if (award.getFlagAwarded() == true) {
+                        // all done
+                        continue;
+                    } else {
+                        award.setDateLastCounted(ldToday.toString());
+                        award.setFlagAwarded(true);
+
+                        // save award
+                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Error writing award: " + awardType, e);
+                            }
+                        });
+                    }
+                    break;
+
+                case PERFECTWEEK_FIRST:
+                    if (award.getFlagAwarded() == true)
+                        break;
+                    else {
+                        // just fall thru to PerfectWeeks calculation
+                    }
+
+                case PERFECTWEEKS:
+                    // look at previously recorded days and see if newAwardDay is a change.
+                    max_perfectdays_2keep = 9;
+
+                    if (listDays.size() > 0 && listDays.get(0).isAfter(ldNewAwardDay)) {
+                        // too late to record this perfect day
+                        continue;
+                    } else if (listDays.contains(ldNewAwardDay)) {
+                        // this was already awarded and accounted for
+                        continue;
+                    } else {
+                        listDays.add(ldNewAwardDay);
+                        listDays.sort(null);
+
+                        // find first monday, then look for Tue, Wed, Thu, Fri, Sat, Sun.
+                        // if failed to get that streak, look for out of order expectation
+                        int iSundayOfPerfectWeek = indexSundayOfPerfectWeek(listDays);
+
+                        if (iSundayOfPerfectWeek == 0) {
+                            // not a new perfect week.  But still need to save this new perfect day
+
+                        } else {
+                            // a new perfect week
+                            award.setCountRepeats(award.getCountRepeats() + 1);
+                            award.setFlagAwarded(true);
+                            listDays = listDays.subList(iSundayOfPerfectWeek, listDays.size());  // remove from history so it won't be counted again
+                        }
+
+                        while (listDays.size()> max_perfectdays_2keep)
+                            listDays.remove(0);
+                        award.setPerfecLocalDates(listDays);
+                        award.setDateLastCounted(ldToday.toString());
+
+                        // save award
+                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Error writing award: " + awardType, e);
+                            }
+                        });
+
+                    }
+
+                    break;
+
+                case PERFECTMONTHS:
+                    // look at previously recorded days and see if newAwardDay is a change.
+                    max_perfectdays_2keep = 33;
+
+                    if (listDays.size() > 0 && listDays.get(0).isAfter(ldNewAwardDay)) {
+                        // too late to record this perfect day
+                        continue;
+                    } else if (listDays.contains(ldNewAwardDay)) {
+                        // this was already awarded and accounted for
+                        continue;
+                    } else {
+                        listDays.add(ldNewAwardDay);
+                        listDays.sort(null);
+
+                        // find first of month
+                        // if failed to get that streak, look for out of order expectation
+                        int iLastDayOfPerfectMonth = indexLastDayOfPerfectMonth(listDays);
+
+                        if (iLastDayOfPerfectMonth == 0) {
+                            // not a new perfect month yet.  But still need to save this new perfect day
+
+                        } else {
+                            // a new perfect month
+                            award.setCountRepeats(award.getCountRepeats() + 1);
+                            award.setFlagAwarded(true);
+                            listDays = listDays.subList(iLastDayOfPerfectMonth, listDays.size());  // remove from history so it won't be counted again
+                        }
+
+                        while (listDays.size() > max_perfectdays_2keep)
+                            listDays.remove(0);
+                        award.setPerfecLocalDates(listDays);
+                        award.setDateLastCounted(ldToday.toString());
+
+                        // save award
+                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Error writing award: " + awardType, e);
+                            }
+                        });
+
+                    }
+
+                    break;
+
+                default:
+                    Log.e(TAG, "This AwardType is not supported yet: " + awardType.toString() );
+                    continue;
+            }
+
+        }
+    }
+
+    private QueryDocumentSnapshot getQDSAwardFromQuerySnapshot(QuerySnapshot taskResult, Award.AwardType awardType) {
+        for (QueryDocumentSnapshot qds: taskResult) {
+            if (Award.AwardType.valueOf(qds.getString(Award.FIELD_AWARDTYPE)) == awardType)
+                return qds;
+        }
+        return null;
+    }
+
+    private Award createAward(Award.AwardType awardType) {
+        Award award = new Award(user.getUid(), user.getDisplayName(), awardType);
+
+        switch (awardType) {
+            case PERFECTDAYS:
+            case PERFECTWEEKS:
+            case PERFECTMONTHS:
+            case PERFECTDAY_FIRST:
+            case PERFECTWEEK_FIRST:
+
+
+                break;
+            default:
+                Log.e(TAG, "This AwardType is not supported yet: " + awardType.toString() );
+                return null;
+        }
+
+        return award;
+    }
+
+    private int indexLastDayOfPerfectMonth(List<LocalDate> listDays) {
+        int index = 0;
+        int state = 0;
+        int targetDayOfMonth = 1;
+        while (index < listDays.size()) {
+
+            final LocalDate ld = listDays.get(index);
+            if (ld.getDayOfMonth() == targetDayOfMonth) {
+                state = targetDayOfMonth;
+                targetDayOfMonth++;
+
+                if (state == ld.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth()) {
+                    // found our perfect month!
+                    return index;
+                }
+
+            } else {
+                if (ld.getDayOfMonth() == 1) {
+                    state = 1;
+                    targetDayOfMonth = 2;
+                } else {
+                    state = 0;
+                    targetDayOfMonth = 1;
+                }
+            }
+            index++;
+        }
+        return 0;
+    }
+
+    private int indexSundayOfPerfectWeek(List<LocalDate> listDays) {
+        int index = 0;
+        java.time.DayOfWeek state = null;
+        java.time.DayOfWeek targetDayOfWeek = java.time.DayOfWeek.MONDAY;
+        while (index < listDays.size()) {
+
+            if (listDays.get(index).getDayOfWeek() == targetDayOfWeek) {
+                state = targetDayOfWeek;
+                targetDayOfWeek.plus(1);
+
+                if (state == java.time.DayOfWeek.SUNDAY) {
+                    // found our perfect week!
+                    return index;
+                }
+
+            } else {
+                if (listDays.get(index).getDayOfWeek() == java.time.DayOfWeek.MONDAY) {
+                    state = java.time.DayOfWeek.MONDAY;
+                    targetDayOfWeek = java.time.DayOfWeek.TUESDAY;
+                } else {
+                    state = null;
+                    targetDayOfWeek = java.time.DayOfWeek.MONDAY;
+                }
+            }
+            index++;
+        }
+        return 0;
+    }
 
     final Handler mHandler = new Handler();
 
