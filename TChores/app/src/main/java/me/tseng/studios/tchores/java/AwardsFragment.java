@@ -4,13 +4,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -150,8 +151,7 @@ public class AwardsFragment extends Fragment implements
             @Override
             protected void onError(FirebaseFirestoreException e) {
                 // Show a snackbar on errors
-                Snackbar.make(getView().findViewById(android.R.id.content),
-                        "AwardAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+                toast("AwardAdapter Error: check logs for info.");
             }
         };
 
@@ -216,5 +216,17 @@ public class AwardsFragment extends Fragment implements
     public void onAwardSelected(DocumentSnapshot awardSnapshot) {
 
     }
+
+    final Handler mHandler = new Handler();
+
+    // Helper for showing tests
+    void toast(final CharSequence text) {
+        mHandler.post(new Runnable() {
+            @Override public void run() {
+                Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 
 }

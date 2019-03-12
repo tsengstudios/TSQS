@@ -4,7 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -170,8 +171,7 @@ public class HistoryFragment extends Fragment implements
             @Override
             protected void onError(FirebaseFirestoreException e) {
                 // Show a snackbar on errors
-                Snackbar.make(getView().findViewById(android.R.id.content),
-                        "SunshineAdapter Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+                toast("SunshineAdapter Error: check logs for info.");
             }
         };
 
@@ -258,6 +258,17 @@ public class HistoryFragment extends Fragment implements
         // selected sunshine detail
 
         // nothing to do here
+    }
+
+    final Handler mHandler = new Handler();
+
+    // Helper for showing tests
+    void toast(final CharSequence text) {
+        mHandler.post(new Runnable() {
+            @Override public void run() {
+                Toast.makeText(getContext(), text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 }

@@ -38,16 +38,13 @@
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="false"
             android:layout_centerHorizontal="true"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="4dp"
-            android:autoText="false"
             android:maxLines="3"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:typeface="serif"
             tools:text="Perfect Days" />
 
         <TextView
@@ -56,9 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/awardImage"
-            android:layout_centerInParent="false"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="67dp"
             android:layout_marginTop="58dp"
             android:ellipsize="end"
             android:maxLines="1"
