@@ -43,7 +43,8 @@ public class Award {
         PERFECTDAYS("Perfect Days", R.layout.item_award_perfectdays),
         PERFECTWEEKS("Perfect Weeks", R.layout.item_award),
         PERFECTMONTHS("Perfect Months", R.layout.item_award),
-        //PERFECTDAY_CONTINUOUS("Perfect Days Streak"), PERFECTWEEK_CONTINUOUS("Perfect Weeks Streak"),
+        PERFECTDAY_CONTINUOUS("Perfect Days Streak", R.layout.item_award_streak_perfectday),
+        //PERFECTWEEK_CONTINUOUS("Perfect Weeks Streak"),
         PERFECTDAY_FIRST("1st\nPerfect\nDay", R.layout.item_award_firstperfectday),
         PERFECTWEEK_FIRST("First Perfect Week", R.layout.item_award)
         //, PERFECTMONTH_FIRST("First Perfect Month"),
@@ -170,6 +171,11 @@ public class Award {
         List<String> listSPD = AwardUtil.getStringsFromLocalDateList(perfectDates);
         this.perfectDays = listSPD;
     }
+
+
+    public int getTarget() { return target; }
+
+    public void setTarget(int target) { this.target = target; }
 
 
 }

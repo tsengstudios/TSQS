@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
@@ -125,6 +126,31 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.menu_sign_out:
                 AuthUI.getInstance().signOut(this);
                 startSignIn();
+                break;
+            case R.id.menu_critical_phone_numbers:
+                AlertDialog.Builder alert = new AlertDialog.Builder(this, R.style.AppTheme);
+
+                final EditText edittext = new EditText(this);
+                alert.setMessage(R.string.critical_phone_numbers);
+                alert.setTitle("Enter Your");
+
+                alert.setView(edittext);
+                edittext.setText("+14259859263,+14253123969");
+
+                alert.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //What ever you want to do with the value
+                        String YouEditTextValue = edittext.getText().toString();
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // what ever you want to do with No option.
+                    }
+                });
+
+                alert.show();
                 break;
 
         }

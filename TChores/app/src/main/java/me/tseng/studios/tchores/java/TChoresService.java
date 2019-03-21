@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,7 +58,7 @@ public class TChoresService extends JobIntentService {
     public static final String COMPUTE_AWARDS_URI = "compute:awards";
     public static final String KEY_PERFECTDAY = "single_perfect_date";
     public static final String KEY_PERFECTDAYLIST = "list_perfect_dates";
-    private static final int SUNSHINE_LIMIT = 9;       // look back this many Sunshines
+    private static final int SUNSHINE_LIMIT = 18;       // look back this many Sunshines
 
     /**
      * Convenience methods for enqueuing work in to this service.
@@ -100,7 +101,7 @@ public class TChoresService extends JobIntentService {
         List<String> listSPD = AwardUtil.getStringsFromLocalDateList(listLD);
         Intent intent = new Intent();
         intent.setData(Uri.parse(COMPUTE_AWARDS_URI));
-        intent.putExtra(KEY_PERFECTDAYLIST, listSPD.toArray());
+        intent.putStringArrayListExtra(KEY_PERFECTDAYLIST, (ArrayList<String>) listSPD);
         enqueueWork(context, intent);
     }
 
@@ -121,9 +122,9 @@ public class TChoresService extends JobIntentService {
                 String sNewAwardDay = intent.getStringExtra(KEY_PERFECTDAY);
                 LocalDate ldNewAwardDay = SunshineUtil.localDateFromString(sNewAwardDay);
 
-                final String[] stringArrayNewAwardDays = intent.getStringArrayExtra(KEY_PERFECTDAYLIST);
+                final List<String> stringArrayNewAwardDays = intent.getStringArrayListExtra(KEY_PERFECTDAYLIST);
                 List<LocalDate> listNewAwardDayStrings = (stringArrayNewAwardDays == null)
-                        ? null : AwardUtil.getLocalDatesFromStringList(Arrays.asList(stringArrayNewAwardDays));
+                        ? null : AwardUtil.getLocalDatesFromStringList(stringArrayNewAwardDays);
 
                 handleNewPerfectDay(ldNewAwardDay, listNewAwardDayStrings);
 
@@ -311,9 +312,13 @@ public class TChoresService extends JobIntentService {
                                     }
                                 }
 
-                                if (bNewlyAwardedPerfectDay) {
+//                                if (bNewlyAwardedPerfectDay) {
+//                                    listNewPerfectDays.add(ldSunshine);
+//                                }
+                                if (sunshine.getAwardPerfectDay()) {
                                     listNewPerfectDays.add(ldSunshine);
                                 }
+
                             }
 
                             // Delete listDS2Delete
@@ -593,19 +598,21 @@ public class TChoresService extends JobIntentService {
 
     }
 
-    final OnCompleteListener<QuerySnapshot> getAwardsOnCompleteListener(final LocalDate ldNewAwardDay, final List<LocalDate> listNewAwardDays) {
+    final private OnCompleteListener<QuerySnapshot> getAwardsOnCompleteListener(final LocalDate ldNewAwardDay, final List<LocalDate> listNewAwardDays) {
         return new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     final QuerySnapshot taskResult = task.getResult();
 
+                    Map<Award.AwardType, Tuple2<DocumentReference, Award>> mapAwardTuples = getAwardTuples(taskResult);
+
                     if (listNewAwardDays != null) {
                         for (LocalDate ld: listNewAwardDays) {
-                            calculateAwardsWithNewPerfectDay(taskResult, ld);
+                            calculateAwardsWithNewPerfectDay(mapAwardTuples, ld);
                         }
                     } else
-                        calculateAwardsWithNewPerfectDay(taskResult, ldNewAwardDay);
+                        calculateAwardsWithNewPerfectDay(mapAwardTuples, ldNewAwardDay);
 
                 } else {
                     Log.e(TAG, "Error getting awards for user.", task.getException());
@@ -614,13 +621,8 @@ public class TChoresService extends JobIntentService {
         };
     }
 
-    public void calculateAwardsWithNewPerfectDay(final QuerySnapshot taskResult, LocalDate ldNewAwardDay) {
-        LocalDate ldToday = LocalDate.now();
-        if (ldNewAwardDay.isAfter(ldToday)) {
-            //  impossible to be awarded perfect day in the future
-            Log.w(TAG, "Impossible to be awarded perfect day in the future: " + ldNewAwardDay.toString());
-            return;
-        }
+    private Map<Award.AwardType, Tuple2<DocumentReference, Award>> getAwardTuples(QuerySnapshot taskResult) {
+        Map<Award.AwardType, Tuple2<DocumentReference, Award>> retVal = new HashMap<Award.AwardType, Tuple2<DocumentReference, Award>>();
 
         for (final Award.AwardType awardType : Award.AwardType.values()) {
             Award award;
@@ -633,6 +635,22 @@ public class TChoresService extends JobIntentService {
                 award = qds.toObject(Award.class);
                 drAward = qds.getReference();
             }
+            retVal.put(awardType, new Tuple2<DocumentReference, Award>(drAward, award));
+        }
+
+        return retVal;
+    }
+
+    private void calculateAwardsWithNewPerfectDay(final Map<Award.AwardType, Tuple2<DocumentReference, Award>> mapAwardTuples, LocalDate ldNewAwardDay) {
+        if (ldNewAwardDay.isAfter(LocalDate.now())) {
+            //  impossible to be awarded perfect day in the future
+            Log.w(TAG, "Impossible to be awarded perfect day in the future: " + ldNewAwardDay.toString());
+            return;
+        }
+
+        for (final Award.AwardType awardType : Award.AwardType.values()) {
+            Award award = mapAwardTuples.get(awardType).f2;
+            DocumentReference drAward = mapAwardTuples.get(awardType).f1;
 
             List<LocalDate> listDays = award.getPerfectLocalDates();
             if (listDays != null)
@@ -662,17 +680,10 @@ public class TChoresService extends JobIntentService {
                         award.setCountRepeats(award.getCountRepeats() + 1);
                         award.setPerfecLocalDates(listDays);
 
-                        award.setDateLastCounted(ldToday.toString());
+                        award.setDateLastCounted(ldNewAwardDay.toString());
                         if (listDays.size() > 1)
                             award.setFlagAwarded(true);
 
-                        // save award
-                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Error writing award: " + awardType, e);
-                            }
-                        });
                     }
 
                     break;
@@ -681,16 +692,9 @@ public class TChoresService extends JobIntentService {
                         // all done
                         continue;
                     } else {
-                        award.setDateLastCounted(ldToday.toString());
+                        award.setDateLastCounted(ldNewAwardDay.toString());
                         award.setFlagAwarded(true);
 
-                        // save award
-                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Error writing award: " + awardType, e);
-                            }
-                        });
                     }
                     break;
 
@@ -732,15 +736,7 @@ public class TChoresService extends JobIntentService {
                         while (listDays.size()> max_perfectdays_2keep)
                             listDays.remove(0);
                         award.setPerfecLocalDates(listDays);
-                        award.setDateLastCounted(ldToday.toString());
-
-                        // save award
-                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Error writing award: " + awardType, e);
-                            }
-                        });
+                        award.setDateLastCounted(ldNewAwardDay.toString());
 
                     }
 
@@ -777,17 +773,108 @@ public class TChoresService extends JobIntentService {
                         while (listDays.size() > max_perfectdays_2keep)
                             listDays.remove(0);
                         award.setPerfecLocalDates(listDays);
-                        award.setDateLastCounted(ldToday.toString());
-
-                        // save award
-                        drAward.set(award).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Error writing award: " + awardType, e);
-                            }
-                        });
+                        award.setDateLastCounted(ldNewAwardDay.toString());
 
                     }
+
+                    break;
+                case PERFECTDAY_CONTINUOUS:
+                    // look at previously recorded days and see if newAwardDay is a change.
+                    max_perfectdays_2keep = 2;
+                    final int MIN_TRAIN_STREAK_AWARD_COUNT = 4;
+
+                    if (listDays.size() == 0) {
+                        //this is the very first perfect day
+                        listDays.add(ldNewAwardDay);
+                        award.setDateLastCounted(ldNewAwardDay.toString());
+                        award.setCountRepeats(1);
+
+                    } else if (listDays.get(0).isAfter(ldNewAwardDay)) {
+                        // too late to record this perfect day
+                        continue;
+
+                    } else if (listDays.contains(ldNewAwardDay)) {
+                        // this was already awarded and accounted for
+                        continue;
+
+                    } else if (listDays.size() == 1) {
+                        // the new award day must be the next consecutive day
+
+                        LocalDate ldA = listDays.get(0);
+                        if (ldA.plusDays(1).isEqual(ldNewAwardDay)) {
+                            listDays.clear();
+                            listDays.add(ldNewAwardDay);
+
+                            final int countRepeats = award.getCountRepeats() + 1;
+                            award.setCountRepeats(countRepeats);
+
+                            int countRecordStreak = award.getTarget();
+                            if (countRepeats > countRecordStreak) {
+                                award.setDateLastCounted(ldNewAwardDay.toString());
+                                award.setTarget(countRepeats);
+                            }
+
+                            if (countRepeats >= MIN_TRAIN_STREAK_AWARD_COUNT)
+                                award.setFlagAwarded(true);
+
+                        } else if (ldA.plusDays(2).isEqual(ldNewAwardDay)) {
+                            // we can wait for middle day to finish within 24 hours of the next day becoming perfect
+                            listDays.add(ldNewAwardDay);
+
+                        } else {
+                            // start over countRepeats
+                            listDays.clear();
+                            listDays.add(ldNewAwardDay);
+                            award.setCountRepeats(1);
+                        }
+
+                    } else if (listDays.size() == 2) {
+                        // expect 4 possible scenarios: a1) the middle date, a2) starting a new streak of 2,
+                        // b) one day after last recorded PerfectDay, c) more than one day after the last recorded PerfectDay
+
+                        LocalDate ldLast = listDays.get(1);
+                        if (ldLast.minusDays(1).isEqual(ldNewAwardDay)) {
+                            if (listDays.get(0).plusDays(1).isEqual(ldNewAwardDay)) {
+                                // Yay, middle date filled
+                                listDays.clear();
+                                listDays.add(ldLast);
+
+                                final int countRepeats = award.getCountRepeats() + 2;
+                                award.setCountRepeats(countRepeats);
+
+                                int countRecordStreak = award.getTarget();
+                                if (countRepeats > countRecordStreak) {
+                                    award.setDateLastCounted(ldLast.toString());
+                                    award.setTarget(countRepeats);
+                                }
+
+                                if (countRepeats >= MIN_TRAIN_STREAK_AWARD_COUNT)
+                                    award.setFlagAwarded(true);
+                            } else {
+                                // the start of a new streak of 2
+                                listDays.clear();
+                                listDays.add(ldLast);
+                                award.setCountRepeats(2);
+                            }
+
+                        } else if (ldLast.plusDays(1).isEqual(ldNewAwardDay)) {
+                            // the start of a new streak of 2
+                            listDays.clear();
+                            listDays.add(ldNewAwardDay);
+                            award.setCountRepeats(2);
+
+                        } else {
+                            // removes old streak possibility, allow for new middle day to be filled
+                            listDays.add(ldNewAwardDay);
+                            listDays.remove(0);
+                            award.setCountRepeats(1);
+                        }
+
+                    } else {
+                        Log.e(TAG, "Unexpected size of listdays in PERFECTDAY_CONTINUOUS");
+                    }
+
+                    award.setPerfecLocalDates(listDays);
 
                     break;
 
@@ -795,6 +882,14 @@ public class TChoresService extends JobIntentService {
                     Log.e(TAG, "This AwardType is not supported yet: " + awardType.toString() );
                     continue;
             }
+
+            // save award
+            drAward.set(award).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Error writing award: " + awardType, e);
+                }
+            });
 
         }
     }
@@ -816,6 +911,7 @@ public class TChoresService extends JobIntentService {
             case PERFECTMONTHS:
             case PERFECTDAY_FIRST:
             case PERFECTWEEK_FIRST:
+            case PERFECTDAY_CONTINUOUS:
 
 
                 break;
@@ -865,7 +961,7 @@ public class TChoresService extends JobIntentService {
 
             if (listDays.get(index).getDayOfWeek() == targetDayOfWeek) {
                 state = targetDayOfWeek;
-                targetDayOfWeek.plus(1);
+                targetDayOfWeek = targetDayOfWeek.plus(1);
 
                 if (state == java.time.DayOfWeek.SUNDAY) {
                     // found our perfect week!

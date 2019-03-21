@@ -80,6 +80,10 @@ public class AwardAdapter extends FirestoreAdapter<AwardAdapter.ViewHolder> {
         @BindView(R.id.awardDate)
         TextView awardDateTextView;
 
+        @BindView(R.id.awardTargetNumber)
+        TextView targetNumberTextView;
+
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -96,7 +100,7 @@ public class AwardAdapter extends FirestoreAdapter<AwardAdapter.ViewHolder> {
                 itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
             } else {
                 itemView.setVisibility(View.VISIBLE);
-                itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                itemView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
                 titleView.setText(award.getAwardTypeAsEnum().getTitle1());
                 usernameView.setText(award.getUsername());
@@ -104,6 +108,10 @@ public class AwardAdapter extends FirestoreAdapter<AwardAdapter.ViewHolder> {
                 String sCountRepeats = (countRepeats < 2) ? "" : String.valueOf(countRepeats);
                 numberView.setText(sCountRepeats);
                 awardDateTextView.setText(LocalDate.parse(award.getDateLastCounted()).format(DateTimeFormatter.ofPattern("yy/MM/dd")));
+
+                int targetNumber = award.getTarget();
+                String sTargetNumber = (targetNumber < 2) ? "" : String.valueOf(targetNumber);
+                targetNumberTextView.setText(sTargetNumber);
 
                 // Click listener
                 itemView.setOnClickListener(new View.OnClickListener() {

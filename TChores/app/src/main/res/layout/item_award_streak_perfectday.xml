@@ -23,13 +23,15 @@
 
         <ImageView
             android:id="@+id/awardImage"
-            android:layout_width="119dp"
-            android:layout_height="119dp"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
             android:layout_centerHorizontal="true"
-            android:background="@color/colorPrimaryDark"
+            android:background="@drawable/noun_train_80096"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTintMode="multiply"
             android:contentDescription="@string/award_image_here"
-            android:scaleType="centerCrop"
-            android:src="@drawable/mrb_star_border_icon_black_36dp"
+            android:scaleType="centerInside"
+            android:textAlignment="viewStart"
             android:tint="@color/colorAccent" />
 
         <TextView
@@ -37,26 +39,30 @@
             style="@style/AppTheme.Subheader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_alignStart="@+id/awardImage"
+            android:layout_centerHorizontal="false"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="4dp"
-            android:maxLines="2"
-            android:textAlignment="center"
+            android:maxLines="3"
+            android:textAlignment="textStart"
             android:textColor="@android:color/white"
-            tools:text="Many\nPerfect Days" />
+            android:textSize="18sp"
+            tools:text="Train of\nPerfect Days" />
 
         <TextView
             android:id="@+id/awardNumber"
             style="@style/AppTheme.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="-2dp"
-            android:layout_marginBottom="4dp"
+            android:layout_alignTop="@+id/awardImage"
+            android:layout_alignEnd="@+id/awardImage"
+            android:layout_centerHorizontal="false"
+            android:layout_marginTop="53dp"
+            android:layout_marginEnd="17dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@android:color/white"
+            android:textSize="24sp"
             tools:text="99" />
 
         <TextView
@@ -64,11 +70,11 @@
             style="@style/AppTheme.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/awardImage"
             android:layout_alignBottom="@+id/awardImage"
-
             android:layout_alignParentBottom="false"
             android:layout_centerInParent="false"
-            android:layout_centerHorizontal="true"
+            android:layout_centerHorizontal="false"
             android:layout_marginTop="-2dp"
             android:ellipsize="end"
             android:maxLines="1"
@@ -80,17 +86,14 @@
             style="@style/AppTheme.Body2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/awardImage"
-            android:layout_alignBottom="@+id/awardImage"
+            android:layout_below="@+id/textView2"
+            android:layout_alignEnd="@+id/textView2"
             android:layout_alignParentBottom="false"
-            android:layout_centerInParent="false"
-            android:layout_centerHorizontal="false"
-            android:layout_marginTop="-2dp"
-            android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@android:color/white"
-            tools:text="12/30/18"
-            android:visibility="gone"/>
+            android:textColor="@color/fui_bgAnonymous"
+            android:textSize="8sp"
+            android:visibility="visible"
+            tools:text="12/30/18" />
 
         <TextView
             android:id="@+id/awardTargetNumber"
@@ -100,14 +103,23 @@
             android:layout_alignTop="@+id/awardImage"
             android:layout_alignEnd="@+id/awardImage"
             android:layout_centerHorizontal="false"
-            android:layout_marginTop="105dp"
-            android:layout_marginEnd="21dp"
+            android:layout_marginTop="98dp"
+            android:layout_marginEnd="18dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@android:color/white"
+            android:textColor="@color/fui_bgAnonymous"
             android:textSize="12sp"
-            android:visibility="gone"
             tools:text="99" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/awardTargetNumber"
+            android:layout_alignEnd="@+id/awardTargetNumber"
+            android:text="longest train"
+            android:textColor="@color/fui_bgAnonymous"
+            android:textSize="8sp" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

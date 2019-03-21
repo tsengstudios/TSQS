@@ -32,6 +32,7 @@
     <string name="open_chat_head">Open Chat Head</string>
     <string name="review_sunshines">Review Sunshines</string>
     <string name="sign_out">Sign Out</string>
+    <string name="critical_phone_numbers">Cell numbers to Text when Critical</string>
     <string name="divider_bullet">•</string>
     <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
